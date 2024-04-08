@@ -1,7 +1,7 @@
 *.pyc
 
 ### Environment ###
-pyEnviorment
+env/
 
 ### Static Files ###
 static/
