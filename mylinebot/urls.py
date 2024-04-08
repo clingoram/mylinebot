@@ -16,10 +16,16 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from django.urls import re_path
-from user import views
+# from django.urls import re_path
+# from user import views
+from weather import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    re_path('callback', views.callback),
+    # line bot
+    # re_path('callback', views.callback),
+    # test api.
+    path('', views.weatherAPI, name = "weatherAPI"),
+    path('callback',views.callbackLine, name = "callbackLine")
+    # path('',views.handle_messages)
 ]
