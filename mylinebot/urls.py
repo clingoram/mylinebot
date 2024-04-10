@@ -19,14 +19,16 @@ from django.urls import path
 from django.urls import re_path
 # from user import views
 from weather import views
+# from weather.views import Weather
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     # line bot
     # re_path('callback', views.callback),
-    # test api.
-    # path('', views.weatherAPI, name = "weatherAPI"),
+    path('', views.weatherAPI, name = "weatherAPI"),
+    # path('', Weather.weatherAPI,str),
+
     # re_path('callback',views.callbackLine, name = "callbackLine")
-    path('callback',views.handle_message, name = "handle_message")
+    # path('callback',views.handle_message, name = "handle_message")
     # path('',views.handle_messages)
 ]
