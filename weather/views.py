@@ -1,4 +1,5 @@
 # from sys import exception
+from logging import basicConfig
 from urllib import request
 from django.shortcuts import render
 
@@ -73,42 +74,111 @@ def weatherAPI(location:str):
       location = input('Enter query location: ')
 
       cityList = ["宜蘭縣","花蓮縣", "臺東縣", "澎湖縣", "金門縣", "連江縣", "臺北市", "新北市", "桃園市", "臺中市", "臺南市", "高雄市", "基隆市", "新竹縣", "新竹市", "苗栗縣", "彰化縣", "南投縣", "雲林縣", "嘉義縣", "嘉義市", "屏東縣"]
-      sililarCityList = ["嘉義縣", "嘉義市","新竹縣", "新竹市"]
+      # sililarCityList = ["嘉義縣", "嘉義市","新竹縣", "新竹市"]
 
-      # 替換簡體字
-      # 若location非none且location中有"台"字
-      if "台" in location and location is not None:
-        location = location.replace("台", "臺")
+      if location != "":
+        # 替換簡體字
+        # 若location非none且location中有"台"字
+        if "台" in location:
+          location = location.replace("台", "臺")
 
-      try:
-        if any(location in s for s in sililarCityList):
-          print("想搜尋" + location[:2] + "市或" + location[:2] + "縣?")
-      except:
-        print("請搜尋")
-      # 若location在cityList中有出現
-      location = "".join(s for s in cityList if location in s)
+        # 若location在cityList中有出現
+        # location = "".join(s for s in cityList if location in s)
+        for s in range(len(cityList)):
+          try:
+            if location == cityList[s]:
+            # Exact match
+              location = cityList[s]
+              # break
 
+            if location in cityList[s]:
+            # Partial match
+              location = cityList[s]
+              # break
+            # else:
+            #   print(location+"不在可搜尋範圍內。")
+            #   break
 
-      url = 'https://opendata.cwa.gov.tw/api/v1/rest/datastore/F-C0032-001?Authorization='
-      response = requests.get(url + weather_api + '&locationName=' + location)
+            # if re.fullmatch(location,cityList[s]) == None:
+            #   raise
+            # print(cityList[s])
 
-      # print(location.encode('utf-8').decode('unicode-escape'))
-      # print(location.encode('ascii').decode('unicode-escape'))
+          except Exception:
+            print(location+"不在可搜尋範圍內!!!!")
+            break
+              # pass
 
-      response.raise_for_status()
-      if response.status_code != 204 and response.headers["content-type"].strip().startswith("application/json"):
-        data = response.json()
-        print(data['records']['location'])
+        # if re.fullmatch(location,cityList[s]) == None:
+        #   print("想搜尋" + location[:2] + "市或" + location[:2] + "縣?")
+        
+        # for s in sililarCityList:
+        #   # re.fullmatch(location,s) or 
+        #   if location[:2].startswith(s[:2]):
+        #     print("想搜尋" + s[:2] + "市或" + s[:2] + "縣?")
 
-        for i in data['records']['location']:
-          for key in i['weatherElement']:
-            print(key)
-           
-        # for key,value in data.items():
-          # print(key,value)
-          # return key
+          # if any(location in s for s in sililarCityList):
+          #   print("想搜尋" + location[:2] + "市或" + location[:2] + "縣?")
+        url = 'https://opendata.cwa.gov.tw/api/v1/rest/datastore/F-C0032-001?Authorization='
+        response = requests.get(url + weather_api + '&locationName=' + location)
 
-        return HttpResponse(location)
+        # print(location.encode('utf-8').decode('unicode-escape'))
+        # print(location.encode('ascii').decode('unicode-escape'))
+
+        response.raise_for_status()
+        if response.status_code != 204 and response.headers["content-type"].strip().startswith("application/json"):
+          data = response.json()
+          dataDictList = []
+          for place in data["records"]["location"]:  
+            weatherDictList = []
+            weatherEle = place['weatherElement']
+            for w in weatherEle:
+              timeDicts = w["time"]
+
+              if w['elementName'] == "MinT":
+              # 最低溫
+                for timeDict in timeDicts:
+                  weatherDictList.append({
+                    "startTime": timeDict["startTime"],
+                    "endTime": timeDict["endTime"],
+                    "value": "最低溫 攝氏"+ timeDict['parameter']['parameterName']+"度" #+timeDict['parameter']['parameterUnit']
+                  })
+                  # print(timeDict["startTime"], timeDict["endTime"],timeDict['parameter']['parameterName']+timeDict['parameter']['parameterUnit'])
+
+              if w['elementName'] == "MaxT":
+                # 最高溫
+                for timeDict in timeDicts:
+                  weatherDictList.append({
+                    "startTime": timeDict["startTime"],
+                    "endTime": timeDict["endTime"],
+                    "value": "最高溫 攝氏"+ timeDict['parameter']['parameterName']+"度"#+timeDict['parameter']['parameterUnit']
+                  })
+                  # print(timeDict["startTime"], timeDict["endTime"],timeDict['parameter']['parameterName']+timeDict['parameter']['parameterUnit'])
+
+              if w['elementName'] == "Wx":
+                # 天氣描述
+                for timeDict in timeDicts:
+                  weatherDictList.append({
+                    "startTime": timeDict["startTime"],
+                    "endTime": timeDict["endTime"],
+                    "value": timeDict['parameter']['parameterName']
+                  })
+                  # print(timeDict["startTime"], timeDict["endTime"],timeDict['parameter']['parameterName'])
+              if w['elementName'] == "PoP":
+                # 降雨機率
+                for timeDict in timeDicts:
+                  weatherDictList.append({
+                    "startTime": timeDict["startTime"],
+                    "endTime": timeDict["endTime"],
+                    "value": timeDict['parameter']['parameterName']+"%"
+                  })
+                  # print(timeDict["startTime"], timeDict["endTime"],timeDict['parameter']['parameterName'],timeDict['parameter']['parameterUnit'])
+            tempDict = {
+              "locationName": place["locationName"],
+              "weatherDictList": weatherDictList
+            } 
+            dataDictList.append(tempDict) 
+          print(dataDictList)
+          return HttpResponse(location)
       pass
 
   # @handler.add(MessageEvent, message=TextMessage)
