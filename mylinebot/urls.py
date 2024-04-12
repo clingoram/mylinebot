@@ -25,10 +25,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     # line bot
     # re_path('callback', views.callback),
-    path('', views.weatherAPI, name = "weatherAPI"),
-    # path('', Weather.weatherAPI,str),
+    # path('', views.weatherAPI, name = "weatherAPI"),
 
     # re_path('callback',views.callbackLine, name = "callbackLine")
-    # path('callback',views.handle_message, name = "handle_message")
-    # path('',views.handle_messages)
+    re_path('callback',views.handle_message, name = "handle_message")
 ]

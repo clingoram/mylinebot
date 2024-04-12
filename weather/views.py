@@ -12,6 +12,7 @@ import base64
 import hashlib
 import hmac
 import re
+import numpy as np
 
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden
@@ -21,7 +22,7 @@ from django.views.decorators.csrf import csrf_exempt
 from linebot import LineBotApi
 from linebot.webhook import WebhookParser,WebhookHandler
 from linebot.exceptions import InvalidSignatureError, LineBotApiError
-from linebot.models import MessageEvent, TextSendMessage,TextMessage
+from linebot.models import MessageEvent, TextSendMessage,TextMessage,FlexSendMessage
 '''
 MessageEvent (信息事件)FollowEvent (加好友事件)、UnfollowEvent (刪好友事件)、JoinEvent (加入聊天室事件)、LeaveEvent (離開聊天室事件)、MemberJoinedEvent (加入群組事件)、MemberLeftEvent (離開群組事件)
 '''
@@ -71,7 +72,7 @@ def weatherAPI(location:str):
       3.若無城市名稱，預設為全部縣市
       '''
       # if request.method == "GET":
-      location = input('Enter query location: ')
+      # location = input('Enter query location: ')
 
       cityList = ["宜蘭縣","花蓮縣", "臺東縣", "澎湖縣", "金門縣", "連江縣", "臺北市", "新北市", "桃園市", "臺中市", "臺南市", "高雄市", "基隆市", "新竹縣", "新竹市", "苗栗縣", "彰化縣", "南投縣", "雲林縣", "嘉義縣", "嘉義市", "屏東縣"]
       # sililarCityList = ["嘉義縣", "嘉義市","新竹縣", "新竹市"]
@@ -124,19 +125,26 @@ def weatherAPI(location:str):
         # print(location.encode('utf-8').decode('unicode-escape'))
         # print(location.encode('ascii').decode('unicode-escape'))
 
+        # result = ""
         response.raise_for_status()
         if response.status_code != 204 and response.headers["content-type"].strip().startswith("application/json"):
           data = response.json()
+
+          # array = np.array('i',data)
+          # arr_json = json.dumps({'nums': array.tolist()})
+          # print(arr_json)
+
           dataDictList = []
           for place in data["records"]["location"]:  
             weatherDictList = []
-            weatherEle = place['weatherElement']
-            for w in weatherEle:
-              timeDicts = w["time"]
+            # result = place['locationName']
+
+            for w in place['weatherElement']:
+              # timeDicts = w["time"]
 
               if w['elementName'] == "MinT":
               # 最低溫
-                for timeDict in timeDicts:
+                for timeDict in w["time"]:
                   weatherDictList.append({
                     "startTime": timeDict["startTime"],
                     "endTime": timeDict["endTime"],
@@ -146,7 +154,7 @@ def weatherAPI(location:str):
 
               if w['elementName'] == "MaxT":
                 # 最高溫
-                for timeDict in timeDicts:
+                for timeDict in w["time"]:
                   weatherDictList.append({
                     "startTime": timeDict["startTime"],
                     "endTime": timeDict["endTime"],
@@ -156,7 +164,7 @@ def weatherAPI(location:str):
 
               if w['elementName'] == "Wx":
                 # 天氣描述
-                for timeDict in timeDicts:
+                for timeDict in w["time"]:
                   weatherDictList.append({
                     "startTime": timeDict["startTime"],
                     "endTime": timeDict["endTime"],
@@ -165,7 +173,7 @@ def weatherAPI(location:str):
                   # print(timeDict["startTime"], timeDict["endTime"],timeDict['parameter']['parameterName'])
               if w['elementName'] == "PoP":
                 # 降雨機率
-                for timeDict in timeDicts:
+                for timeDict in w["time"]:
                   weatherDictList.append({
                     "startTime": timeDict["startTime"],
                     "endTime": timeDict["endTime"],
@@ -177,12 +185,15 @@ def weatherAPI(location:str):
               "weatherDictList": weatherDictList
             } 
             dataDictList.append(tempDict) 
-          print(dataDictList)
+          # print(dataDictList)
+          return dataDictList
+
           return HttpResponse(location)
       pass
 
   # @handler.add(MessageEvent, message=TextMessage)
 @csrf_exempt
+# @handler.add(MessageEvent, message=TextMessage)
 def handle_message(request):
     if request.method == "POST":
       signature = request.META['HTTP_X_LINE_SIGNATURE']
@@ -202,17 +213,52 @@ def handle_message(request):
       for i in handleEvent:
         # 如果有事件
         if isinstance(i,MessageEvent):
+            
           # if i.message.text == "功能列表":
           #   # 回復「功能列表」按鈕樣板訊息
           #   line_bot_api.reply_message(i.reply_token,Featuresmodel().content())
 
-          if i.message.text == "天氣":
+          # if i.message.text == "天氣":
             weatherResult = weatherAPI(i.message.text)
-            # for key,value in weatherResult.items():
-            #   # print(key,value)
+            dump = json.dumps(weatherResult).encode('utf-8').decode('unicode-escape')
+            # print(type(dump))
+
+            # flex = FlexSendMessage(alt_text=dump,contents={
+            #     "type": "flex",
+            #     "altText": "this is a flex message",
+            #     "contents": {
+            #       "type": "bubble",
+            #       "body": {
+            #         "type": "box",
+            #         "layout": "vertical",
+            #         "contents": [
+            #           {
+            #             "type": "text",
+            #             "text": "hello"
+            #           },
+            #           {
+            #             "type": "text",
+            #             "text": "world"
+            #           }
+            #         ]
+            #       }
+            #     }
+            # })
+            line_bot_api.reply_message(i.reply_token,TextSendMessage(text=dump))
+
+
+            # for key in weatherResult:
+            #   # print(key)
+            #   for ele in key['weatherDictList']:
+            #     start = ele['startTime']
+            #     end = ele['endTime']
+            #     v = ele['value']
+
+                # line_bot_api.reply_message(i.reply_token,TextSendMessage(text=ele['value']))
+
 
             # line_bot_api.reply_message(i.reply_token,TextSendMessage(text=i.message.text))
-            line_bot_api.reply_message(i.reply_token,TextSendMessage(text=weatherResult))
+            # line_bot_api.reply_message(i.reply_token,TextSendMessage(text=weatherResult))
 
       return HttpResponse()
     else:
