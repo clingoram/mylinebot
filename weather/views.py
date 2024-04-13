@@ -22,7 +22,7 @@ from django.views.decorators.csrf import csrf_exempt
 from linebot import LineBotApi
 from linebot.webhook import WebhookParser,WebhookHandler
 from linebot.exceptions import InvalidSignatureError, LineBotApiError
-from linebot.models import MessageEvent, TextSendMessage,TextMessage,FlexSendMessage
+from linebot.models import MessageEvent, TextSendMessage,TextMessage #,FlexSendMessage
 '''
 MessageEvent (信息事件)FollowEvent (加好友事件)、UnfollowEvent (刪好友事件)、JoinEvent (加入聊天室事件)、LeaveEvent (離開聊天室事件)、MemberJoinedEvent (加入群組事件)、MemberLeftEvent (離開群組事件)
 '''
@@ -137,29 +137,56 @@ def weatherAPI(location:str):
           dataDictList = []
           for place in data["records"]["location"]:  
             weatherDictList = []
+            temperatureDictList = []
+            popDictList = []
             # result = place['locationName']
 
             for w in place['weatherElement']:
               # timeDicts = w["time"]
-
+              minT = 0
+              maxT = 0
               if w['elementName'] == "MinT":
               # 最低溫
                 for timeDict in w["time"]:
-                  weatherDictList.append({
-                    "startTime": timeDict["startTime"],
-                    "endTime": timeDict["endTime"],
-                    "value": "最低溫 攝氏"+ timeDict['parameter']['parameterName']+"度" #+timeDict['parameter']['parameterUnit']
-                  })
+                  # temperatureDictList.append({
+                  #   "startTime": timeDict["startTime"],
+                  #   "endTime": timeDict["endTime"],
+                  #   "value": "攝氏"+ timeDict['parameter']['parameterName']+"度" #+timeDict['parameter']['parameterUnit']
+                  # })
+                  if timeDict['parameter']['parameterName'] == 0:
+                    pass
+                  else:
+                    minT = timeDict['parameter']['parameterName']
+                  # minT = timeDict['parameter']['parameterName'] if timeDict['parameter']['parameterName'] != 0 else None
                   # print(timeDict["startTime"], timeDict["endTime"],timeDict['parameter']['parameterName']+timeDict['parameter']['parameterUnit'])
 
               if w['elementName'] == "MaxT":
                 # 最高溫
                 for timeDict in w["time"]:
-                  weatherDictList.append({
+                  # temperatureDictList.append({
+                  #   "startTime": timeDict["startTime"],
+                  #   "endTime": timeDict["endTime"],
+                  #   "value": "攝氏"+ timeDict['parameter']['parameterName']+"度"#+timeDict['parameter']['parameterUnit']
+                  # })
+                  if timeDict['parameter']['parameterName'] == 0:
+                    # print(timeDict['parameter']['parameterName'])
+                    pass
+                  else:
+                    maxT = timeDict['parameter']['parameterName']
+                  # maxT = timeDict['parameter']['parameterName'] if timeDict['parameter']['parameterName'] != 0 else None
+
+              if maxT != 0 and minT != 0:
+                # print(minT)
+                # print(maxT)
+                # minT = minT if minT != 0 else minT
+                # maxT = maxT if maxT != 0 else maxT
+                for timeDict in w["time"]:
+                  temperatureDictList.append({
                     "startTime": timeDict["startTime"],
                     "endTime": timeDict["endTime"],
-                    "value": "最高溫 攝氏"+ timeDict['parameter']['parameterName']+"度"#+timeDict['parameter']['parameterUnit']
+                    "value": "攝氏"+ str(minT) +"~" + str(maxT) + "度"
                   })
+  
                   # print(timeDict["startTime"], timeDict["endTime"],timeDict['parameter']['parameterName']+timeDict['parameter']['parameterUnit'])
 
               if w['elementName'] == "Wx":
@@ -174,7 +201,7 @@ def weatherAPI(location:str):
               if w['elementName'] == "PoP":
                 # 降雨機率
                 for timeDict in w["time"]:
-                  weatherDictList.append({
+                  popDictList.append({
                     "startTime": timeDict["startTime"],
                     "endTime": timeDict["endTime"],
                     "value": timeDict['parameter']['parameterName']+"%"
@@ -182,18 +209,19 @@ def weatherAPI(location:str):
                   # print(timeDict["startTime"], timeDict["endTime"],timeDict['parameter']['parameterName'],timeDict['parameter']['parameterUnit'])
             tempDict = {
               "locationName": place["locationName"],
-              "weatherDictList": weatherDictList
+              "weatherDictList": weatherDictList,
+              "temperatureDictList": temperatureDictList,
+              "popDictList":popDictList
             } 
             dataDictList.append(tempDict) 
           # print(dataDictList)
           return dataDictList
 
-          return HttpResponse(location)
+          # return HttpResponse(location)
       pass
 
-  # @handler.add(MessageEvent, message=TextMessage)
-@csrf_exempt
 # @handler.add(MessageEvent, message=TextMessage)
+@csrf_exempt
 def handle_message(request):
     if request.method == "POST":
       signature = request.META['HTTP_X_LINE_SIGNATURE']
@@ -217,48 +245,34 @@ def handle_message(request):
           # if i.message.text == "功能列表":
           #   # 回復「功能列表」按鈕樣板訊息
           #   line_bot_api.reply_message(i.reply_token,Featuresmodel().content())
+          if i.message.text[-1] == "市" or i.message.text[-1] == "縣":
+              weatherResult = weatherAPI(i.message.text)
+              # dump = json.dumps(weatherResult).encode('utf-8').decode('unicode-escape')
+              # print(type(dump))
+              # line_bot_api.reply_message(i.reply_token,TextSendMessage(text=dump))
 
-          # if i.message.text == "天氣":
-            weatherResult = weatherAPI(i.message.text)
-            dump = json.dumps(weatherResult).encode('utf-8').decode('unicode-escape')
-            # print(type(dump))
+              for key in weatherResult:
+                name = key['locationName']
+                combineResult = ""
+                temperature = ""
+                rain = ""
 
-            # flex = FlexSendMessage(alt_text=dump,contents={
-            #     "type": "flex",
-            #     "altText": "this is a flex message",
-            #     "contents": {
-            #       "type": "bubble",
-            #       "body": {
-            #         "type": "box",
-            #         "layout": "vertical",
-            #         "contents": [
-            #           {
-            #             "type": "text",
-            #             "text": "hello"
-            #           },
-            #           {
-            #             "type": "text",
-            #             "text": "world"
-            #           }
-            #         ]
-            #       }
-            #     }
-            # })
-            line_bot_api.reply_message(i.reply_token,TextSendMessage(text=dump))
+                for ele in key['weatherDictList']:
+                  start = ele['startTime']
+                  end = ele['endTime']
+                  v = ele['value']
+
+                for ele in key['temperatureDictList']:
+                  temperature = ele['value']
+
+                for ele in key['popDictList']:
+                  rain = ele['value']
+                combineResult = name +": \n"+ start +"~"+ end +"\n"+ v+ "\n" + "溫度: "+temperature +"\n"+ "降雨機率: " + rain
+                line_bot_api.reply_message(i.reply_token,TextSendMessage(text = combineResult))
+
+              # line_bot_api.reply_message(i.reply_token,TextSendMessage(text=i.message.text))
 
 
-            # for key in weatherResult:
-            #   # print(key)
-            #   for ele in key['weatherDictList']:
-            #     start = ele['startTime']
-            #     end = ele['endTime']
-            #     v = ele['value']
-
-                # line_bot_api.reply_message(i.reply_token,TextSendMessage(text=ele['value']))
-
-
-            # line_bot_api.reply_message(i.reply_token,TextSendMessage(text=i.message.text))
-            # line_bot_api.reply_message(i.reply_token,TextSendMessage(text=weatherResult))
 
       return HttpResponse()
     else:
