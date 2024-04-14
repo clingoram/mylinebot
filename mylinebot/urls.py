@@ -28,5 +28,5 @@ urlpatterns = [
     # path('', views.weatherAPI, name = "weatherAPI"),
 
     # re_path('callback',views.callbackLine, name = "callbackLine")
-    re_path('callback',views.handle_message, name = "handle_message")
+    path('callback',views.handle_message, name = "handle_message")
 ]
