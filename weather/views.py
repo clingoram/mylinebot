@@ -13,6 +13,7 @@ import hashlib
 import hmac
 import re
 import numpy as np
+from datetime import datetime, timedelta
 
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden
@@ -22,10 +23,8 @@ from django.views.decorators.csrf import csrf_exempt
 from linebot import LineBotApi
 from linebot.webhook import WebhookParser,WebhookHandler
 from linebot.exceptions import InvalidSignatureError, LineBotApiError
-from linebot.models import MessageEvent, TextSendMessage,TextMessage #,FlexSendMessage
-'''
-MessageEvent (信息事件)FollowEvent (加好友事件)、UnfollowEvent (刪好友事件)、JoinEvent (加入聊天室事件)、LeaveEvent (離開聊天室事件)、MemberJoinedEvent (加入群組事件)、MemberLeftEvent (離開群組事件)
-'''
+from linebot.models import MessageEvent, TextSendMessage,TextMessage
+
 weather_api = settings.WEATHER_ACCESS_TOKEN
 
 line_bot_api = LineBotApi(settings.LINE_CHANNEL_ACCESS_TOKEN)
@@ -33,37 +32,6 @@ parser = WebhookParser(settings.LINE_CHANNEL_SECRET)
 # handler = WebhookHandler(settings.LINE_CHANNEL_SECRET)
 
 # Create your views here.
-# @csrf_exempt
-# def callbackLine(request):
-#     '''
-#     line bot
-#     '''
-#     if request.method == 'POST':
-#       signature = request.META['HTTP_X_LINE_SIGNATURE']
-#       body = request.body.decode('utf-8')
-
-#       # hash = hmac.new(line_bot_api.encode('utf-8'),body.encode('utf-8'), hashlib.sha256).digest()
-#       # signature = base64.b64encode(hash)
-
-#       try:
-#         events = parser.parse(body, signature)
-#       except InvalidSignatureError:
-#         return HttpResponseForbidden()
-#       except LineBotApiError:
-#         return HttpResponseBadRequest()
-
-#       for event in events:
-#         if isinstance(event, MessageEvent):
-#           mtext=event.message.text
-#           message=[]
-#           message.append(TextSendMessage(text=mtext))
-#           line_bot_api.reply_message(event.reply_token,message)
-
-#       return HttpResponse()
-#     else:
-#       return HttpResponseBadRequest()
-
-
 def weatherAPI(location:str):
       '''
       氣象局API(一般天氣預報，今明36小時天氣預報)
@@ -112,106 +80,83 @@ def weatherAPI(location:str):
         # if re.fullmatch(location,cityList[s]) == None:
         #   print("想搜尋" + location[:2] + "市或" + location[:2] + "縣?")
         
-        # for s in sililarCityList:
-        #   # re.fullmatch(location,s) or 
-        #   if location[:2].startswith(s[:2]):
-        #     print("想搜尋" + s[:2] + "市或" + s[:2] + "縣?")
 
           # if any(location in s for s in sililarCityList):
           #   print("想搜尋" + location[:2] + "市或" + location[:2] + "縣?")
+
+        current = datetime.now()
+        nextDay = current + timedelta(1)
+        new_period=nextDay.replace(hour=23, minute=0,second=0).strftime('%Y-%m-%dT%H:%M:%SZ')
+
         url = 'https://opendata.cwa.gov.tw/api/v1/rest/datastore/F-C0032-001?Authorization='
-        response = requests.get(url + weather_api + '&locationName=' + location)
+        response = requests.get(url + weather_api + '&locationName=' + location+"&timeFrom=" + current.strftime("%Y-%m-%dT%H:%M:%SZ")+"&timeTo="+new_period)
 
         # print(location.encode('utf-8').decode('unicode-escape'))
         # print(location.encode('ascii').decode('unicode-escape'))
 
-        # result = ""
         response.raise_for_status()
         if response.status_code != 204 and response.headers["content-type"].strip().startswith("application/json"):
           data = response.json()
-
-          # array = np.array('i',data)
-          # arr_json = json.dumps({'nums': array.tolist()})
-          # print(arr_json)
-
           dataDictList = []
+
           for place in data["records"]["location"]:  
             weatherDictList = []
-            temperatureDictList = []
+            timeDictList = []
+            minTemperatureDictList = []
+            maxTemperatureDictList = []
+            ciDictList = []
             popDictList = []
-            # result = place['locationName']
 
             for w in place['weatherElement']:
-              # timeDicts = w["time"]
-              minT = 0
-              maxT = 0
+              for timeDict in w["time"]:
+                timeDictList.append({
+                  "startTime": timeDict["startTime"],
+                  "endTime": timeDict["endTime"],
+                })
+
               if w['elementName'] == "MinT":
               # 最低溫
                 for timeDict in w["time"]:
-                  # temperatureDictList.append({
-                  #   "startTime": timeDict["startTime"],
-                  #   "endTime": timeDict["endTime"],
-                  #   "value": "攝氏"+ timeDict['parameter']['parameterName']+"度" #+timeDict['parameter']['parameterUnit']
-                  # })
-                  if timeDict['parameter']['parameterName'] == 0:
-                    pass
-                  else:
-                    minT = timeDict['parameter']['parameterName']
-                  # minT = timeDict['parameter']['parameterName'] if timeDict['parameter']['parameterName'] != 0 else None
-                  # print(timeDict["startTime"], timeDict["endTime"],timeDict['parameter']['parameterName']+timeDict['parameter']['parameterUnit'])
+                  # print(timeDict)
+                  minTemperatureDictList.append({
+                    "value": timeDict['parameter']['parameterName'] #+timeDict['parameter']['parameterUnit']
+                  })
 
               if w['elementName'] == "MaxT":
                 # 最高溫
                 for timeDict in w["time"]:
-                  # temperatureDictList.append({
-                  #   "startTime": timeDict["startTime"],
-                  #   "endTime": timeDict["endTime"],
-                  #   "value": "攝氏"+ timeDict['parameter']['parameterName']+"度"#+timeDict['parameter']['parameterUnit']
-                  # })
-                  if timeDict['parameter']['parameterName'] == 0:
-                    # print(timeDict['parameter']['parameterName'])
-                    pass
-                  else:
-                    maxT = timeDict['parameter']['parameterName']
-                  # maxT = timeDict['parameter']['parameterName'] if timeDict['parameter']['parameterName'] != 0 else None
-
-              if maxT != 0 and minT != 0:
-                # print(minT)
-                # print(maxT)
-                # minT = minT if minT != 0 else minT
-                # maxT = maxT if maxT != 0 else maxT
-                for timeDict in w["time"]:
-                  temperatureDictList.append({
-                    "startTime": timeDict["startTime"],
-                    "endTime": timeDict["endTime"],
-                    "value": "攝氏"+ str(minT) +"~" + str(maxT) + "度"
+                  maxTemperatureDictList.append({
+                    "value": timeDict['parameter']['parameterName']
                   })
-  
-                  # print(timeDict["startTime"], timeDict["endTime"],timeDict['parameter']['parameterName']+timeDict['parameter']['parameterUnit'])
 
+              if w['elementName'] == "CI":
+                for timeDict in w["time"]:
+                  ciDictList.append({
+                    "value": timeDict['parameter']['parameterName']
+                  })
+     
               if w['elementName'] == "Wx":
                 # 天氣描述
                 for timeDict in w["time"]:
                   weatherDictList.append({
-                    "startTime": timeDict["startTime"],
-                    "endTime": timeDict["endTime"],
                     "value": timeDict['parameter']['parameterName']
                   })
-                  # print(timeDict["startTime"], timeDict["endTime"],timeDict['parameter']['parameterName'])
+
               if w['elementName'] == "PoP":
                 # 降雨機率
                 for timeDict in w["time"]:
                   popDictList.append({
-                    "startTime": timeDict["startTime"],
-                    "endTime": timeDict["endTime"],
                     "value": timeDict['parameter']['parameterName']+"%"
                   })
-                  # print(timeDict["startTime"], timeDict["endTime"],timeDict['parameter']['parameterName'],timeDict['parameter']['parameterUnit'])
+ 
             tempDict = {
               "locationName": place["locationName"],
-              "weatherDictList": weatherDictList,
-              "temperatureDictList": temperatureDictList,
-              "popDictList":popDictList
+              "timeDictList": timeDictList[0],
+              "weatherDictList": weatherDictList[0],
+              "ciDictList":ciDictList[0],
+              "minTemperatureDictList": minTemperatureDictList[0],
+              "maxTemperatureDictList":maxTemperatureDictList[0],
+              "popDictList":popDictList[0]
             } 
             dataDictList.append(tempDict) 
           # print(dataDictList)
@@ -220,13 +165,13 @@ def weatherAPI(location:str):
           # return HttpResponse(location)
       pass
 
+
 # @handler.add(MessageEvent, message=TextMessage)
 @csrf_exempt
 def handle_message(request):
     if request.method == "POST":
       signature = request.META['HTTP_X_LINE_SIGNATURE']
       body = request.body.decode('utf-8')
-
 
       # hash = hmac.new(line_bot_api.encode('utf-8'),body.encode('utf-8'), hashlib.sha256).digest()
       # signature = base64.b64encode(hash)
@@ -245,35 +190,45 @@ def handle_message(request):
           # if i.message.text == "功能列表":
           #   # 回復「功能列表」按鈕樣板訊息
           #   line_bot_api.reply_message(i.reply_token,Featuresmodel().content())
+
           if i.message.text[-1] == "市" or i.message.text[-1] == "縣":
-              weatherResult = weatherAPI(i.message.text)
-              # dump = json.dumps(weatherResult).encode('utf-8').decode('unicode-escape')
-              # print(type(dump))
-              # line_bot_api.reply_message(i.reply_token,TextSendMessage(text=dump))
+            weatherResult = weatherAPI(i.message.text)
+            # dump = json.dumps(weatherResult).encode('utf-8').decode('unicode-escape')
 
-              for key in weatherResult:
-                name = key['locationName']
-                combineResult = ""
-                temperature = ""
-                rain = ""
+            combineResult = ""
+            for key in weatherResult:
+              name = key['locationName']
+              des = ""
+              minTemperature = ""
+              maxTemperature = ""
+              rain = ""
+              rangeData = ""
+              ci = ""
 
-                for ele in key['weatherDictList']:
-                  start = ele['startTime']
-                  end = ele['endTime']
-                  v = ele['value']
+              for ele in key['timeDictList'].values():
+                rangeData += ele + " "
 
-                for ele in key['temperatureDictList']:
-                  temperature = ele['value']
+              for ele in key['weatherDictList'].values():
+                des = ele
 
-                for ele in key['popDictList']:
-                  rain = ele['value']
-                combineResult = name +": \n"+ start +"~"+ end +"\n"+ v+ "\n" + "溫度: "+temperature +"\n"+ "降雨機率: " + rain
-                line_bot_api.reply_message(i.reply_token,TextSendMessage(text = combineResult))
+              for ele in key['ciDictList'].values():
+                ci = ele
+              for ele in key['minTemperatureDictList'].values():
+                # temperature = ele['value']
+                minTemperature = ele
 
-              # line_bot_api.reply_message(i.reply_token,TextSendMessage(text=i.message.text))
+              for ele in key['maxTemperatureDictList'].values():
+                # temperature = ele['value']
+                maxTemperature = ele
 
+              for ele in key['popDictList'].values():
+                # rain = ele['value']
+                rain = ele
+              combineResult = name +": \n"+ "區間: " + rangeData +"\n" + des +"\n"+"舒適度: " + ci+"\n"+ "溫度: "+minTemperature + " ~ "+ maxTemperature+"\n"+"降雨機率: "+rain
+          
+            line_bot_api.reply_message(i.reply_token,TextSendMessage(text = combineResult))
 
-
+            # line_bot_api.reply_message(i.reply_token,TextSendMessage(text=i.message.text))
       return HttpResponse()
     else:
       return HttpResponseBadRequest()
