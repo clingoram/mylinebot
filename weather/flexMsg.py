@@ -1,4 +1,45 @@
-def flex_message():
+from weather.weather import weatherAPI
+
+def flex_message(location:str)->dict:
+  '''
+  Line bot flex message
+  將氣象API回傳的資料塞入flex message內
+  '''
+  # 取氣象API資料
+  weatherData = weatherAPI(location)
+
+  for i in weatherData:
+    # 城市名稱
+    name = i['locationName']
+    # 天氣概況
+    des = ""
+    # 最低溫
+    minTemperature = ""
+    # 最高溫
+    maxTemperature = ""
+    # 降雨機率
+    rain = ""
+    # 區間
+    rangeData = ""
+    # 舒適度
+    ci = ""
+    for ele in i['timeDictList'].values():
+      rangeData += ele + " "
+
+    for ele in i['weatherDictList'].values():
+      des = ele
+
+    for ele in i['ciDictList'].values():
+      ci = ele
+    for ele in i['minTemperatureDictList'].values():
+      minTemperature = ele
+
+    for ele in i['maxTemperatureDictList'].values():
+      maxTemperature = ele
+
+    for ele in i['popDictList'].values():
+      rain = ele
+
   content = {
       "type": "bubble",
       "body": {
@@ -14,15 +55,15 @@ def flex_message():
           },
           {
             "type": "text",
-            "text": "Brown Store",
+            "text": name,
             "weight": "bold",
             "size": "xxl",
             "margin": "md"
           },
           {
             "type": "text",
-            "text": "Miraina Tower, 4-1-6 Shinjuku, Tokyo",
-            "size": "xs",
+            "text": rangeData,
+            "size": "md",
             "color": "#aaaaaa",
             "wrap": True
           },
@@ -36,6 +77,26 @@ def flex_message():
             "margin": "xxl",
             "spacing": "sm",
             "contents": [
+               {
+                "type": "box",
+                "layout": "horizontal",
+                "contents": [
+                  {
+                    "type": "text",
+                    "text": "概況",
+                    "size": "sm",
+                    "color": "#555555",
+                    "flex": 0
+                  },
+                  {
+                    "type": "text",
+                    "text": des,
+                    "size": "sm",
+                    "color": "#111111",
+                    "align": "end"
+                  }
+                ]
+              },
               {
                 "type": "box",
                 "layout": "horizontal",
@@ -49,7 +110,7 @@ def flex_message():
                   },
                   {
                     "type": "text",
-                    "text": "$2.99",
+                    "text": ci,
                     "size": "sm",
                     "color": "#111111",
                     "align": "end"
@@ -69,7 +130,7 @@ def flex_message():
                   },
                   {
                     "type": "text",
-                    "text": "$0.99",
+                    "text": minTemperature + "~" + maxTemperature + "°C",
                     "size": "sm",
                     "color": "#111111",
                     "align": "end"
@@ -89,7 +150,7 @@ def flex_message():
                   },
                   {
                     "type": "text",
-                    "text": "$3.33",
+                    "text": rain,
                     "size": "sm",
                     "color": "#111111",
                     "align": "end"
@@ -106,5 +167,4 @@ def flex_message():
         }
       }
     }
-  
   return content
