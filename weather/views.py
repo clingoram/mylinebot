@@ -54,6 +54,7 @@ def handle_message(request):
       if isinstance(i,MessageEvent):
 
         # if i.message.text == "功能列表":
+        #   rich_menu = get_rich_menu(settings.RICH_MENU)
         #   flexMessage = flex_message()
         #   line_bot_api.reply_message(i.reply_token,FlexSendMessage(alt_text='FlexMessage',contents=flexMessage))
         if i.message.text[-1] == "市" or i.message.text[-1] == "縣":
