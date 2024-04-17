@@ -12,12 +12,16 @@ from datetime import datetime, timedelta
 
 weather_api = settings.WEATHER_ACCESS_TOKEN
 
-def weatherAPI(location:str):
+def weatherAPI(location:str)->list:
       '''
       氣象局API(一般天氣預報，今明36小時天氣預報)
+      URL:https://opendata.cwa.gov.tw/dist/opendata-swagger.html#/%E9%A0%90%E5%A0%B1/get_v1_rest_datastore_F_C0032_001
+
       1.城市名稱須完整顯示縣或市，例如高雄市、宜蘭縣。
       2.城市名稱必須是繁體字。
       3.若無城市名稱，預設為全部縣市
+
+      * API時間區間改為取得當天資料。
       '''
       # if request.method == "GET":
       # location = input('Enter query location: ')
@@ -77,8 +81,8 @@ def weatherAPI(location:str):
         response.raise_for_status()
         if response.status_code != 204 and response.headers["content-type"].strip().startswith("application/json"):
           data = response.json()
-          dataDictList = []
 
+          dataDictList = []
 
           for place in data["records"]["location"]:  
             weatherDictList = []
@@ -96,9 +100,8 @@ def weatherAPI(location:str):
                 })
 
               if w['elementName'] == "MinT":
-              # 最低溫
+                # 最低溫
                 for timeDict in w["time"]:
-                  # print(timeDict)
                   minTemperatureDictList.append({
                     "value": timeDict['parameter']['parameterName'] #+timeDict['parameter']['parameterUnit']
                   })
@@ -139,8 +142,7 @@ def weatherAPI(location:str):
               "maxTemperatureDictList":maxTemperatureDictList[0],
               "popDictList":popDictList[0]
             } 
-            dataDictList.append(tempDict) 
+            dataDictList.append(tempDict)
           return dataDictList
-
           # return HttpResponse(location)
       pass
