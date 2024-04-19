@@ -4,7 +4,7 @@ from django.db import models
 from django.db.models.functions import Now
 
 # Create your models here.
-class User(models.Model):
+class Person(models.Model):
   '''
   記錄使用者資訊
   '''
@@ -20,7 +20,13 @@ class User(models.Model):
   def __str__(self):
     return self.account
   
-
+  class Meta:
+    db_table = "info_person"
+  
+  # @classmethod
+  # def create_message(self,uid):
+  #   msg = self.create(uid = uid)
+  #   return msg
 
 
 class Message(models.Model):
@@ -28,9 +34,21 @@ class Message(models.Model):
   記錄使用者欲搜尋的訊息
   '''
   # user id
-  user_d = models.ForeignKey(User, on_delete = models.CASCADE)
+  uid = models.ForeignKey(Person, on_delete = models.CASCADE)
   # 訊息內容
   contentKeyWord = models.CharField(max_length=200)
 
   def __str__(self) -> str:
     return self.contentKeyWord
+  
+  class Meta:
+    db_table = "info_message"
+    
+  @classmethod
+  def create_message(self,uid):
+    msg = self.create(uid = uid)
+    return msg
+
+  
+  
+  

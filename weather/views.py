@@ -9,7 +9,7 @@ from weather.weather import weatherAPI
 # Create your views here.
 from django.http import HttpResponse
 import requests
-from user.models import *
+from info.models import Person,Message
 
 import json
 import base64
@@ -66,23 +66,35 @@ def handle_message(request):
         # print(profile)
       
         message=[]
-        if not User.objects.filter(uid=id).exists():
-            # 建立user
-            User.objects.create(uid=id, account=name, created_at=datetime.now())
+        if not Person.objects.filter(uid=id).exists():
+            # 建立person(user)
+            Person.objects.create(uid=id, account=name, created_at=datetime.now())
+      
             message.append(TextSendMessage(text='資料新增完畢'))
             line_bot_api.reply_message(i.reply_token, message)
 
-        if User.objects.filter(uid=id).exists():
-          # 將user message存到message
-          Message.objects.create(user_id=id, contentKeyWord = keyWord)
-          message.append(TextSendMessage(text='新增完畢'))
-          line_bot_api.reply_message(i.reply_token, message)              
-
 
         if i.message.text[-1] == "市" or i.message.text[-1] == "縣":
+
+          if Person.objects.get(uid=id):
+            # 將user message存到message
+            person = Person.objects.get(uid=id)
+            person.updated_at = datetime.now()
+            person.save()
+
+
+            # msg = Person.objects.get(uid=id)
+            msg = Message.objects.create(uid=id, contentKeyWord = keyWord)
+            # (uid=id, contentKeyWord = keyWord)
+            msg.save()
+
+            # message.append(TextSendMessage(text='新增完畢'))
+          # line_bot_api.reply_message(i.reply_token, message)              
+
           weatherResult = flex_message(i.message.text)
           line_bot_api.reply_message(i.reply_token,FlexSendMessage(alt_text=i.message.text+"氣象資訊",contents=weatherResult)) 
-          # dump = json.dumps(weatherResult).encode('utf-8').decode('unicode-escape')
+            # dump = json.dumps(weatherResult).encode('utf-8').decode('unicode-escape')
+
     return HttpResponse()
   else:
     return HttpResponseBadRequest()
