@@ -4,7 +4,7 @@ from urllib import request
 from django.shortcuts import render
 
 from weather.flexMsg import flex_message
-from weather.weather import weatherAPI
+# from weather.weather import weatherAPI
 
 # Create your views here.
 from django.http import HttpResponse
@@ -53,7 +53,6 @@ def handle_message(request):
     for i in handleEvent:
       # 如果有事件
       if isinstance(i,MessageEvent):
-
         # if i.message.text == "功能列表":
         #   rich_menu = get_rich_menu(settings.RICH_MENU)
         #   flexMessage = flex_message()
@@ -63,7 +62,6 @@ def handle_message(request):
         profile = line_bot_api.get_profile(id)
         name = profile.display_name
         keyWord = i.message.text
-        # print(profile)
       
         message=[]
         if not Person.objects.filter(uid=id).exists():
@@ -75,13 +73,11 @@ def handle_message(request):
 
 
         if i.message.text[-1] == "市" or i.message.text[-1] == "縣":
-
           if Person.objects.get(uid=id):
             # 將user message存到message
             person = Person.objects.get(uid=id)
             person.updated_at = datetime.now()
             person.save()
-
 
             # msg = Person.objects.get(uid=id)
             msg = Message.objects.create(uid=id, contentKeyWord = keyWord)
