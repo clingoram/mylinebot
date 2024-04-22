@@ -1,5 +1,7 @@
 # from sys import exception
+from email import message
 from logging import basicConfig
+from unicodedata import numeric
 from urllib import request
 from django.shortcuts import render
 
@@ -9,7 +11,7 @@ from weather.flexMsg import flex_message
 # Create your views here.
 from django.http import HttpResponse
 import requests
-from info.models import Person,Message
+from basic_info.models import Person,Message
 
 import json
 import base64
@@ -53,44 +55,48 @@ def handle_message(request):
     for i in handleEvent:
       # 如果有事件
       if isinstance(i,MessageEvent):
-        # if i.message.text == "功能列表":
-        #   rich_menu = get_rich_menu(settings.RICH_MENU)
-        #   flexMessage = flex_message()
-        #   line_bot_api.reply_message(i.reply_token,FlexSendMessage(alt_text='FlexMessage',contents=flexMessage))
-
         id = i.source.user_id
         profile = line_bot_api.get_profile(id)
         name = profile.display_name
         keyWord = i.message.text
+
+        # if i.message.text == "功能列表":
+        #   rich_menu = get_rich_menu(settings.RICH_MENU)
+        #   flexMessage = flex_message()
+        #   line_bot_api.reply_message(i.reply_token,FlexSendMessage(alt_text='FlexMessage',contents=flexMessage))
       
         message=[]
         if not Person.objects.filter(uid=id).exists():
-            # 建立person(user)
-            Person.objects.create(uid=id, account=name, created_at=datetime.now())
-      
-            message.append(TextSendMessage(text='資料新增完畢'))
-            line_bot_api.reply_message(i.reply_token, message)
+          # 建立person(user)
+          Person.objects.create(uid=id, account=name, created_at=datetime.now())
+          message.append(TextSendMessage(text='資料新增完畢'))
+          line_bot_api.reply_message(i.reply_token, message)
 
+        if keyWord[-1] == "市" or keyWord[-1] == "縣":
+          insertKeyWord(profile.user_id,keyWord)  
 
-        if i.message.text[-1] == "市" or i.message.text[-1] == "縣":
-          if Person.objects.get(uid=id):
-            # 將user message存到message
-            person = Person.objects.get(uid=id)
-            person.updated_at = datetime.now()
-            person.save()
-
-            # msg = Person.objects.get(uid=id)
-            msg = Message.objects.create(uid=id, contentKeyWord = keyWord)
-            # (uid=id, contentKeyWord = keyWord)
-            msg.save()
-
-            # message.append(TextSendMessage(text='新增完畢'))
-          # line_bot_api.reply_message(i.reply_token, message)              
-
-          weatherResult = flex_message(i.message.text)
-          line_bot_api.reply_message(i.reply_token,FlexSendMessage(alt_text=i.message.text+"氣象資訊",contents=weatherResult)) 
-            # dump = json.dumps(weatherResult).encode('utf-8').decode('unicode-escape')
+          weatherResult = flex_message(keyWord)
+          line_bot_api.reply_message(i.reply_token,FlexSendMessage(alt_text=keyWord+"氣象資訊",contents=weatherResult)) 
+          # dump = json.dumps(weatherResult).encode('utf-8').decode('unicode-escape')
 
     return HttpResponse()
   else:
     return HttpResponseBadRequest()
+  
+
+def insertKeyWord(user_id:str,keyword:str):
+  '''
+  儲存使用者在聊天室搜尋(關鍵字)
+  '''
+  if Person.objects.filter(uid=user_id).exists():
+    # 將user message存到message
+    person = Person.objects.get(uid=user_id)
+    person.updated_at = datetime.now()
+    person.save()
+    # print(person.uid)
+
+    # person.uid
+    Message.objects.create(uid=person.uid, contentKeyWord = keyword)
+
+    # message.append(TextSendMessage(text='新增完畢'))
+    # line_bot_api.reply_message(i.reply_token, message)  
