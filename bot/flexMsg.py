@@ -1,4 +1,4 @@
-from weather.weather import weatherAPI
+from weather.views import weatherAPI
 
 def flex_message(location:str)->dict:
   '''

@@ -18,7 +18,8 @@ from django.contrib import admin
 from django.urls import path
 from django.urls import re_path
 # from user import views
-from weather import views
+# from weather import views
+from bot import views
 # from weather.views import Weather
 
 urlpatterns = [

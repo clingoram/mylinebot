@@ -35,7 +35,9 @@ class Message(models.Model):
   uid = models.ForeignKey('Person', on_delete = models.CASCADE,to_field='uid',null = True, blank = True)
   # 訊息內容
   contentKeyWord = models.CharField(max_length=200)
-
+  # 建立時間
+  created_at = models.DateTimeField(db_default = Now())
+  
   # def __str__(self) -> str:
   #   return self.contentKeyWord
   
