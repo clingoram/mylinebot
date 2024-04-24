@@ -13,18 +13,32 @@ jobs:
     strategy:
       max-parallel: 4
       matrix:
-        python-version: [3.7, 3.8, 3.9]
+        python-version: [3.7, 3.8, 3.9, 3.10]
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4  # actions/checkout@v3
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v5 # actions/setup-python@v3
       with:
         python-version: ${{ matrix.python-version }}
+        
+    - name: django-migration-fixer
+      uses: tj-django/django-migration-fixer@v1.3.6
+      with:
+        # The location of manage.py.
+        managepy-path: ./manage.py
+        # The default branch or target branch of a Pull request: Defaults to github.base_ref
+        default-branch: ${{ github.base_ref }}
+        # Force update the target branch locally when git fetch fails.
+        # force-update: # optional
+        # Skip pulling the latest changes from the default branch.
+        # skip-default-branch-update: # optional
+        
     - name: Install Dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
+        
     - name: Run Tests
       run: |
         python manage.py test
