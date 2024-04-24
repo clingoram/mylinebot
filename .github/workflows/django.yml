@@ -22,18 +22,6 @@ jobs:
       with:
         python-version: '3.10' #${{ matrix.python-version }}
         
-    - name: django-migration-fixer
-      uses: tj-django/django-migration-fixer@v1.3.6
-      with:
-        # The location of manage.py.
-        managepy-path: ./manage.py
-        # The default branch or target branch of a Pull request: Defaults to github.base_ref
-        default-branch: ${{ github.base_ref }}
-        # Force update the target branch locally when git fetch fails.
-        # force-update: # optional
-        # Skip pulling the latest changes from the default branch.
-        # skip-default-branch-update: # optional
-        
     - name: Install Dependencies
       run: |
         python -m pip install --upgrade pip
