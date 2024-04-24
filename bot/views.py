@@ -6,6 +6,7 @@ from urllib import request
 from django.shortcuts import render
 
 from bot.flexMsg import flex_message
+from basic_info.views import insertKeyWord,create_user
 
 # Create your views here.
 from django.http import HttpResponse
@@ -65,21 +66,22 @@ def handle_message(request):
         #   flexMessage = flex_message()
         #   line_bot_api.reply_message(i.reply_token,FlexSendMessage(alt_text='FlexMessage',contents=flexMessage))
       
-        # message=[]
-        # if not Person.objects.filter(uid=id).exists():
-        #   # 建立person(user)
-        #   person = Person.objects.create(uid=id, account=name, created_at=datetime.now())
-        #   person.save()
+        message=[]
+        if not Person.objects.filter(uid=id).exists():
+          # 建立person(user)
+          # person = Person.objects.create(uid=id, account=name, created_at=datetime.now())
+          # person.save()
+          create_user(id,name)
 
-        #   message.append(TextSendMessage(text='資料新增完畢'))
-        #   line_bot_api.reply_message(i.reply_token, message)
+          message.append(TextSendMessage(text='資料新增完畢'))
+          line_bot_api.reply_message(i.reply_token, message)
 
         if keyWord[-1] == "市" or keyWord[-1] == "縣":
-          # insertKeyWord(profile.user_id,keyWord)  
-          print(profile.user_id,keyWord)
+          insertKeyWord(profile.user_id,keyWord)  
+          # print(profile.user_id,keyWord)
 
-          # weatherResult = flex_message(keyWord)
-          # line_bot_api.reply_message(i.reply_token,FlexSendMessage(alt_text=keyWord+"氣象資訊",contents=weatherResult)) 
+          weatherResult = flex_message(keyWord)
+          line_bot_api.reply_message(i.reply_token,FlexSendMessage(alt_text=keyWord+"氣象資訊",contents=weatherResult)) 
           # dump = json.dumps(weatherResult).encode('utf-8').decode('unicode-escape')
 
     return HttpResponse()
@@ -87,16 +89,3 @@ def handle_message(request):
     return HttpResponseBadRequest()
   
 
-def insertKeyWord(user_id:str,keyword:str):
-  '''
-  儲存使用者在聊天室搜尋(關鍵字)
-  '''
-  if Person.objects.filter(uid=user_id).exists():
-    # 將user message存到message
-    person = Person.objects.get(uid=user_id)
-    person.updated_at = datetime.now()
-    person.save()
-
-    # person.uid
-    msg = Message.objects.create(uid = person, contentKeyWord = keyword,created_at = datetime.now())
-    msg.save()
