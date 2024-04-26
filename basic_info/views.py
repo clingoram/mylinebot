@@ -4,12 +4,13 @@ from datetime import datetime
 
 
 # Create your views here.
-def create_user(id:str,name:str):
+def create_user(request,id:str,name:str):
   '''
   建立person(user)
   '''
-  person = Person.objects.create(uid=id, account=name, created_at=datetime.now())
-  person.save()
+  if request.method == 'POST':
+    person = Person.objects.create(uid=id, account=name, created_at=datetime.now())
+    person.save()
 
 def insertKeyWord(user_id:str,keyword:str):
   '''
