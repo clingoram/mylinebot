@@ -7,6 +7,7 @@ from django.shortcuts import render
 
 from bot.flexMsg import flex_message
 from basic_info.views import insertKeyWord,create_user
+from crawler.views import crawlerSomething
 
 # Create your views here.
 from django.http import HttpResponse
@@ -57,8 +58,12 @@ def handle_message(request):
         keyWord = i.message.text
 
         if keyWord == 'info':
-          botInformation = line_bot_api.get_bot_info()
-          print(botInformation)
+          print(keyWord)
+          crawler = crawlerSomething()
+          print(crawler)
+          # botInformation = line_bot_api.get_bot_info()
+          # print(botInformation)
+
           # line_bot_api.reply_message(i.reply_token,botInformation)
           
         # if keyWord == "功能列表":
@@ -74,14 +79,14 @@ def handle_message(request):
           create_user(id,name)
 
           message.append(TextSendMessage(text='資料新增完畢'))
-          line_bot_api.reply_message(i.reply_token, message)
+          # line_bot_api.reply_message(i.reply_token, message)
 
         if keyWord[-1] == "市" or keyWord[-1] == "縣":
-          insertKeyWord(profile.user_id,keyWord)  
-          # print(profile.user_id,keyWord)
+          # insertKeyWord(profile.user_id,keyWord)  
+          print(profile.user_id,keyWord)
 
           weatherResult = flex_message(keyWord)
-          line_bot_api.reply_message(i.reply_token,FlexSendMessage(alt_text=keyWord+"氣象資訊",contents=weatherResult)) 
+          # line_bot_api.reply_message(i.reply_token,FlexSendMessage(alt_text=keyWord+"氣象資訊",contents=weatherResult)) 
           # dump = json.dumps(weatherResult).encode('utf-8').decode('unicode-escape')
 
     return HttpResponse()
