@@ -71,26 +71,24 @@ def handle_message(request):
         #   flexMessage = flex_message()
         #   line_bot_api.reply_message(i.reply_token,FlexSendMessage(alt_text='FlexMessage',contents=flexMessage))
       
-        message=[]
-        if not Person.objects.filter(uid=id).exists():
-          # 建立person(user)
-          # person = Person.objects.create(uid=id, account=name, created_at=datetime.now())
-          # person.save()
-          create_user(id,name)
+        # message=[]
+        # if not Person.objects.filter(uid=id).exists():
+        #   # 建立person(user)
+        #   # person = Person.objects.create(uid=id, account=name, created_at=datetime.now())
+        #   # person.save()
+        #   create_user(id,name)
 
-          message.append(TextSendMessage(text='資料新增完畢'))
-          # line_bot_api.reply_message(i.reply_token, message)
+        #   message.append(TextSendMessage(text='資料新增完畢'))
+        #   # line_bot_api.reply_message(i.reply_token, message)
 
-        if keyWord[-1] == "市" or keyWord[-1] == "縣":
-          # insertKeyWord(profile.user_id,keyWord)  
-          print(profile.user_id,keyWord)
+        # if keyWord[-1] == "市" or keyWord[-1] == "縣":
+        #   # insertKeyWord(profile.user_id,keyWord)  
+        #   print(profile.user_id,keyWord)
 
-          weatherResult = flex_message(keyWord)
+        #   weatherResult = flex_message(keyWord)
           # line_bot_api.reply_message(i.reply_token,FlexSendMessage(alt_text=keyWord+"氣象資訊",contents=weatherResult)) 
           # dump = json.dumps(weatherResult).encode('utf-8').decode('unicode-escape')
 
     return HttpResponse()
   else:
     return HttpResponseBadRequest()
-  
-
