@@ -35,15 +35,15 @@ def crawlerSomething(request):
     # attr = driver.find_elements(By.CLASS_NAME,'news-title')
 
     for i in element:
-
+  
       # title = i.find_elements(By.CSS_SELECTOR,'h3 .news-title')
       # title= i.find_elements(By.TAG_NAME, "h3")
       title = i.find_elements(By.CLASS_NAME,'news-title')
-    #   # text = title.get_attribut('href')
-      
+      text = i.find_elements(By.TAG_NAME, 'href')
+    
       result = {
-          'title': title,
-          # 'href': text,
+          'title': title[0].text,
+          'href': text,
         }
     print(result)
 
