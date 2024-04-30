@@ -1,3 +1,4 @@
+from hmac import new
 from django.shortcuts import render
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -11,59 +12,49 @@ from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbid
 def crawlerSomething(request):
 
   if request.method == "GET":
-    result = {}
+    news = []
 
-    # scroll_time = int(input('請輸入想要捲動幾次'))
     driver = webdriver.Chrome()
-
-    # driver.get("https://www.cakeresume.com/jobs?location_list%5B0%5D=Taiwan")
-
-    # driver.implicitly_wait(10)
-    # # for now_time in range(1, scroll_time+1):
-    # title = driver.title
-    # print(title)
-    # #   print(f"now scroll {now_time}/{scroll_time}")
-    # element = driver.find_element(By.TAG_NAME, 'div')
-    # ele = element.find_elements(By.CLASS_NAME, "JobSearchHits_list__3UtHp")
-    # print(ele)
-    # result.append(ele)
-
-
     driver.get("https://www.ctee.com.tw/livenews")
-    element = driver.find_elements(By.CLASS_NAME,'newslist__card')#.send_keys("webElement")
-    # ele = element.find_elements(By.TAG_NAME, "h3")
-    # attr = driver.find_elements(By.CLASS_NAME,'news-title')
-
+    element = driver.find_elements(By.CLASS_NAME,'newslist__card')
     for i in element:
-  
-      # title = i.find_elements(By.CSS_SELECTOR,'h3 .news-title')
-      # title= i.find_elements(By.TAG_NAME, "h3")
+      Dict = {}
       title = i.find_elements(By.CLASS_NAME,'news-title')
-      text = i.find_elements(By.TAG_NAME, 'href')
-    
-      result = {
-          'title': title[0].text,
-          'href': text,
-        }
-    print(result)
+      type = i.find_elements(By.CLASS_NAME,'news-category')
+      link = i.find_elements(By.CSS_SELECTOR,".news-title [href]")
+      for j in link:
+        lnk = j.get_attribute('href')
 
+      Dict = {
+        'title': title[0].text,
+        'type': type[0].text,
+        'link': lnk
+      }
+      news.append(Dict)
+    print(news)
 
-    # for e in ele:
-    #   print(e)
-      # try:
-      #   title = e.find_element(By.CLASS_NAME,'JobSearchItem_headerTitle__CuE3V')
-      #   href = e.get_attribute('href')
-      #   result = {
-      #     'title': title,
-      #     'href': href,
-      #      # 'subtitle': subtitle
-      #   }
-      #   result.append()
-      # except:
-      #   pass
+    # ----
+    # driver.get("https://news.ltn.com.tw/list/breakingnews")
+    # element = driver.find_elements(By.TAG_NAME,'li')
+    # for i in element:
+    #   Dict = {}
+    #   title = i.find_elements(By.CLASS_NAME,'title')
+    #   # link = i.find_elements(By.CSS_SELECTOR,".tit [href]")
+    #   # for j in link:
+    #   #   lnk = j.get_attribute('href')
+    #   Dict = {
+    #     'title': title,
+    #     # 'type': type.text,
+    #     # 'link': lnk
+    #   }
+    #   news.append(Dict)
+    # print(news)
 
     driver.quit()
     # return result
     return HttpResponse()
   else:
     return HttpResponseBadRequest()
+  
+
+
