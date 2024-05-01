@@ -20,8 +20,7 @@ from django.urls import re_path
 # from user import views
 
 from bot import views
-from crawler import views
-
+# from crawler import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -30,7 +29,6 @@ urlpatterns = [
     # path('', views.weatherAPI, name = "weatherAPI"),
 
     # re_path('callback',views.callbackLine, name = "callbackLine")
-    # path('callback',views.handle_message, name = "handle_message")
-
-    path('',views.crawlerSomething)
+    path('callback',views.handle_message, name = "handle_message")
+    # path('',views.crawlerSomething)
 ]

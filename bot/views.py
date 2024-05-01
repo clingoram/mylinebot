@@ -57,36 +57,31 @@ def handle_message(request):
         name = profile.display_name
         keyWord = i.message.text
 
-        if keyWord == 'info':
-          print(keyWord)
+        if keyWord == '新聞' or keyWord == 'news':
+          # 新聞爬蟲
           crawler = crawlerSomething()
-          print(crawler)
-          # botInformation = line_bot_api.get_bot_info()
-          # print(botInformation)
-
-          # line_bot_api.reply_message(i.reply_token,botInformation)
+          line_bot_api.reply_message(i.reply_token,TextSendMessage(text=crawler))
           
         # if keyWord == "功能列表":
         #   rich_menu = get_rich_menu(settings.RICH_MENU)
         #   flexMessage = flex_message()
         #   line_bot_api.reply_message(i.reply_token,FlexSendMessage(alt_text='FlexMessage',contents=flexMessage))
       
-        # message=[]
-        # if not Person.objects.filter(uid=id).exists():
-        #   # 建立person(user)
-        #   # person = Person.objects.create(uid=id, account=name, created_at=datetime.now())
-        #   # person.save()
-        #   create_user(id,name)
+        message=[]
+        if not Person.objects.filter(uid=id).exists():
+          # 建立person(user)
+          # person = Person.objects.create(uid=id, account=name, created_at=datetime.now())
+          # person.save()
+          create_user(id,name)
 
-        #   message.append(TextSendMessage(text='資料新增完畢'))
-        #   # line_bot_api.reply_message(i.reply_token, message)
+          message.append(TextSendMessage(text='資料新增完畢'))
+          # line_bot_api.reply_message(i.reply_token, message)
 
-        # if keyWord[-1] == "市" or keyWord[-1] == "縣":
-        #   # insertKeyWord(profile.user_id,keyWord)  
-        #   print(profile.user_id,keyWord)
+        if keyWord[-1] == "市" or keyWord[-1] == "縣":
+          insertKeyWord(profile.user_id,keyWord)
 
-        #   weatherResult = flex_message(keyWord)
-          # line_bot_api.reply_message(i.reply_token,FlexSendMessage(alt_text=keyWord+"氣象資訊",contents=weatherResult)) 
+          weatherResult = flex_message(keyWord)
+          line_bot_api.reply_message(i.reply_token,FlexSendMessage(alt_text=keyWord+"氣象資訊",contents=weatherResult)) 
           # dump = json.dumps(weatherResult).encode('utf-8').decode('unicode-escape')
 
     return HttpResponse()
