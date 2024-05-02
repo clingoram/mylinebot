@@ -15,20 +15,20 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
-from django.urls import re_path
-# from user import views
+from django.urls import path,re_path
 
 from bot import views
-# from crawler import views
+# from crawler.views import crawlerSomething
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     # line bot
     # re_path('callback', views.callback),
-    # path('', views.weatherAPI, name = "weatherAPI"),
-
     # re_path('callback',views.callbackLine, name = "callbackLine")
+
+    # line bot
     path('callback',views.handle_message, name = "handle_message")
-    # path('',views.crawlerSomething)
+    # news crawler
+    # path('',crawlerSomething),
 ]

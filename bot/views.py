@@ -14,6 +14,7 @@ from django.http import HttpResponse
 import requests
 from basic_info.models import Person,Message
 
+
 import json,base64,hashlib,hmac,re
 import numpy as np
 from datetime import datetime, timedelta
@@ -38,9 +39,6 @@ def handle_message(request):
   if request.method == "POST":
     signature = request.META['HTTP_X_LINE_SIGNATURE']
     body = request.body.decode('utf-8')
-
-    # hash = hmac.new(line_bot_api.encode('utf-8'),body.encode('utf-8'), hashlib.sha256).digest()
-    # signature = base64.b64encode(hash)
     try:
       # 傳入事件
       handleEvent = parser.parse(body, signature)
@@ -60,6 +58,7 @@ def handle_message(request):
         if keyWord == '新聞' or keyWord == 'news':
           # 新聞爬蟲
           crawler = crawlerSomething()
+
           line_bot_api.reply_message(i.reply_token,TextSendMessage(text=crawler))
           
         # if keyWord == "功能列表":
