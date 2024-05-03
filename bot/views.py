@@ -58,7 +58,6 @@ def handle_message(request):
         if keyWord == '新聞' or keyWord == 'news':
           # 新聞爬蟲
           crawler = crawlerSomething()
-
           line_bot_api.reply_message(i.reply_token,TextSendMessage(text=crawler))
           
         # if keyWord == "功能列表":

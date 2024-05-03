@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path,re_path
 
 from bot import views
-# from crawler.views import crawlerSomething
+from crawler.views import crawlerSomething
 
 
 urlpatterns = [

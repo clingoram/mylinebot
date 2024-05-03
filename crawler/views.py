@@ -9,82 +9,58 @@ from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbid
 # Create your views here.
 # @csrf_exempt
 def crawlerSomething()->str:
-  '''
-  新聞爬蟲
-  '''
+    '''
+    新聞爬蟲
+    '''
   # if request.method == "GET":
     # news = []
 
-  # option = Options()
-  # option.add_argument("--headless")
-  # option.add_argument("--disable-extensions")
-  # option.add_argument("--no-sandbox")
-  # driver = webdriver.Chrome(options=option)
 
-  driver = webdriver.Chrome()
-  driver.get("https://www.ctee.com.tw/livenews")
-  driver.implicitly_wait(2)
-  element = driver.find_elements(By.CLASS_NAME,'newslist__card')
+    option = Options()
+    option.add_argument("--headless=new")
+    option.add_argument('blink-settings=imagesEnabled=false')
+    option.add_argument("--disable-extensions")
+    option.add_argument("--no-sandbox")
+    option.add_argument("--disable-gpu")
+    driver = webdriver.Chrome(options=option)
 
-  countData = 0
-  content = ""
-  for i in element:
-      newsTitle = ""
-      newsType = ""
-      newsLink = ""
-      newsTime = ""
+    # driver = webdriver.Chrome()
+    driver.get("https://www.ctee.com.tw/livenews")
+    driver.implicitly_wait(2)
+    element = driver.find_elements(By.CLASS_NAME,'newslist__card')
 
-      # Dict = {}
-      if countData < 5:
-        try:
-          # 新聞標題
-          newsTitle = i.find_elements(By.CLASS_NAME,'news-title')
-          # 新聞類型
-          newsType = i.find_elements(By.CLASS_NAME,'news-category')
-          # 新聞發佈時間
-          time = i.find_elements(By.CLASS_NAME,"news-time")
-          for j in time:
-            newsTime = j.text
-          # 新聞連結
-          link = i.find_elements(By.CSS_SELECTOR,".news-title [href]")
-          for j in link:
-            newsLink = j.get_attribute('href')
+    countData = 0
+    content = ""
+    for i in element:
+        newsTitle = ""
+        newsType = ""
+        newsLink = ""
+        newsTime = ""
+        if countData < 5:
+          try:
+            # 新聞標題
+            newsTitle = i.find_elements(By.CLASS_NAME,'news-title')
+            # 新聞類型
+            newsType = i.find_elements(By.CLASS_NAME,'news-category')
+            # 新聞發佈時間
+            time = i.find_elements(By.CLASS_NAME,"news-time")
+            for j in time:
+              newsTime = j.text
+            # 新聞連結
+            link = i.find_elements(By.CSS_SELECTOR,".news-title [href]")
+            for j in link:
+              newsLink = j.get_attribute('href')
 
-          content += "[{}] {}\n{}\n{}\n".format(newsType[0].text,newsTime,newsTitle[0].text, newsLink)
-          countData += 1
-        except:
-            pass
-      else:
-        break
+            content += "[{}] {}\n{}\n{}\n".format(newsType[0].text,newsTime,newsTitle[0].text, newsLink)
+            countData += 1
+          except:
+              pass
+        else:
+          break
+    # print(content)
 
-          # Dict = {
-          #   'title': newsTitle[0].text,
-          #   'time': newsTime,
-          #   'type': newsType[0].text,
-          #   'link': newsLink
-          # }
-          # news.append(Dict)
-      # print(content)
-
-        # ----
-        # driver.get("https://news.ltn.com.tw/list/breakingnews")
-        # element = driver.find_elements(By.TAG_NAME,'li')
-        # for i in element:
-        #   Dict = {}
-        #   title = i.find_elements(By.CLASS_NAME,'title')
-        #   # link = i.find_elements(By.CSS_SELECTOR,".tit [href]")
-        #   # for j in link:
-        #   #   lnk = j.get_attribute('href')
-        #   Dict = {
-        #     'title': title,
-        #     # 'type': type.text,
-        #     # 'link': lnk
-        #   }
-        #   news.append(Dict)
-        # print(news)
-
-  driver.quit()
-  return content
+    driver.quit()
+    return content
   #   return HttpResponse()
   # else:
   #   return HttpResponseBadRequest()
