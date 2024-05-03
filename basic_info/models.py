@@ -1,5 +1,6 @@
 from django.db import models
 from django.db.models.functions import Now
+from django.core.validators import RegexValidator
 
 # Create your models here.
 class Person(models.Model):
@@ -9,7 +10,13 @@ class Person(models.Model):
   # user id
   uid = models.CharField(max_length = 50, null = False,unique = True)  
   # 使用者LINE名稱
-  account = models.CharField(max_length = int(30), blank = False, null = False,editable = True)
+  account = models.CharField(max_length = int(30), blank = False, null = False,editable = True,validators=[
+        RegexValidator(
+            regex='^[a-zA-Z0-9]*$',
+            message='Account must be Alphanumeric',
+            code='invalid_Account'
+        ),
+    ])
   # 近期更新時間
   updated_at = models.DateTimeField(auto_now = True)
   # 建立時間
