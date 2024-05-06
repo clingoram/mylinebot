@@ -1,4 +1,5 @@
 from django.shortcuts import render
+# import model
 from basic_info.models import Person,Message
 from datetime import datetime
 
