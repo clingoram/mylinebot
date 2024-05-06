@@ -16,15 +16,15 @@ def crawlerSomething()->str:
     # news = []
 
 
-    option = Options()
-    option.add_argument("--headless=new")
-    option.add_argument('blink-settings=imagesEnabled=false')
-    option.add_argument("--disable-extensions")
-    option.add_argument("--no-sandbox")
-    option.add_argument("--disable-gpu")
-    driver = webdriver.Chrome(options=option)
+    # option = Options()
+    # option.add_argument("--headless=new")
+    # option.add_argument('blink-settings=imagesEnabled=false')
+    # option.add_argument("--disable-extensions")
+    # option.add_argument("--no-sandbox")
+    # option.add_argument("--disable-gpu")
+    # driver = webdriver.Chrome(options=option)
 
-    # driver = webdriver.Chrome()
+    driver = webdriver.Chrome()
     driver.get("https://www.ctee.com.tw/livenews")
     driver.implicitly_wait(2)
     element = driver.find_elements(By.CLASS_NAME,'newslist__card')
