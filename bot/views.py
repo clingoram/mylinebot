@@ -78,7 +78,7 @@ def handle_message(request):
           # dump = json.dumps(weatherResult).encode('utf-8').decode('unicode-escape')
 
         # 新增關鍵字至資料表
-        insertKeyWord(profile.user_id,keyWord)
+        # insertKeyWord(profile.user_id,keyWord)
     return HttpResponse()
   else:
     return HttpResponseBadRequest()

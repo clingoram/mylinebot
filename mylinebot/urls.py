@@ -19,6 +19,7 @@ from django.urls import path,re_path
 
 from bot import views
 from crawler.views import crawlerSomething
+from stock.views import combineStockData
 
 
 urlpatterns = [
@@ -28,7 +29,8 @@ urlpatterns = [
     # re_path('callback',views.callbackLine, name = "callbackLine")
 
     # line bot
-    path('callback',views.handle_message, name = "handle_message")
+    path('callback',views.handle_message, name = "handle_message"),
     # news crawler
     # path('',crawlerSomething),
+    # path('stock',combineStockData)
 ]
