@@ -6,16 +6,11 @@ from selenium.webdriver.chrome.options import Options
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden
 
-# Create your views here.
-# @csrf_exempt
+
 def crawlerSomething()->str:
     '''
     新聞爬蟲
     '''
-  # if request.method == "GET":
-    # news = []
-
-
     # option = Options()
     # option.add_argument("--headless=new")
     # option.add_argument('blink-settings=imagesEnabled=false')
@@ -57,10 +52,6 @@ def crawlerSomething()->str:
               pass
         else:
           break
-    # print(content)
 
     driver.quit()
     return content
-  #   return HttpResponse()
-  # else:
-  #   return HttpResponseBadRequest()

@@ -3,8 +3,6 @@ from django.shortcuts import render
 from basic_info.models import Person,Message
 from datetime import datetime
 
-
-# Create your views here.
 def create_user(request,id:str,name:str):
   '''
   insert data into table

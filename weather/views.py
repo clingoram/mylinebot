@@ -37,36 +37,21 @@ def weatherAPI(location:str)->list:
             if location == cities[s]:
             # Exact match
               location = cities[s]
-              # break
 
-            # if location in cities[s]:
-            # Partial match
-              # location = cities[s]
-              # break
           except Exception:
             # print(location+"不在可搜尋範圍內!!!!")
             return []
-            # break
 
-        # if re.fullmatch(location,cities[s]) == None:
-        #   print("想搜尋" + location[:2] + "市或" + location[:2] + "縣?")
-        
-
-          # if any(location in s for s in sililarCityList):
-          #   print("想搜尋" + location[:2] + "市或" + location[:2] + "縣?")
-
+        # 時間區間
         current = datetime.now()
         nextDay = current + timedelta(1)
         new_period=nextDay.replace(hour=23, minute=0,second=0).strftime('%Y-%m-%dT%H:%M:%SZ')
 
-        url = 'https://opendata.cwa.gov.tw/api/v1/rest/datastore/F-C0032-001?Authorization='
-        response = requests.get(url + weather_api + '&locationName=' + location+"&timeFrom=" + current.strftime("%Y-%m-%dT%H:%M:%SZ")+"&timeTo="+new_period)
-
-        # print(location.encode('utf-8').decode('unicode-escape'))
-        # print(location.encode('ascii').decode('unicode-escape'))
+        url = "https://opendata.cwa.gov.tw/api/v1/rest/datastore/F-C0032-001?Authorization="
+        response = requests.get(url + weather_api + "&locationName=" + location + "&timeFrom=" + current.strftime("%Y-%m-%dT%H:%M:%SZ")+"&timeTo="+new_period,timeout=5)
 
         response.raise_for_status()
-        if response.status_code != 204 and response.headers["content-type"].strip().startswith("application/json"):
+        if response.status_code == 200 and response.headers["content-type"].strip().startswith("application/json"):
           data = response.json()
 
           dataDictList = []

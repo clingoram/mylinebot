@@ -2,10 +2,14 @@ from urllib import request
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.options import Options
 import requests
 import csv
 import os
-import itertools 
+import itertools
+
 def getCompanyInfo():
   '''
   取得台灣所有上市公司基本資料

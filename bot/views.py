@@ -29,7 +29,6 @@ from linebot.models import MessageEvent, TextSendMessage,TextMessage,FlexSendMes
 line_bot_api = LineBotApi(settings.LINE_CHANNEL_ACCESS_TOKEN)
 parser = WebhookParser(settings.LINE_CHANNEL_SECRET)
 
-# @handler.add(MessageEvent, message=TextMessage)
 @csrf_exempt
 def handle_message(request):
   if request.method == "POST":
@@ -74,11 +73,9 @@ def handle_message(request):
            line_bot_api.reply_message(i.reply_token,FlexSendMessage(alt_text = keyWord + "氣象資訊",contents=weatherResult)) 
           else:
             line_bot_api.reply_message(i.reply_token,TextSendMessage(text = keyWord + "不在可搜尋範圍內。可搜尋: "+",".join(city())))
-            
-          # dump = json.dumps(weatherResult).encode('utf-8').decode('unicode-escape')
 
         # 新增關鍵字至資料表
-        # insertKeyWord(profile.user_id,keyWord)
+        insertKeyWord(profile.user_id,keyWord)
     return HttpResponse()
   else:
     return HttpResponseBadRequest()
