@@ -15,5 +15,5 @@
 </ol>
 
 <h4>機器人回覆:</h4>
-![Image](images/S__33816579.jpg)
-![Image](images/crawler reply.jpg)
+![S__33816579](https://github.com/clingoram/mylinebot/assets/18278657/b6cfc302-6fac-46a6-925c-95fa8bc9c38f)
+![crawler reply](https://github.com/clingoram/mylinebot/assets/18278657/460798fa-3c48-4561-a576-0d76afb0b695)
