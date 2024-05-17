@@ -11,6 +11,7 @@
 - Django >= 5.0
 - line-bot-sdk-python
 - ngrok(for localhost)
+- PostgreSQL
 
 ## 機器人回覆:
 ![image](https://github.com/clingoram/mylinebot/blob/master/images/S__33816579.jpg "氣象訊息回覆 - 不在可查詢範圍內")
