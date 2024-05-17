@@ -13,7 +13,8 @@
 - ngrok(for localhost)
 
 ## 機器人回覆:
-![image](https://github.com/clingoram/mylinebot/blob/master/images/S__33816579.jpg "氣象訊息回覆")
+![image](https://github.com/clingoram/mylinebot/blob/master/images/S__33816579.jpg "氣象訊息回覆 - 不在可查詢範圍內")
+![image](https://github.com/clingoram/mylinebot/blob/master/images/weather.jpg "氣象查詢地區回覆")
 ![image](https://github.com/clingoram/mylinebot/blob/master/images/crawler_reply.jpg "新聞爬蟲")
 
 ## Ref:
