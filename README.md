@@ -6,20 +6,13 @@
 可搜尋的城市名單:<br>
 宜蘭縣,花蓮縣, 臺東縣, 澎湖縣, 金門縣, 連江縣, 臺北市, 新北市, 桃園市, 臺中市, 臺南市, 高雄市, 基隆市, 新竹縣, 新竹市, 苗栗縣, 彰化縣, 南投縣, 雲林縣, 嘉義縣, 嘉義市, 屏東縣
 
-
-## Requirement:
-- Django >= 5.0
-- line-bot-sdk-python
-- ngrok(for localhost)
-- PostgreSQL
+- [氣象局](https://opendata.cwa.gov.tw/dist/opendata-swagger.html) <br>
+- [Django Doc.](https://docs.djangoproject.com/en/5.0/) <br>
+- [Line-bot-sdk-python](https://line-bot-sdk-python.readthedocs.io/en/stable/index.html) <br>
+- [ngrok](https://ngrok.com/)
+- [selenium](https://github.com/seleniumhq/selenium)
 
 ## 機器人回覆:
 ![image](https://github.com/clingoram/mylinebot/blob/master/images/S__34291716.jpg "氣象訊息回覆 - 不在可查詢範圍內")
 ![image](https://github.com/clingoram/mylinebot/blob/master/images/weather.jpg "氣象查詢地區回覆")
 ![image](https://github.com/clingoram/mylinebot/blob/master/images/crawler_reply.jpg "新聞爬蟲")
-
-## Ref:
-- [氣象局](https://opendata.cwa.gov.tw/dist/opendata-swagger.html) <br>
-- [Django Doc.](https://docs.djangoproject.com/en/5.0/) <br>
-- [Line-bot-sdk-python](https://line-bot-sdk-python.readthedocs.io/en/stable/index.html) <br>
-- [ngrok](https://ngrok.com/)
