@@ -12,13 +12,17 @@
 - 功能2:<br>
 使用者在聊天室打上關鍵字「新聞」或「news」，可爬蟲財經新聞網站，取得5筆新聞。
 
-
+將使用者line id以及在聊天室打上的字存至PostgreSQL資料庫內，目的主要是認為未來也許可以分析使用者習慣等。
+此功能目前只有新增及更新。<br>
+股票app已可取得台灣股票上市公司相關資訊，此功能尚未完成。
+<hr>
 
 - [氣象局](https://opendata.cwa.gov.tw/dist/opendata-swagger.html) <br>
 - [Django Doc.](https://docs.djangoproject.com/en/5.0/) <br>
 - [Line-bot-sdk-python](https://line-bot-sdk-python.readthedocs.io/en/stable/index.html) <br>
 - [ngrok](https://ngrok.com/)
 - [selenium](https://github.com/seleniumhq/selenium)
+- PostgreSQL
 
 ## 機器人回覆:
 ![image](https://github.com/clingoram/mylinebot/blob/master/images/S__34291716.jpg "氣象訊息回覆 - 不在可查詢範圍內")
