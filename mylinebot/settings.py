@@ -2,20 +2,20 @@ from pathlib import Path
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) #Path(__file__).resolve().parent.parent
 
 # Line Bot
-LINE_CHANNEL_ACCESS_TOKEN = 'your line bot api token'
-LINE_CHANNEL_SECRET ='your channel secret'
+LINE_CHANNEL_ACCESS_TOKEN = os.environ.get("LINE_CHANNEL_ACCESS_TOKEN")
+LINE_CHANNEL_SECRET = os.environ.get("LINE_CHANNEL_SECRET")
 
 # Weather
-WEATHER_ACCESS_TOKEN = 'your token'
+WEATHER_ACCESS_TOKEN = os.environ.get("WEATHER_ACCESS_TOKEN")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-0db4)@p26jzn_ryp#&06@iv=^w5_i&v#f7jra&2m&57-!m!a8h'
+SECRET_KEY = os.environ.get("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -76,13 +76,12 @@ DATABASES = {
     'default': {
         # 'ENGINE': 'django.db.backends.sqlite3',
         # 'NAME': BASE_DIR / 'db.sqlite3',
-
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'django_linebot',
-        'USER': 'postgres',
-        'PASSWORD': 'password',
-        'HOST': 'localhost', 
-        'PORT': '5432', 
+        'ENGINE': os.environ.get('DB_ENGINE'),
+        'NAME': os.environ.get('DB_NAME'),
+        'USER': os.environ.get('USER'),
+        'PASSWORD': os.environ.get('PASSWORD'),
+        'HOST': os.environ.get('HOST'),
+        'PORT': os.environ.get('PORT'),
     }
 }
 
