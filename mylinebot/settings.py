@@ -2,7 +2,7 @@ from pathlib import Path
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) #Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent #os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Line Bot
 LINE_CHANNEL_ACCESS_TOKEN = os.environ.get("LINE_CHANNEL_ACCESS_TOKEN")
