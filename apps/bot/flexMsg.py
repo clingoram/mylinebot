@@ -1,4 +1,4 @@
-from weather.views import weatherAPI
+from apps.weather.views import weatherAPI
 
 def flex_message(location:str):
   '''

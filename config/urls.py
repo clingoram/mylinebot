@@ -17,11 +17,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path,re_path
 
-from bot import views
-from crawler.views import crawlerSomething
-from stock.views import combineStockData
+from apps.bot import views
+from apps.crawler.views import crawlerSomething
+from apps.stock.views import combineStockData
 
-
+# 全站路由，會先進入這，在轉到各app
 urlpatterns = [
     path('admin/', admin.site.urls),
     # line bot

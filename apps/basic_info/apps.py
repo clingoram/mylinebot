@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class StockConfig(AppConfig):
+class BasicInfoConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'stock'
+    name = 'apps.basic_info'

@@ -1,3 +1,17 @@
+from django.http import HttpResponse
+from django.views.decorators.csrf import csrf_exempt
+
+from .router import handle_message
+
+@csrf_exempt
+def callback(request):
+    text = request.body.decode("utf-8")
+
+    reply = handle_message(text)
+
+    return HttpResponse(reply)
+
+'''
 from logging import basicConfig
 from unicodedata import numeric
 from urllib import request
@@ -7,12 +21,12 @@ from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbid
 from django.views.decorators.csrf import csrf_exempt
 
 # import function
-from bot.flexMsg import flex_message
-from basic_info.views import insertKeyWord,create_user
-from crawler.views import crawlerSomething
+from apps.bot.flexMsg import flex_message
+from apps.basic_info.views import insertKeyWord,create_user
+from apps.crawler.views import crawlerSomething
 from cityList import city
 # import model
-from basic_info.models import Person,Message
+from apps.basic_info.models import Person,Message
 
 import requests
 
@@ -53,8 +67,8 @@ def handle_message(request):
         keyWord = i.message.text
 
         message=[]
+        # 新聞爬蟲
         if keyWord == "新聞" or keyWord == "news":
-          # 新聞爬蟲
           crawler = crawlerSomething()
           line_bot_api.reply_message(i.reply_token,TextSendMessage(text=crawler))
           
@@ -67,6 +81,8 @@ def handle_message(request):
           create_user(id,name)
           message.append(TextSendMessage(text="資料新增完畢"))
 
+
+        # 搜尋天氣資訊
         if keyWord[-1] == "市" or keyWord[-1] == "縣":
           weatherResult = flex_message(keyWord)
           if bool(weatherResult):
@@ -79,3 +95,4 @@ def handle_message(request):
     return HttpResponse()
   else:
     return HttpResponseBadRequest()
+'''

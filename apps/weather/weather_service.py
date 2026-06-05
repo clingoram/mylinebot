@@ -1,3 +1,12 @@
+'''
+weather_services.py
+
+呼叫外部 API
+爬蟲
+資料整理（parsing / transform）
+商業邏輯（business logic）
+'''
+
 from logging import basicConfig
 from urllib import request
 from django.shortcuts import render
@@ -26,7 +35,7 @@ def weatherAPI(location:str)->list:
       '''
       if location != "":
         # 替換簡體字
-        # 若location非none且location中有"台"字
+        # 若location非none且location中有"台"字，則將簡體字替換成繁體
         if "台" in location:
           location = location.replace("台", "臺")
 
@@ -59,48 +68,50 @@ def weatherAPI(location:str)->list:
           for place in data["records"]["location"]:  
             weatherDictList = []
             timeDictList = []
+            # 最低溫
             minTemperatureDictList = []
+            # 最高溫
             maxTemperatureDictList = []
             ciDictList = []
             popDictList = []
 
-            for w in place['weatherElement']:
-              for timeDict in w["time"]:
+            for weather in place['weatherElement']:
+              for timeDict in weather["time"]:
                 timeDictList.append({
                   "startTime": timeDict["startTime"],
                   "endTime": timeDict["endTime"],
                 })
 
-              if w['elementName'] == "MinT":
+              if weather['elementName'] == "MinT":
                 # 最低溫
-                for timeDict in w["time"]:
+                for timeDict in weather["time"]:
                   minTemperatureDictList.append({
                     "value": timeDict['parameter']['parameterName'] #+timeDict['parameter']['parameterUnit']
                   })
 
-              if w['elementName'] == "MaxT":
+              if weather['elementName'] == "MaxT":
                 # 最高溫
-                for timeDict in w["time"]:
+                for timeDict in weather["time"]:
                   maxTemperatureDictList.append({
                     "value": timeDict['parameter']['parameterName']
                   })
 
-              if w['elementName'] == "CI":
-                for timeDict in w["time"]:
+              if weather['elementName'] == "CI":
+                for timeDict in weather["time"]:
                   ciDictList.append({
                     "value": timeDict['parameter']['parameterName']
                   })
      
-              if w['elementName'] == "Wx":
+              if weather['elementName'] == "Wx":
                 # 天氣描述
-                for timeDict in w["time"]:
+                for timeDict in weather["time"]:
                   weatherDictList.append({
                     "value": timeDict['parameter']['parameterName']
                   })
 
-              if w['elementName'] == "PoP":
+              if weather['elementName'] == "PoP":
                 # 降雨機率
-                for timeDict in w["time"]:
+                for timeDict in weather["time"]:
                   popDictList.append({
                     "value": timeDict['parameter']['parameterName']+"%"
                   })
@@ -114,6 +125,7 @@ def weatherAPI(location:str)->list:
               "maxTemperatureDictList":maxTemperatureDictList[0],
               "popDictList":popDictList[0]
             } 
+
             dataDictList.append(tempDict)
           return dataDictList
       pass

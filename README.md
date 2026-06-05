@@ -3,10 +3,7 @@
 使用Django建置LINE機器人。
 在本機開發時，使用ngrok建立https伺服器。
 
-### How to run:
-
-本機:
-python3 manage.py runserver
+### 功能
 
 - 功能1:<br>
   可依據使用者欲搜尋的臺灣城市，從氣象局API撈出對應的天氣資訊，目前取得的天氣時間資料區間為當天的資料。<br>
@@ -17,9 +14,22 @@ python3 manage.py runserver
 - 功能2:<br>
   使用者在聊天室打上關鍵字「新聞」或「news」，可爬蟲財經新聞網站，取得5筆新聞。
 
-將使用者line id以及在聊天室打上的字存至PostgreSQL資料庫內，目的主要是認為未來也許可以分析使用者習慣等。
+將使用者line id以及在聊天室打上的字存至PostgreSQL資料庫內，目的主要是認為未來也許可以分析使用者習慣、資料持久化、推播功能等。
 此功能目前只有新增及更新。<br>
-股票app已可取得台灣股票上市公司相關資訊，此功能尚未完成。
+股票已可取得台灣股票上市公司相關資訊，此功能尚未完成。
+
+### 技術
+
+- Django
+- LINE Bot
+- PostgreSQL
+- Selenium
+- Docker
+
+### How to run:
+
+本機:
+建制虛擬環境後python3 manage.py runserver
 
 <hr>
 

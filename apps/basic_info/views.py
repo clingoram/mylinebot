@@ -1,6 +1,6 @@
 from django.shortcuts import render
 # import model
-from basic_info.models import Person,Message
+from apps.basic_info.models import Person,Message
 from datetime import datetime
 
 def create_user(request,id:str,name:str):
