@@ -1,17 +1,17 @@
-from django.http import HttpResponse
-from django.views.decorators.csrf import csrf_exempt
+# from django.http import HttpResponse
+# from django.views.decorators.csrf import csrf_exempt
 
-from .router import handle_message
+# from .router import handle_message
 
-@csrf_exempt
-def callback(request):
-    text = request.body.decode("utf-8")
+# @csrf_exempt
+# def callback(request):
+#     text = request.body.decode("utf-8")
 
-    reply = handle_message(text)
+#     reply = handle_message(text)
 
-    return HttpResponse(reply)
+#     return HttpResponse(reply)
 
-'''
+
 from logging import basicConfig
 from unicodedata import numeric
 from urllib import request
@@ -45,9 +45,10 @@ parser = WebhookParser(settings.LINE_CHANNEL_SECRET)
 
 @csrf_exempt
 def handle_message(request):
-  if request.method == "POST":
-    signature = request.META['HTTP_X_LINE_SIGNATURE']
+  if request.method == 'POST':
     body = request.body.decode('utf-8')
+    signature = request.META['HTTP_X_LINE_SIGNATURE']
+
     try:
       # 傳入事件
       handleEvent = parser.parse(body, signature)
@@ -58,27 +59,31 @@ def handle_message(request):
     except LineBotApiError:
       return HttpResponseBadRequest()
 
-    for i in handleEvent:
+    for event in handleEvent:
       # 如果有事件
-      if isinstance(i,MessageEvent):
-        id = i.source.user_id
-        profile = line_bot_api.get_profile(id)
+      if isinstance(event,MessageEvent):
+        userId = event.source.user_id
+        profile = line_bot_api.get_profile(userId)
         name = profile.display_name
-        keyWord = i.message.text
+        keyWord = event.message.text
 
         message=[]
+
         # 新聞爬蟲
         if keyWord == "新聞" or keyWord == "news":
           crawler = crawlerSomething()
-          line_bot_api.reply_message(i.reply_token,TextSendMessage(text=crawler))
-          
-        # if keyWord == "功能列表":
-        #   rich_menu = line_bot_api.get_rich_menu(settings.RICH_MENU)
-        #   line_bot_api.reply_message(i.reply_token,FlexSendMessage(alt_text='FlexMessage',contents=flexMessage))
-      
-        if not Person.objects.filter(uid=id).exists():
+          line_bot_api.reply_message(event.reply_token,TextSendMessage(text=crawler))
+          # message.append(TextSendMessage(text=keyWord))
+          # line_bot_api.reply_message(event.reply_token,message)
+           
+        if keyWord == "功能列表":
+          # TODO: RICH_MENU沒這東西
+          rich_menu = line_bot_api.get_rich_menu(settings.RICH_MENU)
+          line_bot_api.reply_message(event.reply_token,FlexSendMessage(alt_text='FlexMessage',contents=flex_message))
+
+        if not Person.objects.filter(uid=userId).exists():
           # 建立person(user)
-          create_user(id,name)
+          create_user(userId,name)
           message.append(TextSendMessage(text="資料新增完畢"))
 
 
@@ -86,13 +91,13 @@ def handle_message(request):
         if keyWord[-1] == "市" or keyWord[-1] == "縣":
           weatherResult = flex_message(keyWord)
           if bool(weatherResult):
-           line_bot_api.reply_message(i.reply_token,FlexSendMessage(alt_text = keyWord + "氣象資訊",contents=weatherResult)) 
+            line_bot_api.reply_message(event.reply_token,FlexSendMessage(alt_text = keyWord + "氣象資訊",contents=weatherResult)) 
           else:
-            line_bot_api.reply_message(i.reply_token,TextSendMessage(text = keyWord + "不在可搜尋範圍內。可搜尋: "+",".join(city())))
+            line_bot_api.reply_message(event.reply_token,TextSendMessage(text = keyWord + "不在可搜尋範圍內。可搜尋: "+",".join(city())))
 
         # 新增關鍵字至資料表
         insertKeyWord(profile.user_id,keyWord)
-    return HttpResponse()
+      return HttpResponse()
+  
   else:
     return HttpResponseBadRequest()
-'''

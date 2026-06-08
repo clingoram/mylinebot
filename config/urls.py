@@ -23,14 +23,19 @@ from apps.stock.views import combineStockData
 
 # 全站路由，會先進入這，在轉到各app
 urlpatterns = [
+    # Django管理
     path('admin/', admin.site.urls),
+
     # line bot
     # re_path('callback', views.callback),
     # re_path('callback',views.callbackLine, name = "callbackLine")
 
     # line bot
     path('callback',views.handle_message, name = "handle_message"),
+
     # news crawler
     # path('',crawlerSomething),
     # path('stock',combineStockData)
+
+
 ]

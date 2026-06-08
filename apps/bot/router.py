@@ -1,26 +1,26 @@
 '''
 分流
 '''
-from apps.weather.service import get_weather
-from apps.news.service import get_news
-from apps.stock.service import get_stock
+# from apps.weather.service import get_weather
+# from apps.news.service import get_news
+# from apps.stock.service import get_stock
 
 
-def handle_message(text):
+# def handle_message(text):
 
-    text = text.strip()
+#     text = text.strip()
 
-    # 天氣
-    if text.startswith("天氣"):
-        city = text.replace("天氣", "").strip()
-        return get_weather(city)
+#     # 天氣
+#     if text.startswith("天氣"):
+#         city = text.replace("天氣", "").strip()
+#         return get_weather(city)
 
-    # 新聞
-    if text == "新聞":
-        return get_news()
+#     # 新聞
+#     if text == "新聞":
+#         return get_news()
 
-    # 股票（純數字）
-    if text.isdigit():
-        return get_stock(text)
+#     # 股票（純數字）
+#     if text.isdigit():
+#         return get_stock(text)
 
-    return "指令：天氣 台北 / 新聞 / 2330"
+#     return "指令：天氣 台北 / 新聞 / 2330"
