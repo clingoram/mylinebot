@@ -35,6 +35,7 @@ import numpy as np
 from datetime import datetime, timedelta
 
 # line bot
+import linebot.v3.messaging
 from linebot import LineBotApi
 from linebot.webhook import WebhookParser
 from linebot.exceptions import InvalidSignatureError, LineBotApiError,BaseError
