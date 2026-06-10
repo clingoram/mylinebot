@@ -21,6 +21,8 @@ from apps.bot import views
 from apps.crawler.views import crawlerSomething
 from apps.stock.views import combineStockData
 
+print("VIEW MODULE:", views.handle_message.__module__)
+
 # 全站路由，會先進入這，在轉到各app
 urlpatterns = [
     # Django管理

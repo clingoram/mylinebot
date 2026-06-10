@@ -1,9 +1,9 @@
 '''
 分流
 '''
-# from apps.weather.service import get_weather
-# from apps.news.service import get_news
-# from apps.stock.service import get_stock
+# from apps.weather.weather_service import get_weather
+# # from apps.news.news_service import get_news
+# # from apps.stock.service import get_stock
 
 
 # def handle_message(text):

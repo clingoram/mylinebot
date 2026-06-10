@@ -1,17 +1,3 @@
-# from django.http import HttpResponse
-# from django.views.decorators.csrf import csrf_exempt
-
-# from .router import handle_message
-
-# @csrf_exempt
-# def callback(request):
-#     text = request.body.decode("utf-8")
-
-#     reply = handle_message(text)
-
-#     return HttpResponse(reply)
-
-
 from logging import basicConfig
 from unicodedata import numeric
 from urllib import request
@@ -35,7 +21,6 @@ import numpy as np
 from datetime import datetime, timedelta
 
 # line bot
-import linebot.v3.messaging
 from linebot import LineBotApi
 from linebot.webhook import WebhookParser
 from linebot.exceptions import InvalidSignatureError, LineBotApiError,BaseError
@@ -46,6 +31,7 @@ parser = WebhookParser(settings.LINE_CHANNEL_SECRET)
 
 @csrf_exempt
 def handle_message(request):
+ 
   if request.method == 'POST':
     body = request.body.decode('utf-8')
     signature = request.META['HTTP_X_LINE_SIGNATURE']
@@ -68,37 +54,35 @@ def handle_message(request):
         name = profile.display_name
         keyWord = event.message.text
 
+        # 新增關鍵字至資料表
+        insertKeyWord(profile.user_id,keyWord)
+
         message=[]
 
         # 新聞爬蟲
         if keyWord == "新聞" or keyWord == "news":
           crawler = crawlerSomething()
           line_bot_api.reply_message(event.reply_token,TextSendMessage(text=crawler))
-          # message.append(TextSendMessage(text=keyWord))
-          # line_bot_api.reply_message(event.reply_token,message)
            
-        if keyWord == "功能列表":
-          # TODO: RICH_MENU沒這東西
+        elif keyWord == "功能列表":
           rich_menu = line_bot_api.get_rich_menu(settings.RICH_MENU)
           line_bot_api.reply_message(event.reply_token,FlexSendMessage(alt_text='FlexMessage',contents=flex_message))
+        
+
+        # 搜尋天氣資訊
+        elif keyWord[-1] == "市" or keyWord[-1] == "縣":
+          weatherResult = flex_message(keyWord)
+          if weatherResult:
+            line_bot_api.reply_message(event.reply_token,FlexSendMessage(alt_text = keyWord + "氣象資訊",contents=weatherResult)) 
+          else:
+            line_bot_api.reply_message(event.reply_token,TextSendMessage(text = keyWord + "不在可搜尋範圍內。可搜尋: "+",".join(city())))
 
         if not Person.objects.filter(uid=userId).exists():
           # 建立person(user)
           create_user(userId,name)
           message.append(TextSendMessage(text="資料新增完畢"))
 
-
-        # 搜尋天氣資訊
-        if keyWord[-1] == "市" or keyWord[-1] == "縣":
-          weatherResult = flex_message(keyWord)
-          if bool(weatherResult):
-            line_bot_api.reply_message(event.reply_token,FlexSendMessage(alt_text = keyWord + "氣象資訊",contents=weatherResult)) 
-          else:
-            line_bot_api.reply_message(event.reply_token,TextSendMessage(text = keyWord + "不在可搜尋範圍內。可搜尋: "+",".join(city())))
-
-        # 新增關鍵字至資料表
-        insertKeyWord(profile.user_id,keyWord)
-      return HttpResponse()
+    return HttpResponse("OK!!",status=200)
   
   else:
-    return HttpResponseBadRequest()
+    return HttpResponse("Method not allowed", status=405)

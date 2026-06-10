@@ -26,6 +26,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
+# URL最後面不需要加上/
+APPEND_SLASH=False
 
 # Application definition
 
@@ -132,3 +134,4 @@ STATICFILES_DIRS =[
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
