@@ -1,3 +1,34 @@
+from apps.bot.router import route_event
+from django.views.decorators.csrf import csrf_exempt
+from django.conf import settings
+
+from linebot.exceptions import InvalidSignatureError, LineBotApiError,BaseError
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden
+from linebot.webhook import WebhookParser
+LINE_WEBHOOK_PARSER = WebhookParser(settings.LINE_CHANNEL_SECRET)
+
+
+@csrf_exempt
+def handle_message(request):
+  if request.method == 'POST':
+    body = request.body.decode('utf-8')
+    signature = request.META['HTTP_X_LINE_SIGNATURE']
+
+    try:
+      # 傳入事件
+      handleEvent = LINE_WEBHOOK_PARSER.parse(body, signature)
+    except BaseError:
+      return "發生錯誤"
+    except InvalidSignatureError:
+      return HttpResponseForbidden()
+    except LineBotApiError:
+      return HttpResponseBadRequest()
+    
+    return route_event(handleEvent)
+  else:
+    return HttpResponse("Method not allowed", status=405)
+  
+'''
 from logging import basicConfig
 from unicodedata import numeric
 from urllib import request
@@ -7,18 +38,12 @@ from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbid
 from django.views.decorators.csrf import csrf_exempt
 
 # import function
-from apps.bot.flexMsg import flex_message
+# from apps.bot.flexMsg import flex_message
 from apps.basic_info.views import insertKeyWord,create_user
 from apps.crawler.views import crawlerSomething
 from cityList import city
 # import model
 from apps.basic_info.models import Person,Message
-
-import requests
-
-import json,base64,hashlib,hmac,re
-import numpy as np
-from datetime import datetime, timedelta
 
 # line bot
 from linebot import LineBotApi
@@ -86,3 +111,4 @@ def handle_message(request):
   
   else:
     return HttpResponse("Method not allowed", status=405)
+'''

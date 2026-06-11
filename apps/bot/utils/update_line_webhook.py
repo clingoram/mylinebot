@@ -1,5 +1,6 @@
 '''
-更新webhook
+抓ngrok +更新 LINE webhook
+
 '''
 import time
 import requests
@@ -14,7 +15,7 @@ LINE_CHANNEL_ACCESS_TOKEN = os.getenv(
 
 def get_ngrok_url():
     '''
-    找ngrok URL
+    取ngrok URL
     '''
     res = requests.get(NGROK_API, timeout=2)
     tunnels = res.json().get("tunnels", [])

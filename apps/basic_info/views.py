@@ -24,3 +24,9 @@ def insertKeyWord(user_id:str,keyword:str):
     # 將user message(key word)存到message
     msg = Message.objects.create(uid = person, contentKeyWord = keyword,created_at = datetime.now())
     msg.save()
+
+  
+# def handle_menu(){
+#   rich_menu = line_bot_api.get_rich_menu(settings.RICH_MENU)
+#   line_bot_api.reply_message(event.reply_token,FlexSendMessage(alt_text='FlexMessage',contents=flex_message))
+# }

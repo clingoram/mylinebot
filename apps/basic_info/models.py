@@ -2,9 +2,11 @@ from django.db import models
 from django.db.models.functions import Now
 from django.core.validators import RegexValidator
 
-# Create your models here.
+
+# Database table
 class Person(models.Model):
   '''
+  table Person
   記錄使用者資訊
   '''
   # user id
@@ -36,6 +38,7 @@ class Person(models.Model):
 
 class Message(models.Model):
   '''
+  table Message
   記錄使用者欲搜尋的訊息
   '''
   # user id
