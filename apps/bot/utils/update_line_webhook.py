@@ -1,13 +1,16 @@
 '''
-因為ngrok每次重開，URL都會改變
-自動將ngrok所產生的網址更新到LINE Bot Webhook
+更新webhook
 '''
 import time
 import requests
-from django.conf import settings
+import os
 
 LINE_API = "https://api.line.me/v2/bot/channel/webhook/endpoint"
 NGROK_API = "http://127.0.0.1:4040/api/tunnels"
+
+LINE_CHANNEL_ACCESS_TOKEN = os.getenv(
+    "LINE_CHANNEL_ACCESS_TOKEN"
+)
 
 def get_ngrok_url():
     '''
@@ -23,41 +26,46 @@ def get_ngrok_url():
     return None
 
 
-def wait_ngrok(retry=10):
+def wait_ngrok(retry=30, delay=1):
     '''
     ngrok還沒ready會自動等
     webhook更新失敗會重試
     '''
-    for _ in range(retry):
+    for i in range(retry):
         url = get_ngrok_url()
         if url:
             return url
-        time.sleep(1)
-    return None
+
+        time.sleep(delay)
+
+    raise RuntimeError("ngrok not ready after waiting")
 
 
 def update_line_webhook():
+    '''
+    更新line webhook url
+    '''
     url = wait_ngrok()
 
-    print("ngrok url=", url)
+    print("💡 ngrok url=", url)
 
     if not url:
         print("沒抓到ngrok")
         return
 
     # 組合成webhook URL
-    callback_url = f"{url}/callback/"
+    callback_url = f"{url}/callback"
 
-    print("callback=", callback_url)
-    print("token=", settings.LINE_CHANNEL_ACCESS_TOKEN[:10], "...")
-    print("token valid=", bool(settings.LINE_CHANNEL_ACCESS_TOKEN))
-    print("token length=", len(settings.LINE_CHANNEL_ACCESS_TOKEN or ""))
+    print("💡 callback=", callback_url)
+    print("🔑 token=", LINE_CHANNEL_ACCESS_TOKEN[:10] + "...")
+    print("🔑 token valid=", bool(LINE_CHANNEL_ACCESS_TOKEN))
+    print("🔑 token length=", len(LINE_CHANNEL_ACCESS_TOKEN or ""))
 
     headers = {
-        "Authorization": f"Bearer {settings.LINE_CHANNEL_ACCESS_TOKEN}",
+        "Authorization": f"Bearer {LINE_CHANNEL_ACCESS_TOKEN}",
         "Content-Type": "application/json"
     }
-    # 呼叫LINE API更新 webhook
+    # 呼叫LINE API更新webhook
     res = requests.put(
         LINE_API,
         headers=headers,
