@@ -59,8 +59,8 @@ def update_line_webhook():
 
     print("💡 callback=", callback_url)
     print("🔑 token=", LINE_CHANNEL_ACCESS_TOKEN[:10] + "...")
-    print("🔑 token valid=", bool(LINE_CHANNEL_ACCESS_TOKEN))
-    print("🔑 token length=", len(LINE_CHANNEL_ACCESS_TOKEN or ""))
+    print("❓ token valid=", bool(LINE_CHANNEL_ACCESS_TOKEN))
+    print("📏 token length=", len(LINE_CHANNEL_ACCESS_TOKEN or ""))
 
     headers = {
         "Authorization": f"Bearer {LINE_CHANNEL_ACCESS_TOKEN}",

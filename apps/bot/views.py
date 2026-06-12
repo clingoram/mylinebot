@@ -25,6 +25,7 @@ def handle_message(request):
       return HttpResponseBadRequest()
     
     return route_event(handleEvent)
+  
   else:
     return HttpResponse("Method not allowed", status=405)
   

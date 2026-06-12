@@ -1,8 +1,7 @@
 from django.conf import settings
 from apps.crawler.services.crawler import crawlerSomething
-from cityList import city
-from linebot.models import MessageEvent, TextSendMessage,TextMessage,FlexSendMessage
-from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden
+from linebot.models import TextSendMessage
+from django.http import HttpResponse
 
 
 from linebot import LineBotApi

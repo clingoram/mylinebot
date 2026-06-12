@@ -1,17 +1,14 @@
-from hmac import new
-from django.shortcuts import render
-from django.views.decorators.csrf import csrf_exempt
-from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden
-
 from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 def crawlerSomething()->str:
-
+    '''
+    新聞爬蟲
+    '''
     option = Options()
-    option.binary_location = "/usr/bin/brave-browser" 
     option.add_argument("--headless=new")
     option.add_argument('blink-settings=imagesEnabled=false')
     option.add_argument("--disable-extensions")
@@ -19,54 +16,36 @@ def crawlerSomething()->str:
     option.add_argument("--disable-gpu")
     driver = webdriver.Chrome(options=option)
 
-    # Initialize the driver (Selenium 4 automatically manages the driver paths)
-    # driver = webdriver.Chrome(options=option)
-
-    # driver.get("https://www.google.com")
-    # print(driver.title)
-    # driver.quit()
-
-    # return HttpResponse("OK!!",status=200)
-
-    '''
-    新聞爬蟲
-    '''
-  
-
-    driver = webdriver.Chrome()
     driver.get("https://www.ctee.com.tw/livenews")
-    driver.implicitly_wait(2)
-    element = driver.find_elements(By.CLASS_NAME,'newslist__card')
 
-    countData = 0
+    # 最多等5秒，若1秒就找到元素便立刻向下執行
+    WebDriverWait(driver, 5).until(
+        EC.presence_of_element_located(
+            (By.CLASS_NAME, "newslist__card")
+        )
+    )
+
     content = ""
-    for i in element:
-        newsTitle = ""
-        newsType = ""
-        newsLink = ""
-        newsTime = ""
-        if countData <= 5:
-          try:
-            # 新聞標題
-            newsTitle = i.find_elements(By.CLASS_NAME,'news-title')
-            print(newsTitle)
-            # 新聞類型
-            newsType = i.find_elements(By.CLASS_NAME,'news-category')
-            # 新聞發佈時間
-            time = i.find_elements(By.CLASS_NAME,"news-time")
-            for j in time:
-              newsTime = j.text
-            # 新聞連結
-            link = i.find_elements(By.CSS_SELECTOR,".news-title [href]")
-            for j in link:
-              newsLink = j.get_attribute('href')
+    element = driver.find_elements(By.CLASS_NAME,'newslist__card')
+    for i in element[:5]:
+        print("執行中...")
+        try:
+          # 新聞標題
+          newsTitle = i.find_element(By.CLASS_NAME,"news-title").text
+          # 新聞類型
+          newsType = i.find_elements(By.CLASS_NAME,'news-category')
+          # 新聞發佈時間
+          time = i.find_elements(By.CLASS_NAME,"news-time")
+          for j in time:
+            newsTime = j.text
 
-            content += "[{}] {}\n{}\n{}\n".format(newsType[0].text,newsTime,newsTitle[0].text, newsLink)
-            countData += 1
-          except:
-              pass
-        else:
-          break
+          # 新聞連結
+          newsLink = i.find_element(By.CLASS_NAME,"news-title").get_attribute("href")
+
+          content += "[{}] {}\n{}\n{}\n".format(newsType[0].text,newsTime,newsTitle, newsLink)
+
+        except Exception as e:
+          print("錯誤:",e)
 
     driver.quit()
     return content

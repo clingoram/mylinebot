@@ -29,7 +29,7 @@ def route_event(handleEvent):
         # 新增關鍵字至資料表
         insertKeyWord(profile.user_id,keyWord)
 
-        if keyWord in ["新聞", "news"]:
+        if keyWord in ["新聞", "news","News","NEWS"]:
           return handle_news(event)
 
 
