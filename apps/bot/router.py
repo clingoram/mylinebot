@@ -1,16 +1,16 @@
 
 from django.conf import settings
-# from apps.stock.views import handle_stock
-# from apps.crawler.views import crawlerSomething
-from apps.crawler.services.handle_news import handle_news
 
-from apps.basic_info.views import insertKeyWord,create_user
 from apps.basic_info.models import Person,Message
+from apps.basic_info.services.create_user import create_user
+from apps.basic_info.services.create_keyword import insertKeyWord
+from apps.crawler.services.handle_news import handle_news
 from apps.weather.services.handle_weather import handle_weather
+from apps.stock.services.handle_stock_data import combineStockData
 
 from linebot.models import MessageEvent,TextSendMessage,TextMessage,FlexSendMessage
 from linebot import LineBotApi
-line_bot_api = LineBotApi(settings.LINE_CHANNEL_ACCESS_TOKEN)
+LINE_BOT_API = LineBotApi(settings.LINE_CHANNEL_ACCESS_TOKEN)
 
 def route_event(handleEvent):
     '''
@@ -20,7 +20,7 @@ def route_event(handleEvent):
     for event in handleEvent:
       if isinstance(event, MessageEvent):
         userId = event.source.user_id
-        profile = line_bot_api.get_profile(userId)
+        profile = LINE_BOT_API.get_profile(userId)
         name = profile.display_name
         keyWord = event.message.text
 
@@ -35,14 +35,15 @@ def route_event(handleEvent):
 
         if keyWord.endswith(("市", "縣")):
           return handle_weather(event)
-        
-        # if keyWord in "功能":
-          
 
-        if not Person.objects.filter(uid=userId).exists():
-          # 建立person(user)
-          create_user(userId,name)
-          message.append(TextSendMessage(text="資料新增完畢"))
+        if keyWord in ["股票","stock","Stock"]:
+          print(combineStockData())
+          # return combineStockData()
+
+        # if not Person.objects.filter(uid=userId).exists():
+        #   # 建立person(user)
+        #   create_user(userId,name)
+        #   message.append(TextSendMessage(text="資料新增完畢"))
 
         # return handle_default(event)
     '''
