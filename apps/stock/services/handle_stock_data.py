@@ -10,6 +10,8 @@ import requests
 from apps.stock.services.get_company_info import getCompanyInfo
 from apps.stock.services.get_price import getPrice
 
+import yfinance as yf
+
 # @csrf_exempt
 def combineStockData():
     '''
@@ -47,3 +49,35 @@ def combineStockData():
     return HttpResponse("OK!!",status=200)
 #   else:
 #     return HttpResponse("Something wrong...",status=405)
+
+def getStock(stock_number):
+    stock = yf.Ticker("2300.TW")  #台積電
+    df = stock.history(period="1mo")
+    print(df)
+    info = stock.info
+    # print(info['city'])
+    for key, value in info.items():
+        return map['city']
+        # print(key)
+    return "H"
+        
+
+def map():
+    fieldMap = {
+        "Open": "開盤價",
+        "High": "最高價",
+        "Low": "最低價",
+        "Close": "收盤價",
+        "Adj Close": "調整收盤價",
+        "Volume": "成交量",
+
+        "marketCap": "市值",
+        "trailingPE": "本益比",
+        "forwardPE": "預估本益比",
+        "dividendYield": "殖利率",
+
+        "longName": "公司名稱",
+        "sector": "產業",
+        "industry": "子產業",
+    }
+    return fieldMap

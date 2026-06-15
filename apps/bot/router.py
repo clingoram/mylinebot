@@ -6,7 +6,7 @@ from apps.basic_info.services.create_user import create_user
 from apps.basic_info.services.create_keyword import insertKeyWord
 from apps.crawler.services.handle_news import handle_news
 from apps.weather.services.handle_weather import handle_weather
-from apps.stock.services.handle_stock_data import combineStockData
+from apps.stock.services.handle_stock_data import combineStockData,getStock
 
 from linebot.models import MessageEvent,TextSendMessage,TextMessage,FlexSendMessage
 from linebot import LineBotApi
@@ -37,7 +37,7 @@ def route_event(handleEvent):
           return handle_weather(event)
 
         if keyWord in ["股票","stock","Stock"]:
-          print(combineStockData())
+          print(getStock("2300"))
           # return combineStockData()
 
         # if not Person.objects.filter(uid=userId).exists():
