@@ -6,9 +6,11 @@ from apps.basic_info.services.create_user import create_user
 from apps.basic_info.services.create_keyword import insertKeyWord
 from apps.crawler.services.handle_news import handle_news
 from apps.weather.services.handle_weather import handle_weather
-from apps.stock.services.handle_stock_data import combineStockData,getStock
+from apps.stock.services.handle_stock_data import handle_stock_data
+from django.http import HttpResponse
 
-from linebot.models import MessageEvent,TextSendMessage,TextMessage,FlexSendMessage
+
+from linebot.models import MessageEvent
 from linebot import LineBotApi
 LINE_BOT_API = LineBotApi(settings.LINE_CHANNEL_ACCESS_TOKEN)
 
@@ -32,13 +34,12 @@ def route_event(handleEvent):
         if keyWord in ["新聞", "news","News","NEWS"]:
           return handle_news(event)
 
-
         if keyWord.endswith(("市", "縣")):
           return handle_weather(event)
 
-        if keyWord in ["股票","stock","Stock"]:
-          print(getStock("2300"))
-          # return combineStockData()
+        
+        if keyWord.startswith(("股票","stock","Stock")):
+          return handle_stock_data(event)
 
         # if not Person.objects.filter(uid=userId).exists():
         #   # 建立person(user)
