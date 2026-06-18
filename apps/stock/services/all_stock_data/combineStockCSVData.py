@@ -1,11 +1,12 @@
-from apps.stock.services.get_company_info import getCompanyInfo
-from apps.stock.services.get_price import getPrice
+from apps.stock.services.all_stock_data.get_company_info import getCompanyInfo
+from apps.stock.services.all_stock_data.get_price import getPrice
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 
 @csrf_exempt
 def combineStockData():
     '''
+    取得台灣上市上櫃的股票資料
     結合getCompanyInfo和getPrice
     '''
     #   if request.method == "GET":

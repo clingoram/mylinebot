@@ -1,13 +1,13 @@
-
 from django.conf import settings
+from django.http import HttpResponse
 
 from apps.basic_info.models import Person,Message
 from apps.basic_info.services.create_user import create_user
 from apps.basic_info.services.create_keyword import insertKeyWord
+
 from apps.crawler.services.handle_news import handle_news
 from apps.weather.services.handle_weather import handle_weather
 from apps.stock.services.handle_stock_data import handle_stock_data
-from django.http import HttpResponse
 
 
 from linebot.models import MessageEvent
@@ -23,13 +23,18 @@ def route_event(handleEvent):
       if isinstance(event, MessageEvent):
         userId = event.source.user_id
         profile = LINE_BOT_API.get_profile(userId)
-        name = profile.display_name
+        userName = profile.display_name
         keyWord = event.message.text
 
         message=[]
 
         # 新增關鍵字至資料表
         insertKeyWord(profile.user_id,keyWord)
+
+        # if not Person.objects.filter(uid=userId).exists():
+        #   # 建立person(user)
+        #   create_user(userId,userName)
+        #   message.append(TextSendMessage(text="資料新增完畢"))
 
         if keyWord in ["新聞", "news","News","NEWS"]:
           return handle_news(event)
@@ -38,13 +43,9 @@ def route_event(handleEvent):
           return handle_weather(event)
 
         
-        if keyWord.startswith(("股票","stock","Stock")):
+        if keyWord.startswith(("股票","stock","Stock","台股","臺股")):
           return handle_stock_data(event)
 
-        # if not Person.objects.filter(uid=userId).exists():
-        #   # 建立person(user)
-        #   create_user(userId,name)
-        #   message.append(TextSendMessage(text="資料新增完畢"))
 
         # return handle_default(event)
     '''

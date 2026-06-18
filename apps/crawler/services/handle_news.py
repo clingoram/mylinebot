@@ -9,7 +9,7 @@ LINE_BOT_API = LineBotApi(settings.LINE_CHANNEL_ACCESS_TOKEN)
 
 def handle_news(event):
     '''
-    將得到的資料塞進line bot內
+    將得到的新聞爬蟲資料塞進line bot內
     '''
     result = crawlerSomething()
 

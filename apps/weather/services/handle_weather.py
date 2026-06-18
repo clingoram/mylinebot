@@ -9,10 +9,9 @@ LINE_BOT_API = LineBotApi(settings.LINE_CHANNEL_ACCESS_TOKEN)
 
 def handle_weather(event):
     '''
-    將得到的資料塞進line bot內
+    將得到的氣象資料塞進line bot內
     '''
     result = flex_message(event.message.text)
-
     if result:
         LINE_BOT_API.reply_message(event.reply_token,FlexSendMessage(alt_text = event.message.text + "氣象資訊",contents=result)) 
     else:
