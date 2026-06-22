@@ -13,7 +13,8 @@ class PersonModelTests(TestCase):
     '''
     test insert into table.
     '''
-    person = Person.objects.create(uid="U21d0250e1363b12368796b2430bd0190",account="testuser",created_at=datetime.now())
+    # person = Person.objects.create(uid="U21d0250e1363b12368796b2430bd0190",account="testuser",created_at=datetime.now())
+    person = Person.objects.create(id="U21d",account="testuser",createdAt=datetime.now())
     person.save()
     self.assertTrue(person)
 
@@ -22,9 +23,9 @@ class PersonModelTests(TestCase):
     test to update table person updated_at column
     '''
     user_id = "U21d0250e1363b12368796b2430bd0190"
-    if Person.objects.filter(uid = user_id).exists():
-      person = Person.objects.get(uid=user_id)
-      person.updated_at = datetime.now()
+    if Person.objects.filter(id = user_id).exists():
+      person = Person.objects.get(id=user_id)
+      person.updatedAt = datetime.now()
       person.save()
       self.assertTrue(person)
     else:

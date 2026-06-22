@@ -9,8 +9,6 @@ class Person(models.Model):
   table Person
   記錄使用者資訊
   '''
-  # user id
-  uid = models.CharField(max_length = 50, null = False,unique = True)  
   # 使用者LINE名稱
   account = models.CharField(max_length = int(30), blank = False, null = False,editable = True,validators=[
         RegexValidator(
@@ -20,9 +18,9 @@ class Person(models.Model):
         ),
     ])
   # 近期更新時間
-  updated_at = models.DateTimeField(auto_now = True)
+  updatedAt = models.DateTimeField(auto_now = True)
   # 建立時間
-  created_at = models.DateTimeField(db_default = Now())
+  createdAt = models.DateTimeField(db_default = Now())
 
   # def __str__(self):
   #   return self.account
@@ -41,12 +39,11 @@ class Message(models.Model):
   table Message
   記錄使用者欲搜尋的訊息
   '''
-  # user id
-  uid = models.ForeignKey('Person', on_delete = models.CASCADE,to_field='uid',null = True, blank = True)
+  userId = models.ForeignKey(Person,null=True,on_delete=models.CASCADE)
   # 訊息內容
   contentKeyWord = models.CharField(max_length=200)
   # 建立時間
-  created_at = models.DateTimeField(db_default = Now())
+  createdAt = models.DateTimeField(db_default = Now())
   
   # def __str__(self) -> str:
   #   return self.contentKeyWord

@@ -6,5 +6,5 @@ def create_user(request,id:str,name:str):
   insert data into table
   '''
   if request.method == 'POST':
-    person = Person.objects.create(uid=id, account=name, created_at=datetime.now())
+    person = Person.objects.create(account=name, created_at=datetime.now())
     person.save()

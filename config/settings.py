@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     'apps.basic_info',
     'apps.weather',
     'apps.bot',
-    'apps.crawler'
+    'apps.crawler',
+    'apps.stock'
 ]
 
 MIDDLEWARE = [

@@ -21,7 +21,7 @@ def route_event(handleEvent):
     '''
     for event in handleEvent:
       if isinstance(event, MessageEvent):
-        userId = event.source.user_id
+        userId = event.source.id
         profile = LINE_BOT_API.get_profile(userId)
         userName = profile.display_name
         keyWord = event.message.text
@@ -29,7 +29,7 @@ def route_event(handleEvent):
         message=[]
 
         # 新增關鍵字至資料表
-        insertKeyWord(profile.user_id,keyWord)
+        insertKeyWord(profile.userId,keyWord)
 
         # if not Person.objects.filter(uid=userId).exists():
         #   # 建立person(user)
