@@ -8,9 +8,10 @@ from apps.basic_info.services.create_keyword import insertKeyWord
 from apps.crawler.services.handle_news import handle_news
 from apps.weather.services.handle_weather import handle_weather
 from apps.stock.services.handle_stock_data import handle_stock_data
+# from apps.stock.services.user_follow import userFollow
 
 
-from linebot.models import MessageEvent
+from linebot.models import MessageEvent,TextSendMessage
 from linebot import LineBotApi
 LINE_BOT_API = LineBotApi(settings.LINE_CHANNEL_ACCESS_TOKEN)
 
@@ -31,10 +32,10 @@ def route_event(handleEvent):
         # 新增關鍵字至資料表
         insertKeyWord(profile.userId,keyWord)
 
-        # if not Person.objects.filter(uid=userId).exists():
-        #   # 建立person(user)
-        #   create_user(userId,userName)
-        #   message.append(TextSendMessage(text="資料新增完畢"))
+        if not Person.objects.filter(uid=userId).exists():
+          # 建立person(user)
+          create_user(userId,userName)
+          message.append(TextSendMessage(text="資料新增完畢"))
 
         if keyWord in ["新聞", "news","News","NEWS"]:
           return handle_news(event)
@@ -43,9 +44,14 @@ def route_event(handleEvent):
           return handle_weather(event)
 
         
-        if keyWord.startswith(("股票","stock","Stock","台股","臺股")):
-          return handle_stock_data(event)
+        # if keyWord.startswith(("股票","stock","Stock","台股","臺股")):
+        #   return handle_stock_data(event)
 
+        # if keyWord.startswith("追蹤","follow","收藏"):
+        #   return userFollow(userId)
+
+        if keyWord in ["股票","stock","Stock","台股","臺股","追蹤","follow","收藏"]:
+          return handle_stock_data(event)
 
         # return handle_default(event)
     '''
