@@ -31,7 +31,10 @@ def handle_stock_data(event):
         result = getStock(re.findall(r"\d+", keyWord)[0])
         LINE_BOT_API.reply_message(event.reply_token,TextSendMessage(text=result))
 
-    elif keyWord.startswith("追蹤","follow","收藏"):
-        result = userFollow(userId)
+    elif keyWord.startswith("追蹤","follow"):
+        '''
+        追蹤 和 取消追蹤
+        '''
+        result = userFollow(userId,re.findall(r"\d+", keyWord)[0])
 
     return HttpResponse("OK!!",status=200)
