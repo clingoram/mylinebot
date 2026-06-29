@@ -10,17 +10,17 @@ class Person(models.Model):
   記錄使用者資訊
   '''
   # 使用者LINE名稱
-  account = models.CharField(max_length = int(30), blank = False, null = False,editable = True,validators=[
+  account = models.CharField(unique=True,max_length = int(150), blank = False, null = False,validators=[
         RegexValidator(
             regex='^[a-zA-Z0-9]*$',
             message='Account must be Alphanumeric',
             code='invalid_Account'
         ),
     ])
+  # 建立時間
+  createdAt = models.DateTimeField(auto_now_add=True)
   # 近期更新時間
   updatedAt = models.DateTimeField(auto_now = True)
-  # 建立時間
-  createdAt = models.DateTimeField(db_default = Now())
 
   # def __str__(self):
   #   return self.account
@@ -39,11 +39,11 @@ class Message(models.Model):
   table Message
   記錄使用者欲搜尋的訊息
   '''
-  userId = models.ForeignKey(Person,null=True,on_delete=models.CASCADE)
+  userAccount = models.ForeignKey(Person,to_field="account",db_column="userAccount",on_delete=models.CASCADE)
   # 訊息內容
   contentKeyWord = models.CharField(max_length=200)
   # 建立時間
-  createdAt = models.DateTimeField(db_default = Now())
+  createdAt = models.DateTimeField(auto_now_add=True)
   
   # def __str__(self) -> str:
   #   return self.contentKeyWord

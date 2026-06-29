@@ -22,5 +22,5 @@ class FavoriteStock(models.Model):
     user_id relationship with Person
     stock_id relationship with HotStock id
     '''
-    userId = models.ForeignKey('basic_info.Person', on_delete=models.CASCADE)
+    userId = models.ForeignKey('basic_info.Person', to_field="account",db_column="userAccount",on_delete=models.CASCADE)
     stockId = models.ForeignKey(HotStock, on_delete=models.CASCADE)
