@@ -1,2 +1,12 @@
-mylinebot/settings.py
+# environment
 .env
+venv/
+
+# catched
+__pycache__/
+*.pyc
+
+# database
+db.sqlite3
+
+
