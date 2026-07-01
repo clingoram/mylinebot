@@ -45,14 +45,14 @@ def route_event(handleEvent):
           return handle_weather(event)
 
         
-        if keyWord.startswith(("股票","stock","Stock","台股","臺股")):
-          return handle_stock_data(event)
+        # if keyWord.startswith(("股票","stock","Stock","台股","臺股")):
+          # return handle_stock_data(event)
 
         # if keyWord.startswith("追蹤","follow"):
         #   return userFollow(userId)
 
-        # if keyWord in ["股票","stock","Stock","台股","臺股","追蹤","follow"]:
-        #   return handle_stock_data(event)
+        if keyWord in ["股票","stock","Stock","台股","臺股","追蹤","follow"]:
+          return handle_stock_data(event)
 
         return HttpResponse("OK!!",status=200)
     return HttpResponse("Not allowed", status=405)
