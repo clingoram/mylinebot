@@ -2,9 +2,11 @@ def translate(info:dict,df):
     '''
     mapping 原始資料（英文）資訊至中文
     '''
+    
     announce = "⚠️ 此line bot之股票資料是從API取得。只提供股票相關資訊且用於個人side-project，不具有任何投資理財目的。 ⚠️"
     content = ""
     fieldMap = {
+        "代碼":info.get("symbol").strip(".TW"),
         "公司名稱":info.get("longName"),
         "產業":info.get("sector"),
         "類型":typeDisp(info.get("typeDisp")),
@@ -31,9 +33,11 @@ def translate(info:dict,df):
     #     if key in fieldMap:
     #       content += f"{fieldMap[key]}: {value}\n"
 
-    for key,value in fieldMap.items():
-        content+= f"{key}: {value}\n"
-    return f"{announce} \n" + "\n"+ content
+    # for key,value in fieldMap.items():
+    #     content+= f"{key}: {value}\n"
+    # return f"{announce} \n" + "\n"+ content
+
+    return fieldMap
 
 def typeDisp(infoType:str):
     '''
