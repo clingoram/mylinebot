@@ -65,7 +65,7 @@ def flex(key):
                     "action": {
                         "type": "postback",
                         "label": "加入追蹤",
-                        "data": f"action=watch&stock={stockO['代碼']}"
+                        "data": f"action=watch&stock_id={stockO['代碼']}"
                     }
                 }
             ]

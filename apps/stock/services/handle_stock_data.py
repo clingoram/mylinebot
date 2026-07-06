@@ -1,53 +1,50 @@
 from django.http import HttpResponse
-import re
-from apps.stock.services.get_stock import getStock
-from apps.stock.services.flex import flex
-from apps.stock.services.user_follow import userFollowList
-
 from django.conf import settings
+import re
+from urllib.parse import parse_qs
 
 from linebot import LineBotApi
 from linebot.models import TextSendMessage,TextMessage,FlexSendMessage
 
-from urllib.parse import parse_qs
+from apps.stock.services.flex import flex
+from apps.stock.services.user_follow import userFollowList
 
 LINE_BOT_API = LineBotApi(settings.LINE_CHANNEL_ACCESS_TOKEN)
 
 
-# def handle_stock_data(event):
-#     # 只保留數字0-9
-#     result = getStock(re.findall(r"\d+", event.message.text)[0])
-#     LINE_BOT_API.reply_message(event.reply_token,TextSendMessage(text=result))
-
-#     return HttpResponse("OK!!",status=200)
-
-
-def handle_stock_data(event):
-    # TODO:此涵式須加上使用者追蹤股票功能.尚未完成
+def handle_stock_data(event): 
+    '''
+    取得單一股票
+    '''
+    userId = event.source.user_id 
+    # 只保留數字0-9 
+    keyWord = re.findall(r"\d+", event.message.text)[0]
+    numbers = flex(keyWord)
     
-    userId = event.source.user_id
-    keyWord = event.message.text
-
-    # 只保留數字0-9
-    result = flex(re.findall(r"\d+", keyWord)[0])
-    # result = getStock(re.findall(r"\d+", keyWord)[0])
-    # LINE_BOT_API.reply_message(event.reply_token,TextSendMessage(text=result))
-    LINE_BOT_API.reply_message(event.reply_token,FlexSendMessage(alt_text = keyWord + "追蹤",contents=result)) 
-
-
+    if not numbers:
+        LINE_BOT_API.reply_message(event.reply_token,TextSendMessage(text="請輸入股票代號"))
+        return
+    
+    LINE_BOT_API.reply_message(event.reply_token,FlexSendMessage(alt_text = keyWord + f"追蹤 {keyWord}",contents=numbers)) 
+    
     return HttpResponse("OK!!",status=200)
 
-
-
 def handle_postback(event):
-    user_id = event.source.user_id
+    '''
+    按下 追蹤 (股票代碼)
+    '''
+    userId = event.source.user_id
     data = event.postback.data
+    # print(userId)
 
     params = parse_qs(data)
 
     action = params.get("action", [None])[0]
-    stock = params.get("stock", [None])[0]
+    stock = params.get("stock_id", [None])[0]
 
-    if action == "watch":
-        userFollowList(user_id, stock)
+    if action == "watch" and stock:
+        userFollowList(userId, stock)
+
         LINE_BOT_API.reply_message(event.reply_token,TextSendMessage(text=f"已加入追蹤：{stock}"))
+    else:
+        LINE_BOT_API.reply_message(event.reply_token,TextSendMessage(text="參數錯誤"))

@@ -4,23 +4,24 @@ from django.db import models
 class HotStock(models.Model):
     '''
     熱門台股
-    id,stock_code,stock_name
+    id,stockId,stockName
 
     eg. 
     id:1
-    stock_code:2330
-    stock_name:xxx
+    stockId:2330
+    stockName:xxx
     '''
-    stockCode = models.CharField(max_length=100,unique=True,blank=False)
+    stockId = models.CharField(max_length=100,unique=True,blank=False)
     stockName = models.CharField(max_length=200,blank=False)
 
 class FavoriteStock(models.Model):
     '''
     user收藏的stock
-    id,user_id,stock_id
+    id,userAccount,stockId
 
-    user_id relationship with Person
-    stock_id relationship with HotStock id
+    userAccount is relationship with id of table Person
+    stockId relationship with id of table HotStock
     '''
-    userId = models.ForeignKey('basic_info.Person', to_field="account",db_column="userAccount",on_delete=models.CASCADE)
-    stockId = models.ForeignKey(HotStock, on_delete=models.CASCADE)
+    userAccount = models.ForeignKey('basic_info.Person', to_field="account",db_column="userAccount",on_delete=models.CASCADE)
+    # stockId = models.ForeignKey(HotStock, on_delete=models.CASCADE)
+    stockId = models.CharField(max_length=100,unique=True,blank=False)

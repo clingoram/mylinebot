@@ -7,11 +7,9 @@ from apps.basic_info.services.create_keyword import insertKeyWord
 
 from apps.crawler.services.handle_news import handle_news
 from apps.weather.services.handle_weather import handle_weather
-from apps.stock.services.handle_stock_data import handle_stock_data
-# from apps.stock.services.user_follow import userFollow
+from apps.stock.services.handle_stock_data import handle_stock_data,handle_postback
 
-
-from linebot.models import MessageEvent,TextSendMessage
+from linebot.models import MessageEvent,TextSendMessage,PostbackEvent
 from linebot import LineBotApi
 LINE_BOT_API = LineBotApi(settings.LINE_CHANNEL_ACCESS_TOKEN)
 
@@ -53,5 +51,7 @@ def route_event(handleEvent):
         # if keyWord in ["股票","台股","臺股","追蹤","follow"]:
         #   return handle_stock_data(event)
 
-      return HttpResponse("OK!!",status=200)
-    return HttpResponse("Not allowed", status=405)
+      elif isinstance(event, PostbackEvent):
+        return handle_postback(event)
+
+    return HttpResponse("OK!!",status=200)

@@ -8,5 +8,9 @@ def userFollowList(userId:str,stockId):
     依據user id取得該user追蹤的所有股票名稱
     '''
 
-    FavoriteStock.objects.get_or_create(userId=userId,stock_no=stockId)
+    if Person.filter(account=userId).exists():
+        person = Person.get(account=userId)
+
+        FavoriteStock(userAccount=person,stockId=stockId)
+        FavoriteStock.save()
     
