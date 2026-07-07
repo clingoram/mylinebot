@@ -2,12 +2,12 @@ from django.conf import settings
 from django.http import HttpResponse
 
 from apps.basic_info.models import Person,Message
-from apps.basic_info.services.create_user import create_user
-from apps.basic_info.services.create_keyword import insertKeyWord
+from apps.basic_info.services.actions import create_user,create_Keyword
 
 from apps.crawler.services.handle_news import handle_news
 from apps.weather.services.handle_weather import handle_weather
-from apps.stock.services.handle_stock_data import handle_stock_data,handle_postback
+
+from apps.stock.services.handler import handle_stock_data,handle_postback
 
 from linebot.models import MessageEvent,TextSendMessage,PostbackEvent
 from linebot import LineBotApi
@@ -19,7 +19,8 @@ def route_event(handleEvent):
     分流
     '''
     for event in handleEvent:
-      if isinstance(event, MessageEvent):
+      if event.type == "message" and event.message.type == "text":
+      # if isinstance(event, MessageEvent):
         userId = event.source.user_id
         # profile = LINE_BOT_API.get_profile(userId)
         # userName = profile.display_name
@@ -28,9 +29,9 @@ def route_event(handleEvent):
         message=[]
 
         # 新增關鍵字至資料表
-        insertKeyWord(userId,keyWord)
+        create_Keyword(userId,keyWord)
 
-        if not Person.objects.filter(account=userId).exists():
+        if not Person.objects.filter(user_account=userId).exists():
           # 建立person(user)
           create_user(userId)
           # message.append(TextSendMessage(text="資料新增完畢"))
@@ -44,6 +45,9 @@ def route_event(handleEvent):
         
         if keyWord.startswith(("股票","stock","Stock","台股","臺股")):
           return handle_stock_data(event)
+        
+        # if keyWord in ["我的股票","追蹤清單"]:
+
 
         # if keyWord.startswith("追蹤","follow"):
         #   return userFollow(userId)

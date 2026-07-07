@@ -6,8 +6,8 @@ from urllib.parse import parse_qs
 from linebot import LineBotApi
 from linebot.models import TextSendMessage,TextMessage,FlexSendMessage
 
-from apps.stock.services.flex import flex
-from apps.stock.services.user_follow import userFollowList
+from apps.stock.services.quotes import get_stock_flex_message
+from apps.stock.services.tracking import follow_stock
 
 LINE_BOT_API = LineBotApi(settings.LINE_CHANNEL_ACCESS_TOKEN)
 
@@ -19,7 +19,7 @@ def handle_stock_data(event):
     userId = event.source.user_id 
     # 只保留數字0-9 
     keyWord = re.findall(r"\d+", event.message.text)[0]
-    numbers = flex(keyWord)
+    numbers = get_stock_flex_message(keyWord)
     
     if not numbers:
         LINE_BOT_API.reply_message(event.reply_token,TextSendMessage(text="請輸入股票代號"))
@@ -35,7 +35,6 @@ def handle_postback(event):
     '''
     userId = event.source.user_id
     data = event.postback.data
-    # print(userId)
 
     params = parse_qs(data)
 
@@ -43,7 +42,7 @@ def handle_postback(event):
     stock = params.get("stock_id", [None])[0]
 
     if action == "watch" and stock:
-        userFollowList(userId, stock)
+        follow_stock(userId, stock)
 
         LINE_BOT_API.reply_message(event.reply_token,TextSendMessage(text=f"已加入追蹤：{stock}"))
     else:

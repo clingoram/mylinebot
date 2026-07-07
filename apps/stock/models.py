@@ -11,8 +11,11 @@ class HotStock(models.Model):
     stockId:2330
     stockName:xxx
     '''
-    stockId = models.CharField(max_length=100,unique=True,blank=False)
-    stockName = models.CharField(max_length=200,blank=False)
+    stock_id = models.CharField(max_length=100,unique=True,blank=False)
+    stock_name = models.CharField(max_length=200,blank=False)
+
+    class Meta:
+        db_table = 'hot_stock'
 
 class FavoriteStock(models.Model):
     '''
@@ -22,6 +25,10 @@ class FavoriteStock(models.Model):
     userAccount is relationship with id of table Person
     stockId relationship with id of table HotStock
     '''
-    userAccount = models.ForeignKey('basic_info.Person', to_field="account",db_column="userAccount",on_delete=models.CASCADE)
+    user_account = models.ForeignKey('basic_info.person',db_column='user_account',on_delete=models.CASCADE)
     # stockId = models.ForeignKey(HotStock, on_delete=models.CASCADE)
-    stockId = models.CharField(max_length=100,unique=True,blank=False)
+    stock_id = models.CharField(max_length=100,unique=True,blank=False)
+
+
+    class Meta:
+        db_table = 'favorite_stock'
