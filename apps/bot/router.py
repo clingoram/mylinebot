@@ -7,9 +7,9 @@ from apps.basic_info.services.actions import create_user,create_Keyword
 from apps.crawler.services.handle_news import handle_news
 from apps.weather.services.handle_weather import handle_weather
 
-from apps.stock.services.handler import handle_stock_data,handle_postback
+from apps.stock.services.handler import handle_stock_data,handle_postback,handle_followlist
 
-from linebot.models import MessageEvent,TextSendMessage,PostbackEvent
+from linebot.models import PostbackEvent
 from linebot import LineBotApi
 LINE_BOT_API = LineBotApi(settings.LINE_CHANNEL_ACCESS_TOKEN)
 
@@ -20,7 +20,6 @@ def route_event(handleEvent):
     '''
     for event in handleEvent:
       if event.type == "message" and event.message.type == "text":
-      # if isinstance(event, MessageEvent):
         userId = event.source.user_id
         # profile = LINE_BOT_API.get_profile(userId)
         # userName = profile.display_name
@@ -46,14 +45,8 @@ def route_event(handleEvent):
         if keyWord.startswith(("股票","stock","Stock","台股","臺股")):
           return handle_stock_data(event)
         
-        # if keyWord in ["我的股票","追蹤清單"]:
-
-
-        # if keyWord.startswith("追蹤","follow"):
-        #   return userFollow(userId)
-
-        # if keyWord in ["股票","台股","臺股","追蹤","follow"]:
-        #   return handle_stock_data(event)
+        if keyWord in ["我的股票","追蹤清單"]:
+          return handle_followlist(event)
 
       elif isinstance(event, PostbackEvent):
         return handle_postback(event)

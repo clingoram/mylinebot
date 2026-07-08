@@ -1,7 +1,7 @@
 from django.http import JsonResponse
 from apps.basic_info.models import Person
 from apps.stock.models import FavoriteStock
-from apps.stock.services.quotes import get_stock_realtime_data
+from apps.stock.services.quotes import _fetch_api_data
 
 
 def follow_stock(userId:str,stockId):
@@ -16,114 +16,152 @@ def follow_stock(userId:str,stockId):
         FavoriteStock.objects.create(user_account=person,stock_id=stockId)
 
 # ❌
-def list_favorite_stocks(userId):
-    '''
-    列出使用者股票清單
-    '''
-    # 撈出該使用者所有的追蹤股票(部份股價資料)
-    stocks = FavoriteStock.objects.filter(user_account_id=userId).values_list('stock_id', flat=True)
-    
-    return JsonResponse({"stocks": list(stocks)})
-# ❌
-# def unfollow_stock(userId,stockId):
+# def list_favorite_stocks(userId):
 #     '''
-#     取消追蹤
+#     列出使用者股票清單
 #     '''
-#     stock_code = request.POST.get(stockId) # 假設從前端傳來要刪除的股票代碼
+#     # 撈出該使用者所有的追蹤股票(部份股價資料)
+#     stocks = FavoriteStock.objects.filter(user_account_id=userId).values_list('stock_id', flat=True)
     
-#     # 找到那一筆特定的追蹤紀錄並刪除
-#     deleted_count, _ = FavoriteStock.objects.filter(
-#         user_account_id=userId, 
-#         stock_code=stock_code
-#     ).delete()
-    
-#     if deleted_count > 0:
-#         return JsonResponse({"message": "Successfully removed"})
-#     return JsonResponse({"error": "Stock not found in favorites"}, status=404)
+#     return JsonResponse({"stocks": list(stocks)})
 
 # ❌
+def unfollow_stock(userId,stockId):
+    '''
+    取消追蹤
+    '''
+    stock_code = request.POST.get(stockId) # 假設從前端傳來要刪除的股票代碼
+    
+    # 找到那一筆特定的追蹤紀錄並刪除
+    deleted_count, _ = FavoriteStock.objects.filter(
+        user_account_id=userId, 
+        stock_code=stock_code
+    ).delete()
+    
+    if deleted_count > 0:
+        return JsonResponse({"message": "Successfully removed"})
+    return JsonResponse({"error": "Stock not found in favorites"}, status=404)
+
+
 def get_user_stocks_message(user_id):
-    # 1. 從自家的資料庫拿到自選股清單（例如 ['2330', '2454']）
-    user_stocks = FavoriteStock.objects.filter(user_account_id=user_id).values_list('stock_code', flat=True)
+    '''
+    取得使用者追蹤的所有股票清單
+    '''
+    # 先從Person找尋對應id
+    person_id = Person.objects.filter(user_account=user_id).values_list('id', flat=True).first()
+    # 取得該使用者追蹤的所有股票清單
+    user_stocks = FavoriteStock.objects.filter(user_account=person_id).values_list('stock_id', flat=True)
     
     stock_data_list = []
     for code in user_stocks:
-        # 2. 跨檔案呼叫公有窗口，拿到整齊的中文資料 Dict
-        data = get_stock_realtime_data(code) 
+        # 呼叫股票API並取得mapping後的中文資料
+        data = _fetch_api_data(code) 
         if data:
             stock_data_list.append(data)
             
-    # 3. 丟給同檔案底下的 Flex 產生器
+    # 丟給底下的產生flex message
     return build_favorite_stock_list_flex(stock_data_list)
 
-# ❌
+
 def build_favorite_stock_list_flex(stock_data_list):
     """
-    追蹤清單
-    
-    stock_data_list 傳入的格式範例:
-    [
-        {"code": "2330", "name": "台積電", "price": "1005", "change_percent": "+1.5", "trend": "up"},
-        {"code": "2454", "name": "聯發科", "price": "1210", "change_percent": "-0.8", "trend": "down"},
-    ]
+    flex message 追蹤清單
     """
+    bubbles = []
+    page_size = 5  # 每張卡片最多5檔股票
     
-    # flex Message
-    bubble = {
-        "type": "bubble",
-        "header": {
-            "type": "box",
-            "layout": "vertical",
-            "contents": [
-                {"type": "text", "text": "📊 我的追蹤清單", "weight": "bold", "size": "lg", "color": "#111111"}
-            ]
-        },
-        "body": {
-            "type": "box",
-            "layout": "vertical",
-            "spacing": "md", # 每一列之間空出適當間距
-            "contents": []
+    for i in range(0, len(stock_data_list), page_size):
+        chunk = stock_data_list[i:i+page_size]
+        page_num = (i // page_size) + 1
+        
+        # 單張卡片的基本結構
+        bubble = {
+            "type": "bubble",
+            "header": {
+                "type": "box",
+                "layout": "vertical",
+                "backgroundColor": "#111111",
+                "contents": [
+                    {"type": "text", "text": f"📊 我的追蹤清單 ({page_num})", "weight": "bold", "size": "lg"}
+                ]
+            },
+            "body": {
+                "type": "box",
+                "layout": "vertical",
+                "spacing": "md",
+                "contents": []
+            }
         }
-    }
+        
+        # 一張卡片塞入5檔股票
+        for stock in chunk:
+            if stock["漲跌"] > 0:
+                color = "#FF3B30"
+                change_text = f"+{stock['漲跌']}%"
+            elif stock["漲跌"] < 0:
+                color = "#28A745"
+                change_text = f"{stock['漲跌']}%"
+            else:
+                color = "#8E8E93"
+                change_text = "0.00%"
+                
+            row = {
+                "type": "box",
+                "layout": "horizontal",
+                "alignment": "center",
+                "contents": [
+                    # 左半邊：名稱與代碼
+                    {
+                        "type": "box",
+                        "layout": "vertical",
+                        "flex": 3, 
+                        "contents": [
+                            {"type": "text", "text": str(stock["公司名稱"]), "weight": "bold", "size": "md"},
+                            {"type": "text", "text": str(stock["代碼"]), "size": "xs", "color": "#8E8E93"}
+                        ]
+                    },
+                    # 右半邊：現價、漲跌幅以及取消追蹤按鈕
+                    {
+                        "type": "box",
+                        "layout": "vertical",
+                        "flex": 2,
+                        "align": "end",
+                        "contents": [
+                            {"type": "text", "text": str(stock["即時價格"]), "weight": "bold", "size": "md"},
+                            {"type": "text", "text": change_text, "size": "xs", "color": color, "weight": "bold"},
+                             # 取消追蹤按鈕
+                            {
+                                "type": "button",
+                                "action": {
+                                    "type": "postback",
+                                    "label": "取消追蹤",
+                                    "data": f"action=unfollow&stock_id={stock['代碼']}",
+                                    # "displayText": f"取消追蹤 {stock['公司名稱']}"  # 使用者點擊時對話框顯示的文字
+                                },
+                                "style": "secondary",
+                                "color": "#F2F2F7",
+                                "height": "sm",
+                                "margin": "xs"
+                            }
+                        ]
+                    }
+                ]
+            }
+            bubble["body"]["contents"].append(row)
+            bubble["body"]["contents"].append({"type": "separator", "margin": "md"})
+            
+        if bubble["body"]["contents"] and bubble["body"]["contents"][-1]["type"] == "separator":
+            bubble["body"]["contents"].pop()
+            
+        # 將做好的卡片append進陣列
+        bubbles.append(bubble)
     
-    # 動態將使用者追蹤的股票一檔一檔塞進去
-    for stock in stock_data_list:
-        # 根據漲跌決定顏色（台灣習慣紅漲綠跌，海外相反，可自行調整）
-        color = "#FF3B30" if stock["trend"] == "up" else "#34C759" if stock["trend"] == "down" else "#8E8E93"
-        
-        row = {
-            "type": "box",
-            "layout": "horizontal",
-            "alignment": "center",
-            "contents": [
-                # 左半邊：名稱與代碼
-                {
-                    "type": "box",
-                    "layout": "vertical",
-                    "contents": [
-                        {"type": "text", "text": stock["name"], "weight": "bold", "size": "md"},
-                        {"type": "text", "text": stock["code"], "size": "xs", "color": "#8E8E93"}
-                    ]
-                },
-                # 右半邊：現價與漲跌幅
-                {
-                    "type": "box",
-                    "layout": "vertical",
-                    "align": "end",
-                    "contents": [
-                        {"type": "text", "text": stock["price"], "weight": "bold", "size": "md"},
-                        {"type": "text", "text": f"{stock['change_percent']}%", "size": "xs", "color": color}
-                    ]
-                }
-            ]
+    # 如果只有1張，直接回傳bubble；如果多張，外層要包一層carousel
+    if len(bubbles) == 1:
+        flex_contents = bubbles[0]
+    else:
+        flex_contents = {
+            "type": "carousel",
+            "contents": bubbles[:10]  # 最多能放10張bubble
         }
-        bubble["body"]["contents"].append(row)
-        
-        # 幫每檔股票中間加一條淡淡的淡淡的分隔線，視覺上更整齊
-        bubble["body"]["contents"].append({"type": "separator", "margin": "md"})
-        
-    # 移除最後一條多餘的分隔線
-    if bubble["body"]["contents"]:
-        bubble["body"]["contents"].pop()
-        
-    return bubble
+    return flex_contents

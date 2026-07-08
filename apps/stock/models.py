@@ -25,7 +25,7 @@ class FavoriteStock(models.Model):
     userAccount is relationship with id of table Person
     stockId relationship with id of table HotStock
     '''
-    user_account = models.ForeignKey('basic_info.person',db_column='user_account',on_delete=models.CASCADE)
+    user_account = models.ForeignKey('basic_info.person',db_column='user_account',db_comment='對應Person id',on_delete=models.CASCADE)
     # stockId = models.ForeignKey(HotStock, on_delete=models.CASCADE)
     stock_id = models.CharField(max_length=100,unique=True,blank=False)
 
