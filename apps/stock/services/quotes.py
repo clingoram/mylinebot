@@ -1,6 +1,6 @@
 import yfinance as yf
-
-
+from apps.stock.models import HotStock
+# ❌
 # 負責call API拿原始英文資料（內部私有）
 def _fetch_api_data(stock_number:str):
     '''
@@ -9,40 +9,34 @@ def _fetch_api_data(stock_number:str):
     但這資料是英文，部份須轉換成中文
 
     '''
-    # TODO:代碼後面是.TW 或 .TWO判斷
-    stock = ""
-    stock = yf.Ticker(stock_number +".TW") # yfinance 台股代號後面須加上.TW，例如：1234.TW
+    # find = ""
+    # symbol =""
+    # if stock_number.isdigit():
+    #     find = HotStock.objects.filter(stock_id=stock_number).first()
+    # else:
+    #     find = HotStock.objects.filter(stock_name=stock_number).first()
+    
+    # 先從table找對應資料
+    # yfinance 台股代號後面須加上.TW或.TWO，例如：1234.TW
+    find = HotStock.objects.filter(stock_id = stock_number).first()
+    if find:
+        symbol = f"{find.stock_id}.{find.suffix}"
+        stock_name = find.stock_name
+    else:
+        # 查無此股票
+        return "查無該股票存在"
+    
+    stock = yf.Ticker(symbol)
     # print(yf.__version__)
     df = stock.history(period="1d",auto_adjust=False)
 
     # print(df.columns)
-    if df.empty:
-        return "查無該股票存在"
+    # if df.empty:
+    #     return "查無該股票存在"
     
     info = stock.info
-    # print(info.get("longName"))
-    if not info:
-        return "查無該股票存在"
+
     return _map_eng_to_chinese(info,df)
-
-    if stock is None:
-        stock = yf.Ticker(stock_number + ".TWO")
-    
-        df = stock.history(period="1d",auto_adjust=False)
-
-        # print(df.columns)
-        if df.empty:
-            return "查無該股票存在"
-        
-        info = stock.info
-        # print(info.get("longName"))
-        if not info:
-            return "查無該股票存在"
-
-        # print(json.dumps(info, indent=4, ensure_ascii=False))
-        # print(df['Close'].values)
-        return _map_eng_to_chinese(info,df)
-
     # return _get_stock_change(info,df)
 
 def _get_stock_change(data:dict):

@@ -10,37 +10,22 @@ def follow_stock(userId:str,stockId):
     依據user id取得該user追蹤的所有股票名稱
     '''
 
-    if Person.objects.filter(user_account=userId).exists():
+    if Person.objects.filter(user_account=userId).exists() and FavoriteStock.objects.filter(user_account=userId).exists():
         person = Person.objects.filter(user_account=userId).first()
 
         FavoriteStock.objects.create(user_account=person,stock_id=stockId)
-
-# ❌
-# def list_favorite_stocks(userId):
-#     '''
-#     列出使用者股票清單
-#     '''
-#     # 撈出該使用者所有的追蹤股票(部份股價資料)
-#     stocks = FavoriteStock.objects.filter(user_account_id=userId).values_list('stock_id', flat=True)
-    
-#     return JsonResponse({"stocks": list(stocks)})
 
 # ❌
 def unfollow_stock(userId,stockId):
     '''
     取消追蹤
     '''
-    stock_code = request.POST.get(stockId) # 假設從前端傳來要刪除的股票代碼
-    
-    # 找到那一筆特定的追蹤紀錄並刪除
-    deleted_count, _ = FavoriteStock.objects.filter(
-        user_account_id=userId, 
-        stock_code=stock_code
-    ).delete()
+    # 找到那一筆特追蹤紀錄並刪除
+    deleted_count, _ = FavoriteStock.objects.filter(ser_account = userId, stock_id = stockId).delete()
     
     if deleted_count > 0:
-        return JsonResponse({"message": "Successfully removed"})
-    return JsonResponse({"error": "Stock not found in favorites"}, status=404)
+        return JsonResponse({"message": "已取消追蹤"})
+    return JsonResponse({"error": "該股票不在追蹤名單中"}, status=404)
 
 
 def get_user_stocks_message(user_id):
@@ -48,7 +33,7 @@ def get_user_stocks_message(user_id):
     取得使用者追蹤的所有股票清單
     '''
     # 先從Person找尋對應id
-    person_id = Person.objects.filter(user_account=user_id).values_list('id', flat=True).first()
+    person_id = Person.objects.filter(user_account = user_id).values_list('id', flat=True).first()
     # 取得該使用者追蹤的所有股票清單
     user_stocks = FavoriteStock.objects.filter(user_account=person_id).values_list('stock_id', flat=True)
     
@@ -69,6 +54,7 @@ def build_favorite_stock_list_flex(stock_data_list):
     """
     bubbles = []
     page_size = 5  # 每張卡片最多5檔股票
+    # print(stock_data_list)
     
     for i in range(0, len(stock_data_list), page_size):
         chunk = stock_data_list[i:i+page_size]
@@ -95,6 +81,7 @@ def build_favorite_stock_list_flex(stock_data_list):
         
         # 一張卡片塞入5檔股票
         for stock in chunk:
+            print(stock)
             if stock["漲跌"] > 0:
                 color = "#FF3B30"
                 change_text = f"+{stock['漲跌']}%"

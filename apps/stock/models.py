@@ -13,6 +13,7 @@ class HotStock(models.Model):
     '''
     stock_id = models.CharField(max_length=100,unique=True,blank=False)
     stock_name = models.CharField(max_length=200,blank=False)
+    suffix = models.CharField(max_length=50,db_comment='.TW 或 .TWO',default="TW")
 
     class Meta:
         db_table = 'hot_stock'
