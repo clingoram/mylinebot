@@ -17,34 +17,41 @@ def _fetch_api_data(stock_number:str):
     #     find = HotStock.objects.filter(stock_name=stock_number).first()
     
     # 先從table找對應資料
-    # yfinance 台股代號後面須加上.TW或.TWO，例如：1234.TW
     find = HotStock.objects.filter(stock_id = stock_number).first()
+
+    # 找.TW
+    # stock = yf.Ticker(symbol+".TW")
+    # 找.TWO
+
     if find:
+        # yfinance 台股代號後面須加上.TW或.TWO，例如：1234.TW
         symbol = f"{find.stock_id}.{find.suffix}"
         stock_name = find.stock_name
+
+        stock = yf.Ticker(symbol)
+        # print(yf.__version__)
+        df = stock.history(period="1d",auto_adjust=False)
+
+        # print(df.columns)
+        # if df.empty:
+        #     return "查無該股票存在"
+        
+        info = stock.info
+
+        return _map_eng_to_chinese(info,df)
+        # return _get_stock_change(info,df)
+        
     else:
-        # 查無此股票
-        return "查無該股票存在"
-    
-    stock = yf.Ticker(symbol)
-    # print(yf.__version__)
-    df = stock.history(period="1d",auto_adjust=False)
-
-    # print(df.columns)
-    # if df.empty:
-    #     return "查無該股票存在"
-    
-    info = stock.info
-
-    return _map_eng_to_chinese(info,df)
-    # return _get_stock_change(info,df)
+        # # 查無此股票
+        return None
+       
 
 def _get_stock_change(data:dict):
     # 讀取API的漲跌欄位
     change = data.get('regularMarketChange')
     change_percent = data.get('regularMarketChangePercent')
     
-    # 如果欄位不存在，啟動人工計算
+    # 如果欄位不存在，人工計算
     if change is None or change_percent is None:
         # 取得當前價格（防呆機制）
         current_price = data.get('currentPrice') or data.get('regularMarketPrice')
@@ -71,6 +78,13 @@ def _map_eng_to_chinese(info:dict,df):
     # content = ""
     change =_get_stock_change(info)
 
+    latest_close = None
+    if df is not None and not df.empty and "Close" in df.columns:
+        latest_close = float(df["Close"].iloc[-1]) # iloc[-1] 代表最新一天的收盤價數字
+    else:
+        latest_close = info.get("currentPrice") or info.get("regularMarketPrice")
+        
+
     fieldMap = {
         "代碼":info.get("symbol").strip(".TW"),
         "公司名稱":info.get("longName"),
@@ -83,9 +97,10 @@ def _map_eng_to_chinese(info:dict,df):
 
         "當日最低":info.get("dayLow"),
         "當日最高":info.get("dayHigh"),
-        "收盤價":",".join(map(str, df["Close"])), # df["Close"].tolist(),
-        # "調整後收盤價":df["Adj Close"].tolist(),
-        "漲跌":change.get("change_percent"),
+        "收盤價":latest_close, 
+
+        "漲跌": change.get("change"),
+        "漲跌幅": change.get("change_percent"),
 
         "本益比":fmt_num(info.get("trailingPE")),
         "預估本益比":info.get("forwardPE"),
@@ -120,7 +135,7 @@ def typeDisp(infoType:str):
     for key,value in stockType.items():
         if infoType == key:
             return value
-    return "無資料"
+    return None
 
 def fmt_num(value):
     '''
@@ -140,7 +155,7 @@ def get_stock_flex_message(key):
     串聯：Call API(_fetch_api_data()) -> 轉中文(_map_eng_to_chinese()) -> 塞入這個Flex Message
     '''
     stockO = _fetch_api_data(key)
-
+    print(stockO)
     contents = []
 
     if len(stockO) > 0:

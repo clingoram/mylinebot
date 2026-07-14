@@ -49,12 +49,13 @@ def handle_postback(event):
         follow_stock(userId,stock)
 
         LINE_BOT_API.reply_message(event.reply_token,TextSendMessage(text=f"已加入追蹤：{stock}"))
-    else:
-        LINE_BOT_API.reply_message(event.reply_token,TextSendMessage(text="參數錯誤"))
 
-    if action == "unfollow" and stock:
+    elif action == "unfollow" and stock:
         unfollow_stock(userId,stock)
         LINE_BOT_API.reply_message(event.reply_token,TextSendMessage(text=f"取消追蹤：{stock}"))
+
+    else:
+        LINE_BOT_API.reply_message(event.reply_token,TextSendMessage(text="參數錯誤"))
 
 def handle_followlist(event):
     '''

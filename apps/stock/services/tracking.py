@@ -16,12 +16,12 @@ def follow_stock(userId:str,stockId):
         FavoriteStock.objects.create(user_account=person,stock_id=stockId)
 
 # ❌
-def unfollow_stock(userId,stockId):
+def unfollow_stock(stockId):
     '''
     取消追蹤
     '''
     # 找到那一筆特追蹤紀錄並刪除
-    deleted_count, _ = FavoriteStock.objects.filter(ser_account = userId, stock_id = stockId).delete()
+    deleted_count, _ = FavoriteStock.objects.filter(stock_id = stockId).delete()
     
     if deleted_count > 0:
         return JsonResponse({"message": "已取消追蹤"})
@@ -44,7 +44,7 @@ def get_user_stocks_message(user_id):
         if data:
             stock_data_list.append(data)
             
-    # 丟給底下的產生flex message
+    # 丟給底下產生flex message
     return build_favorite_stock_list_flex(stock_data_list)
 
 
@@ -81,11 +81,22 @@ def build_favorite_stock_list_flex(stock_data_list):
         
         # 一張卡片塞入5檔股票
         for stock in chunk:
-            print(stock)
-            if stock["漲跌"] > 0:
+            print("目前處理的股票資料:", stock, "型態是:", type(stock)) 
+            
+            # ：如果這筆資料是dict，就跳過不處理
+            if not isinstance(stock, dict):
+                continue
+                
+            # 取得漲跌欄位，並強制轉換成float，避免字串跟0比較時崩潰
+            try:
+                change_val = float(stock.get("漲跌", 0.0)) if stock.get("漲跌") is not None else 0.0
+            except (ValueError, TypeError):
+                change_val = 0.0
+
+            if change_val > 0:
                 color = "#FF3B30"
                 change_text = f"+{stock['漲跌']}%"
-            elif stock["漲跌"] < 0:
+            elif change_val < 0:
                 color = "#28A745"
                 change_text = f"{stock['漲跌']}%"
             else:
