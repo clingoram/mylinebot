@@ -1,49 +1,81 @@
 import yfinance as yf
 from apps.stock.models import HotStock
+
+def get_suffix_from_db(stock_id:str):
+    '''
+    先從table找對應資料
+    '''
+    find = HotStock.objects.filter(stock_id = stock_id).first()
+    return find
+
+def find_suffix(stock_id):
+    for suffix in (".TW", ".TWO"):
+        symbol = stock_id + suffix
+
+        try:
+            ticker = yf.Ticker(symbol)
+
+            # 真正發送查詢
+            hist = ticker.history(period="1d")
+
+            if not hist.empty:
+                return suffix
+
+        except Exception:
+            pass
+
+    return None
+
 # ❌
 # 負責call API拿原始英文資料（內部私有）
-def _fetch_api_data(stock_number:str):
+def _fetch_api_data(stock_id:str):
     '''
 
     取得https://github.com/ranaroussi/yfinance 資料
     但這資料是英文，部份須轉換成中文
-
     '''
-    # find = ""
-    # symbol =""
-    # if stock_number.isdigit():
-    #     find = HotStock.objects.filter(stock_id=stock_number).first()
-    # else:
-    #     find = HotStock.objects.filter(stock_name=stock_number).first()
     
-    # 先從table找對應資料
-    find = HotStock.objects.filter(stock_id = stock_number).first()
+    find = get_suffix_from_db(stock_id)
+    if find is None:
+        for suffix in (".TW", ".TWO"):
+            symbol = f"{stock_id}.{suffix}"
+            try:
+                stock = yf.Ticker(symbol)
 
-    # 找.TW
-    # stock = yf.Ticker(symbol+".TW")
-    # 找.TWO
+                # 真正發送查詢
+                df = stock.history(period="1d",auto_adjust=False)
+                info = stock.info
 
-    if find:
-        # yfinance 台股代號後面須加上.TW或.TWO，例如：1234.TW
-        symbol = f"{find.stock_id}.{find.suffix}"
-        stock_name = find.stock_name
+                return _map_eng_to_chinese(info,df)
+                # if not df.empty:
+                #     return suffix
 
-        stock = yf.Ticker(symbol)
-        # print(yf.__version__)
-        df = stock.history(period="1d",auto_adjust=False)
+            except Exception:
+                pass
 
-        # print(df.columns)
-        # if df.empty:
-        #     return "查無該股票存在"
+
+
+    # if find:
+    #     # yfinance 台股代號後面須加上.TW或.TWO，例如：1234.TW
+    #     symbol = f"{find.stock_id}.{find.suffix}"
+    #     stock_name = find.stock_name
+
+    #     stock = yf.Ticker(symbol)
+    #     # print(yf.__version__)
+    #     df = stock.history(period="1d",auto_adjust=False)
+
+    #     # print(df.columns)
+    #     # if df.empty:
+    #     #     return "查無該股票存在"
         
-        info = stock.info
+    #     info = stock.info
 
-        return _map_eng_to_chinese(info,df)
-        # return _get_stock_change(info,df)
+    #     return _map_eng_to_chinese(info,df)
+    #     # return _get_stock_change(info,df)
         
-    else:
-        # # 查無此股票
-        return None
+    # else:
+    #     # # 查無此股票
+    #     return None
        
 
 def _get_stock_change(data:dict):
