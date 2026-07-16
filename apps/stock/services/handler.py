@@ -47,7 +47,6 @@ def handle_postback(event):
 
     if action == "watch" and stock:
         follow_stock(userId,stock)
-
         LINE_BOT_API.reply_message(event.reply_token,TextSendMessage(text=f"已加入追蹤：{stock}"))
 
     elif action == "unfollow" and stock:
@@ -63,5 +62,5 @@ def handle_followlist(event):
     '''
     userId = event.source.user_id
     result = get_user_stocks_message(userId)
-    LINE_BOT_API.reply_message(event.reply_token,FlexSendMessage(alt_text = "清單",contents=result))
+    LINE_BOT_API.reply_message(event.reply_token,FlexSendMessage(alt_text = "追蹤清單",contents=result))
     return HttpResponse("OK!!",status=200)

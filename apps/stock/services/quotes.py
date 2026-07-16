@@ -6,53 +6,69 @@ def get_suffix_from_db(stock_id:str):
     先從table找對應資料
     '''
     find = HotStock.objects.filter(stock_id = stock_id).first()
+    if find is None:
+        return None
     return find
 
-def find_suffix(stock_id):
-    for suffix in (".TW", ".TWO"):
-        symbol = stock_id + suffix
+def _save_into_db(stock_id:str,stock_name:str,suffix:str):
+    '''
+    代碼、名稱、suffix存進table
+    '''
+    HotStock.objects.create(stock_id = stock_id,stock_name = stock_name,suffix = suffix)
 
-        try:
-            ticker = yf.Ticker(symbol)
 
-            # 真正發送查詢
-            hist = ticker.history(period="1d")
-
-            if not hist.empty:
-                return suffix
-
-        except Exception:
-            pass
-
-    return None
-
-# ❌
 # 負責call API拿原始英文資料（內部私有）
 def _fetch_api_data(stock_id:str):
     '''
 
     取得https://github.com/ranaroussi/yfinance 資料
+    https://finance.yahoo.com/
+
     但這資料是英文，部份須轉換成中文
+
+    yfinance 台股代號後面須加上.TW或.TWO，例如：1234.TW
     '''
     
     find = get_suffix_from_db(stock_id)
     if find is None:
-        for suffix in (".TW", ".TWO"):
+        for suffix in ("TW", "TWO"):
             symbol = f"{stock_id}.{suffix}"
-            try:
-                stock = yf.Ticker(symbol)
+            stock = yf.Ticker(symbol)
 
-                # 真正發送查詢
-                df = stock.history(period="1d",auto_adjust=False)
-                info = stock.info
+            if not stock:
+                return None
 
-                return _map_eng_to_chinese(info,df)
-                # if not df.empty:
-                #     return suffix
+            # 發送查詢
+            df = stock.history(period="1d",auto_adjust=False)
+            info = stock.info
+            if not info:
+                return None
+            
+            print("找API:",info['shortName'])
 
-            except Exception:
-                pass
+            # 代碼、名稱(英文)、suffix存進table
+            getSuffix = info['symbol'][len('symbol'):]
+            _save_into_db(stock_id,info['shortName'],getSuffix)
 
+            return _map_eng_to_chinese(info,df)
+    
+    else:
+        symbol = f"{find.stock_id}.{find.suffix}"
+        # stock_name = find.stock_name
+
+        stock = yf.Ticker(symbol)
+        # print(yf.__version__)
+        df = stock.history(period="1d",auto_adjust=False)
+
+        # print(df.columns)
+        # if df.empty:
+        #     return "查無該股票存在"
+        
+        info = stock.info
+        print("找table內資料:",info['shortName'])
+
+        return _map_eng_to_chinese(info,df)
+        # return _get_stock_change(info,df)
 
 
     # if find:
@@ -119,7 +135,7 @@ def _map_eng_to_chinese(info:dict,df):
 
     fieldMap = {
         "代碼":info.get("symbol").strip(".TW"),
-        "公司名稱":info.get("longName"),
+        "公司名稱":info.get("shortName"),
         "產業":info.get("sector"),
         "類型":typeDisp(info.get("typeDisp")),
 
@@ -187,7 +203,7 @@ def get_stock_flex_message(key):
     串聯：Call API(_fetch_api_data()) -> 轉中文(_map_eng_to_chinese()) -> 塞入這個Flex Message
     '''
     stockO = _fetch_api_data(key)
-    print(stockO)
+    # print(stockO)
     contents = []
 
     if len(stockO) > 0:

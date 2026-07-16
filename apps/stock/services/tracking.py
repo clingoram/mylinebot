@@ -1,19 +1,23 @@
-from django.http import JsonResponse
+from django.http import JsonResponse,HttpResponse
 from apps.basic_info.models import Person
 from apps.stock.models import FavoriteStock
 from apps.stock.services.quotes import _fetch_api_data
 
 
-def follow_stock(userId:str,stockId):
+def follow_stock(userId:str,stockId:str):
     '''
     增加追蹤股票
     依據user id取得該user追蹤的所有股票名稱
     '''
-
-    if Person.objects.filter(user_account=userId).exists() and FavoriteStock.objects.filter(user_account=userId).exists():
+    # getPersonId = Person.objects.filter(user_account = userId).values_list('id', flat=True).first()
+    # print(getPersonId)
+    if Person.objects.filter(user_account=userId).exists():
         person = Person.objects.filter(user_account=userId).first()
 
         FavoriteStock.objects.create(user_account=person,stock_id=stockId)
+
+    if FavoriteStock.objects.filter(user_account=person).values_list('stock_id', flat=True):
+        return HttpResponse("OK!!",status=200)
 
 # ❌
 def unfollow_stock(stockId):
