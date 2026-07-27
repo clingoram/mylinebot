@@ -1,7 +1,8 @@
 ## 關於mylinebot
+一個使用Django開發的LINE Bot，可提供天氣查詢、股票追蹤及財經新聞整合。
+使用者可透過LINE查詢資訊、追蹤個股，系統會整合多個外部API並以Flex Message呈現。
 
-使用Django建置LINE機器人。
-在本機開發時，使用ngrok建立https伺服器。
+撰寫啟動腳本，自動取得ngrok URL並更新LINE Webhook，省去每次重新啟動後的手動設定流程。
 
 ### 功能
 
@@ -14,9 +15,16 @@
 - 功能2:<br>
   使用者在聊天室打上關鍵字「新聞」或「news」，可爬蟲財經新聞網站，取得5筆新聞。
 
-將使用者line id以及在聊天室打上的字存至PostgreSQL資料庫內，目的主要是認為未來也許可以分析使用者習慣、資料持久化、推播功能等。
-此功能目前只有新增及更新。<br>
-股票已可取得台灣股票上市公司相關資訊，此功能尚未完成。
+- 功能3:<br>
+  股票追蹤，使用者在Flex Message可追蹤與取消追蹤股票。亦可查詢目前追蹤股票清單相關資訊。
+
+### Modular Design
+將Weather、Stock、Crawler拆成獨立Service。
+降低模組耦合，方便測試與擴充。
+
+### Database Design
+使用PostgreSQL設計多對多資料模型。
+支援使用者追蹤多支股票。
 
 ### 技術
 
@@ -27,9 +35,8 @@
 - Docker
 
 ### How to run:
-
-本機:
-建制虛擬環境後python3 manage.py runserver
+Terminal 1: ngrok http 8000
+Terminal 2(啟動虛擬機後): python3 manage.py run_dev
 
 <hr>
 
