@@ -18,6 +18,16 @@
 - 功能3:<br>
   股票追蹤，使用者在Flex Message可追蹤與取消追蹤股票。亦可查詢目前追蹤股票清單相關資訊。
 
+### Container Diagram
+![image](https://github.com/clingoram/mylinebot/blob/master/images/架構圖_2026-07-30 10-08-53.png "架構圖")
+
+### ER Diagram
+![image](https://github.com/clingoram/mylinebot/blob/master/images/ER Diagram 2026-07-30 13-10-45.png "ER Diagram")
+
+### Development Automation
+Webhook Auto-Configuration Flow
+![image](https://github.com/clingoram/mylinebot/blob/master/images/Webhook_Auto_Configuration_Flow_2026-07-30 13-28-27.png "Webhook Auto-Configuration Flow")
+
 ### Modular Design
 將Weather、Stock、Crawler拆成獨立Service。
 降低模組耦合，方便測試與擴充。
@@ -25,6 +35,8 @@
 ### Database Design
 使用PostgreSQL設計多對多資料模型。
 支援使用者追蹤多支股票。
+
+
 
 ### 技術
 
