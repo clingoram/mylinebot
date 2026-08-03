@@ -73,6 +73,6 @@ def update_line_webhook():
         json={"endpoint": callback_url},
         timeout=5
     )
-
+    print(res)
     print("status=", res.status_code)
     print("response=", res.text)

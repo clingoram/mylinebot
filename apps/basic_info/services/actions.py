@@ -3,7 +3,7 @@ from datetime import datetime
 
 def create_user(userId:str):
   '''
-  insert data into table
+  建立使用者
   '''
   Person.objects.create(user_account=userId)
 

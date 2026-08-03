@@ -44,7 +44,7 @@ def _fetch_api_data(stock_id:str):
             if not info:
                 return None
             
-            print("找API:",info['shortName'])
+            print(f"找API: {info['shortName']}")
 
             # 代碼、名稱(英文)、suffix存進table
             getSuffix = info['symbol'][len('symbol'):]
@@ -65,7 +65,7 @@ def _fetch_api_data(stock_id:str):
         #     return "查無該股票存在"
         
         info = stock.info
-        print("找table內資料:",info['shortName'])
+        print(f"找table內資料: {find.stock_name}")
 
         return _map_eng_to_chinese(info,df)
         # return _get_stock_change(info,df)

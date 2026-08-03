@@ -41,7 +41,6 @@ def route_event(handleEvent):
         if keyWord.endswith(("市", "縣")):
           return handle_weather(event)
 
-        
         if keyWord.startswith(("股票","stock","Stock","台股","臺股")):
           return handle_stock_data(event)
         
