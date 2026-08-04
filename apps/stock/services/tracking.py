@@ -19,12 +19,11 @@ def follow_stock(userId:str,stockId:str):
     if FavoriteStock.objects.filter(user_account=person).values_list('stock_id', flat=True):
         return HttpResponse("OK!!",status=200)
 
-# ❌
-def unfollow_stock(stockId):
+def unfollow_stock(stockId:str):
     '''
     取消追蹤
     '''
-    # 找到那一筆特追蹤紀錄並刪除
+    # 找到那一筆追蹤紀錄並刪除
     deleted_count, _ = FavoriteStock.objects.filter(stock_id = stockId).delete()
     
     if deleted_count > 0:
@@ -32,12 +31,12 @@ def unfollow_stock(stockId):
     return JsonResponse({"error": "該股票不在追蹤名單中"}, status=404)
 
 
-def get_user_stocks_message(user_id):
+def get_user_stocks_list(userId:str):
     '''
     取得使用者追蹤的所有股票清單
     '''
     # 先從Person找尋對應id
-    person_id = Person.objects.filter(user_account = user_id).values_list('id', flat=True).first()
+    person_id = Person.objects.filter(user_account = userId).values_list('id', flat=True).first()
     # 取得該使用者追蹤的所有股票清單
     user_stocks = FavoriteStock.objects.filter(user_account=person_id).values_list('stock_id', flat=True)
     
@@ -53,9 +52,9 @@ def get_user_stocks_message(user_id):
 
 
 def build_favorite_stock_list_flex(stock_data_list):
-    """
+    '''
     flex message 追蹤清單
-    """
+    '''
     bubbles = []
     page_size = 5  # 每張卡片最多5檔股票
     # print(stock_data_list)

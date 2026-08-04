@@ -8,6 +8,7 @@ def crawler_news(keyword=None)->str:
     '''
     新聞爬蟲
     '''
+    # TODO:無法抓取資料
     option = Options()
     option.add_argument("--headless=new")
     option.add_argument('blink-settings=imagesEnabled=false')

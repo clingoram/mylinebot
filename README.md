@@ -1,4 +1,5 @@
 ## 關於mylinebot
+
 一個使用Django開發的LINE Bot，可提供天氣查詢、股票追蹤及財經新聞整合。
 使用者可透過LINE查詢資訊、追蹤個股，系統會整合多個外部API並以Flex Message呈現。
 
@@ -18,26 +19,6 @@
 - 功能3:<br>
   股票追蹤，使用者在Flex Message可追蹤與取消追蹤股票。亦可查詢目前追蹤股票清單相關資訊。
 
-### Container Diagram
-![image](https://github.com/clingoram/mylinebot/blob/master/images/架構圖_2026-07-30 10-08-53.png "架構圖")
-
-### ER Diagram
-![image](https://github.com/clingoram/mylinebot/blob/master/images/ER Diagram 2026-07-30 13-10-45.png "ER Diagram")
-
-### Development Automation
-Webhook Auto-Configuration Flow
-![image](https://github.com/clingoram/mylinebot/blob/master/images/Webhook_Auto_Configuration_Flow_2026-07-30 13-28-27.png "Webhook Auto-Configuration Flow")
-
-### Modular Design
-將Weather、Stock、Crawler拆成獨立Service。
-降低模組耦合，方便測試與擴充。
-
-### Database Design
-使用PostgreSQL設計多對多資料模型。
-支援使用者追蹤多支股票。
-
-
-
 ### 技術
 
 - Django
@@ -46,7 +27,39 @@ Webhook Auto-Configuration Flow
 - Selenium
 - Docker
 
+## 機器人回覆:
+
+![image](https://github.com/clingoram/mylinebot/blob/master/images/S__34291716.jpg "氣象訊息回覆 - 不在可查詢範圍內")
+![image](https://github.com/clingoram/mylinebot/blob/master/images/weather.jpg "氣象查詢地區回覆")
+![image](https://github.com/clingoram/mylinebot/blob/master/images/crawler_reply.jpg "新聞爬蟲")
+![image](https://github.com/clingoram/mylinebot/blob/master/images/search_stock.jpeg "查詢股票")
+![image](https://github.com/clingoram/mylinebot/blob/master/images/list_follow_stock.jpeg "列出追蹤的所有股票清單")
+
+### Container Diagram
+
+![image](https://github.com/clingoram/mylinebot/blob/master/images/Container_Diagram.png "架構圖")
+
+### ER Diagram
+
+![image](https://github.com/clingoram/mylinebot/blob/master/images/ER_Diagram.png "ER Diagram")
+
+### Development Automation
+
+Webhook Auto-Configuration Flow
+![image](https://github.com/clingoram/mylinebot/blob/master/images/Webhook_Auto_Configuration_Flow.png "Webhook Auto-Configuration Flow")
+
+### Modular Design
+
+將Weather、Stock、Crawler拆成獨立Service。
+降低模組耦合，方便測試與擴充。
+
+### Database Design
+
+使用PostgreSQL設計多對多資料模型。
+支援使用者追蹤多支股票。
+
 ### How to run:
+
 Terminal 1: ngrok http 8000
 Terminal 2(啟動虛擬機後): python3 manage.py run_dev
 
@@ -58,9 +71,3 @@ Terminal 2(啟動虛擬機後): python3 manage.py run_dev
 - [ngrok](https://ngrok.com/)
 - [selenium](https://github.com/seleniumhq/selenium)
 - PostgreSQL
-
-## 機器人回覆:
-
-![image](https://github.com/clingoram/mylinebot/blob/master/images/S__34291716.jpg "氣象訊息回覆 - 不在可查詢範圍內")
-![image](https://github.com/clingoram/mylinebot/blob/master/images/weather.jpg "氣象查詢地區回覆")
-![image](https://github.com/clingoram/mylinebot/blob/master/images/crawler_reply.jpg "新聞爬蟲")

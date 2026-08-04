@@ -20,7 +20,6 @@ def _save_into_db(stock_id:str,stock_name:str,suffix:str):
 # 負責call API拿原始英文資料（內部私有）
 def _fetch_api_data(stock_id:str):
     '''
-
     取得https://github.com/ranaroussi/yfinance 資料
     https://finance.yahoo.com/
 
@@ -31,6 +30,7 @@ def _fetch_api_data(stock_id:str):
     
     find = get_suffix_from_db(stock_id)
     if find is None:
+        # table內找不到該股票代碼則字尾用.TW 或 .TWO 輪流找尋
         for suffix in ("TW", "TWO"):
             symbol = f"{stock_id}.{suffix}"
             stock = yf.Ticker(symbol)
@@ -39,7 +39,7 @@ def _fetch_api_data(stock_id:str):
                 return None
 
             # 發送查詢
-            df = stock.history(period="1d",auto_adjust=False)
+            df = stock.history(period = "1d",auto_adjust = False)
             info = stock.info
             if not info:
                 return None
@@ -58,7 +58,7 @@ def _fetch_api_data(stock_id:str):
 
         stock = yf.Ticker(symbol)
         # print(yf.__version__)
-        df = stock.history(period="1d",auto_adjust=False)
+        df = stock.history(period = "1d",auto_adjust = False)
 
         # print(df.columns)
         # if df.empty:
@@ -68,31 +68,6 @@ def _fetch_api_data(stock_id:str):
         print(f"找table內資料: {find.stock_name}")
 
         return _map_eng_to_chinese(info,df)
-        # return _get_stock_change(info,df)
-
-
-    # if find:
-    #     # yfinance 台股代號後面須加上.TW或.TWO，例如：1234.TW
-    #     symbol = f"{find.stock_id}.{find.suffix}"
-    #     stock_name = find.stock_name
-
-    #     stock = yf.Ticker(symbol)
-    #     # print(yf.__version__)
-    #     df = stock.history(period="1d",auto_adjust=False)
-
-    #     # print(df.columns)
-    #     # if df.empty:
-    #     #     return "查無該股票存在"
-        
-    #     info = stock.info
-
-    #     return _map_eng_to_chinese(info,df)
-    #     # return _get_stock_change(info,df)
-        
-    # else:
-    #     # # 查無此股票
-    #     return None
-       
 
 def _get_stock_change(data:dict):
     # 讀取API的漲跌欄位
@@ -117,9 +92,7 @@ def _get_stock_change(data:dict):
 
 def _map_eng_to_chinese(info:dict,df):
     '''
-    負責mapping 成中文資料（內部私有）
-
-    mapping 原始資料（英文）資訊至中文
+    負責mapping 原始資料（英文）資訊成中文資料（內部私有）
     '''
     
     # announce = "⚠️ 此line bot之股票資料是從API取得。只提供股票相關資訊且用於個人side-project，不具有任何投資理財目的。 ⚠️"

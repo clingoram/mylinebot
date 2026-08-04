@@ -1,0 +1,83 @@
+services:
+  django:
+    build: .
+    container_name: linebot_django
+    command: python3 manage.py run_dev 0.0.0.0:8000
+
+    volumes:
+      - .:/app
+
+    ports:
+      - "8000:8000"
+
+    env_file:
+      - .env
+
+    depends_on:
+      - postgres
+      # - redis
+
+  postgres:
+    image: postgres:16
+    container_name: linebot_postgres
+    restart: always
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+    ports:
+      - "5432:5432"
+
+  # redis:
+  #   image: redis:7
+  #   container_name: linebot_redis
+  #   ports:
+  #     - "6379:6379"
+
+  ngrok:
+    image: ngrok/ngrok:latest
+    container_name: linebot_ngrok
+    command:
+      - "http"
+      - "django:8000"
+    ports:
+      - "4040:4040"
+
+  # celery:
+  #   build: .
+  #   container_name: linebot_celery
+  #   command:
+  #     celery -A config worker -l info
+
+  #   volumes:
+  #     - ./django_app:/app
+
+  #   env_file:
+  #     - .env
+
+  #   depends_on:
+  #     - redis
+  #     - postgres
+
+  # celery-beat:
+  #   build: .
+  #   container_name: linebot_scheduler
+  #   command:
+  #     celery -A config beat -l info
+
+  #   volumes:
+  #     - ./django_app:/app
+
+  #   env_file:
+  #     - .env
+
+  #   depends_on:
+  #     - redis
+
+volumes:
+  pg_data:
+    external: true

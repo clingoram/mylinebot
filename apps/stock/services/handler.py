@@ -7,7 +7,7 @@ from linebot import LineBotApi
 from linebot.models import TextSendMessage,TextMessage,FlexSendMessage
 
 from apps.stock.services.quotes import get_stock_flex_message
-from apps.stock.services.tracking import follow_stock,unfollow_stock,get_user_stocks_message
+from apps.stock.services.tracking import follow_stock,unfollow_stock,get_user_stocks_list
 
 LINE_BOT_API = LineBotApi(settings.LINE_CHANNEL_ACCESS_TOKEN)
 
@@ -61,6 +61,6 @@ def handle_followlist(event):
     處理追蹤清單
     '''
     userId = event.source.user_id
-    result = get_user_stocks_message(userId)
+    result = get_user_stocks_list(userId)
     LINE_BOT_API.reply_message(event.reply_token,FlexSendMessage(alt_text = "追蹤清單",contents=result))
     return HttpResponse("OK!!",status=200)

@@ -7,11 +7,13 @@ import requests
 import os
 
 LINE_API = "https://api.line.me/v2/bot/channel/webhook/endpoint"
-NGROK_API = "http://127.0.0.1:4040/api/tunnels"
+# NGROK_API = "http://127.0.0.1:4040/api/tunnels"
 
-LINE_CHANNEL_ACCESS_TOKEN = os.getenv(
-    "LINE_CHANNEL_ACCESS_TOKEN"
+NGROK_API = os.getenv(
+    "NGROK_API",
+    "http://127.0.0.1:4040/api/tunnels"
 )
+
 
 def get_ngrok_url():
     '''
@@ -46,6 +48,11 @@ def update_line_webhook():
     '''
     更新line webhook url
     '''
+
+    LINE_CHANNEL_ACCESS_TOKEN = os.getenv(
+        "LINE_CHANNEL_ACCESS_TOKEN"
+    )
+
     url = wait_ngrok()
 
     print("💡 ngrok url=", url)
