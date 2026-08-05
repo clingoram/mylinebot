@@ -9,11 +9,13 @@ class Command(RunserverCommand):
         自動更新line bot webhook url
         在虛擬環境中cmd： python3 manage.py run_dev
         '''
-        if os.environ.get("RUN_MAIN") == "true":
+        print("👻 RUN_MAIN=", os.environ.get("RUN_MAIN"))
+        
+        if not os.environ.get("WEBHOOK_UPDATED"):
             print("🚀 更新LINE Webhook")
             # 自動更新 webhook（只會在啟動時跑一次）
             update_line_webhook()
 
-            # call_command("runserver")
+            os.environ["WEBHOOK_UPDATED"] = "1"
 
         super().inner_run(*args, **options)

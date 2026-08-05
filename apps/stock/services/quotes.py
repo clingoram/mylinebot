@@ -1,4 +1,3 @@
-import yfinance as yf
 from apps.stock.models import HotStock
 
 def get_suffix_from_db(stock_id:str):
@@ -27,6 +26,7 @@ def _fetch_api_data(stock_id:str):
 
     yfinance 台股代號後面須加上.TW或.TWO，例如：1234.TW
     '''
+    import yfinance as yf
     
     find = get_suffix_from_db(stock_id)
     if find is None:

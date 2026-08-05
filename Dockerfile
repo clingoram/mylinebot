@@ -10,9 +10,9 @@ COPY requirements.txt /app/requirements.txt
 # pip安裝所有Python
 RUN pip3 install -r requirements.txt
 
-# RUN apt-get update && apt-get install -y \
-#     chromium \
-#     chromium-driver
+RUN apt-get update && apt-get install -y \
+    chromium \
+    chromium-driver
 
 # 複製專案中的所有檔案到容器的工作目錄
 COPY . .

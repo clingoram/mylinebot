@@ -15,7 +15,11 @@ services:
 
     depends_on:
       - postgres
+      - ngrok
       # - redis
+
+    environment:
+      - NGROK_API_URL=http://ngrok:4040/api/tunnels
 
   postgres:
     image: postgres:16
@@ -41,11 +45,24 @@ services:
   ngrok:
     image: ngrok/ngrok:latest
     container_name: linebot_ngrok
+
+    # environment:
+    #   NGROK_AUTHTOKEN: ${NGROK_AUTHTOKEN}
+
     command:
-      - "http"
-      - "django:8000"
+      - http
+      - --authtoken
+      - ${NGROK_AUTHTOKEN}
+      - django:8000
+
     ports:
       - "4040:4040"
+
+    # healthcheck:
+    #   test: ["CMD", "curl", "-f", "http://localhost:4040/api/tunnels"]
+    #   interval: 5s
+    #   timeout: 3s
+    #   retries: 10
 
   # celery:
   #   build: .
