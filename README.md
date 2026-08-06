@@ -60,9 +60,19 @@ Webhook Auto-Configuration Flow
 
 ### How to run:
 
-Terminal 1: ngrok http 8000
-Terminal 2(啟動虛擬機後): python3 manage.py run_dev
-
+<!-- Terminal 1: ngrok http 8000
+Terminal 2(啟動虛擬機後): python3 manage.py run_dev -->
+<li>
+<ol>啟動：</ol>
+docker compose up
+若第一次建立或者是有修改過docker-compose.yml、Dockerfile、requirements.txt須使用docker compose up --build
+啟動時會一併建立postgreSQL container、ngrok container、Django container，其中Django啟動時自動更新LINE webhook，不再需要手動開venv + ngrok
+<ol>關閉：</ol>
+docker compose down
+<ol>model.py做更改時：</ol>
+docker compose exec django python3 manage.py makemigrations
+docker compose exec django python3 manage.py migrate
+</li>
 <hr>
 
 - [氣象局](https://opendata.cwa.gov.tw/dist/opendata-swagger.html) <br>

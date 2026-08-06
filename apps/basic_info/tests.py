@@ -4,7 +4,12 @@ from .models import Person,Message
 
 # Create your tests here.
 class PersonModelTests(TestCase):
-
+  '''
+  測試person
+  '''
+  def setUp(self):
+    Person.objects.create(user_account = 'U21d04568JjfkdjfLjioklkd915f1d',created_at='2026-3-12')
+  
   def test_perosn_model_exists(self):
     person = Person.objects.count()
     self.assertEqual(person,0)
@@ -13,8 +18,7 @@ class PersonModelTests(TestCase):
     '''
     test insert into table.
     '''
-    # person = Person.objects.create(uid="U21d0250e1363b12368796b2430bd0190",account="testuser",created_at=datetime.now())
-    person = Person.objects.create(id="U21d",account="testuser",createdAt=datetime.now())
+    person = Person.objects.create(user_account="U21d",account="testuser",createdAt=datetime.now())
     person.save()
     self.assertTrue(person)
 
@@ -22,9 +26,9 @@ class PersonModelTests(TestCase):
     '''
     test to update table person updated_at column
     '''
-    user_id = "U21d0250e1363b12368796b2430bd0190"
-    if Person.objects.filter(id = user_id).exists():
-      person = Person.objects.get(id=user_id)
+    user_id = "U21d04568JjfkdjfLjioklkd915f1d"
+    if Person.objects.filter(user_account = user_id).exists():
+      person = Person.objects.get(user_account=user_id)
       person.updatedAt = datetime.now()
       person.save()
       self.assertTrue(person)
@@ -34,6 +38,9 @@ class PersonModelTests(TestCase):
   
 
 class MessageModelTests(TestCase):
+  '''
+  測試message
+  '''
   def test_message_model_exists(self):
     msg = Message.objects.count()
     self.assertEqual(msg,0)

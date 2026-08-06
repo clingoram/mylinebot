@@ -1,15 +1,11 @@
 '''
 抓ngrok + 更新LINE webhook
-
 '''
 import time
 import requests
 import os
 
-LINE_CHANNEL_ACCESS_TOKEN = os.getenv("LINE_CHANNEL_ACCESS_TOKEN")
 LINE_API = "https://api.line.me/v2/bot/channel/webhook/endpoint"
-# NGROK_API = "http://127.0.0.1:4040/api/tunnels"
-
 NGROK_API = os.getenv("NGROK_API_URL")
 
 def get_ngrok_url():
@@ -34,7 +30,7 @@ def get_ngrok_url():
 
 def wait_ngrok(retry=30, delay=1):
     '''
-    ngrok還沒ready會自動等
+    ngrok還沒準備好會自動等
     webhook更新失敗會重試
     '''
     for i in range(retry):
@@ -51,24 +47,24 @@ def update_line_webhook():
     '''
     更新line webhook url
     '''
-
+    LINE_CHANNEL_ACCESS_TOKEN = os.getenv("LINE_CHANNEL_ACCESS_TOKEN")
     if not LINE_CHANNEL_ACCESS_TOKEN:
-        raise RuntimeError("LINE_CHANNEL_ACCESS_TOKEN not found")
+        raise RuntimeError("☹️ 沒拿到LINE_CHANNEL_ACCESS_TOKEN")
     
     try:
         url = wait_ngrok()
     except Exception as e:
         print("☹️ 沒抓到ngrok", e)
         return
-    print("💡 ngrok url=", url)
+    print("💡 ngrok url =", url)
 
     # 組合成webhook URL
     callback_url = f"{url}/callback"
 
-    print("💡 callback=", callback_url)
-    print("🔑 token=", LINE_CHANNEL_ACCESS_TOKEN[:10] + "...")
-    print("❓ token valid=", bool(LINE_CHANNEL_ACCESS_TOKEN))
-    print("📏 token length=", len(LINE_CHANNEL_ACCESS_TOKEN or ""))
+    print("💡 callback =", callback_url)
+    print("🔑 token =", LINE_CHANNEL_ACCESS_TOKEN[:10] + "...")
+    print("❓ token valid =", bool(LINE_CHANNEL_ACCESS_TOKEN))
+    print("📏 token length =", len(LINE_CHANNEL_ACCESS_TOKEN or ""))
 
     headers = {
         "Authorization": f"Bearer {LINE_CHANNEL_ACCESS_TOKEN}",
@@ -81,10 +77,10 @@ def update_line_webhook():
         json={"endpoint": callback_url},
         timeout=5
     )
-    # print(res)
+
     if res.ok:
         print("✅ Webhook Updated")
     else:
         print("❌ Update Failed")
-        print("status=" , res.status_code)
-        print("response=", res.text)
+        print("status =" , res.status_code)
+        print("response =", res.text)
