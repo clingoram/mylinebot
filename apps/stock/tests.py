@@ -12,3 +12,7 @@ class HotStockModelTest(TestCase):
 
     # def test_stock_has_exist(self):
 
+
+class FavoriteModelTest(TestCase):
+    def setUp(self):
+        FavoriteStock.objects.create(user_account=)
