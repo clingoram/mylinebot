@@ -72,6 +72,8 @@ docker compose down
 <ol>model.py做更改時：</ol>
 docker compose exec django python3 manage.py makemigrations
 docker compose exec django python3 manage.py migrate
+<ol>Test</ol>
+docker compose exec django[docker-compose.yml裡的Django service名稱] python3 manage.py test
 </li>
 <hr>
 
