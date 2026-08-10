@@ -5,7 +5,12 @@ def create_user(userId:str):
   '''
   建立使用者
   '''
-  Person.objects.create(user_account=userId)
+  if not Person.objects.filter(user_account=userId).exists():
+    Person.objects.create(user_account=userId)
+    return 200
+  else:
+    return 400
+
 
 
 def create_Keyword(user_id:str,keyword:str):
@@ -19,3 +24,6 @@ def create_Keyword(user_id:str,keyword:str):
 
     # 將user message(key word)存到message
     Message.objects.create(keyword = keyword,user_account = person)
+    return 200
+  else:
+    return 400
