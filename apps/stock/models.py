@@ -4,12 +4,13 @@ from django.db import models
 class HotStock(models.Model):
     '''
     熱門台股
-    id,stockId,stockName
+    id,stockId,stockName,suffix
 
     eg. 
     id:1
     stockId:2330
     stockName:xxx
+    suffix:TW
     '''
     stock_id = models.CharField(max_length=100,unique=True,blank=False)
     stock_name = models.CharField(max_length=200,blank=False)

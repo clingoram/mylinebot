@@ -10,8 +10,8 @@ from apps.weather.services.handle_weather import handle_weather
 from apps.stock.services.handler import handle_stock_data,handle_postback,handle_followlist
 
 from linebot.models import PostbackEvent
-from linebot import LineBotApi
-LINE_BOT_API = LineBotApi(settings.LINE_CHANNEL_ACCESS_TOKEN)
+# from linebot import LineBotApi
+# LINE_BOT_API = LineBotApi(settings.LINE_CHANNEL_ACCESS_TOKEN)
 
 def route_event(handleEvent):
     '''
@@ -21,20 +21,17 @@ def route_event(handleEvent):
     for event in handleEvent:
       if event.type == "message" and event.message.type == "text":
         userId = event.source.user_id
-        # profile = LINE_BOT_API.get_profile(userId)
-        # userName = profile.display_name
+
         keyWord = event.message.text
 
-        message=[]
+        # message=[]
 
         # 新增關鍵字至資料表
         create_Keyword(userId,keyWord)
-
         if not Person.objects.filter(user_account=userId).exists():
           # 建立person(user)
           create_user(userId)
           # message.append(TextSendMessage(text="資料新增完畢"))
-
         if keyWord in ["新聞", "news","News","NEWS"]:
           return handle_news(event)
 

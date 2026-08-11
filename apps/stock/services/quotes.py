@@ -1,6 +1,9 @@
 from apps.stock.models import HotStock
 
-def get_suffix_from_db(stock_id:str):
+# =========================
+# Private
+# =========================
+def _suffix_from_db(stock_id:str):
     '''
     先從table找對應資料
     '''
@@ -14,11 +17,11 @@ def _save_into_db(stock_id:str,stock_name:str,suffix:str):
     代碼、名稱、suffix存進table
     '''
     HotStock.objects.create(stock_id = stock_id,stock_name = stock_name,suffix = suffix)
+    return True
 
-
-# 負責call API拿原始英文資料（內部私有）
 def _fetch_api_data(stock_id:str):
     '''
+    負責call API拿原始英文資料
     取得https://github.com/ranaroussi/yfinance 資料
     https://finance.yahoo.com/
 
@@ -28,7 +31,7 @@ def _fetch_api_data(stock_id:str):
     '''
     import yfinance as yf
     
-    find = get_suffix_from_db(stock_id)
+    find = _suffix_from_db(stock_id)
     if find is None:
         # table內找不到該股票代碼則字尾用.TW 或 .TWO 輪流找尋
         for suffix in ("TW", "TWO"):
@@ -110,7 +113,7 @@ def _map_eng_to_chinese(info:dict,df):
         "代碼":info.get("symbol").strip(".TW"),
         "公司名稱":info.get("shortName"),
         "產業":info.get("sector"),
-        "類型":typeDisp(info.get("typeDisp")),
+        "類型":_typeDisp(info.get("typeDisp")),
 
         # "開盤價":info.get("open"),
         "即時價格":info.get("currentPrice"),
@@ -123,7 +126,7 @@ def _map_eng_to_chinese(info:dict,df):
         "漲跌": change.get("change"),
         "漲跌幅": change.get("change_percent"),
 
-        "本益比":fmt_num(info.get("trailingPE")),
+        "本益比":_fmt_num(info.get("trailingPE")),
         "預估本益比":info.get("forwardPE"),
 
         "殖利率":info.get("dividendYield"),
@@ -141,7 +144,7 @@ def _map_eng_to_chinese(info:dict,df):
 
     return fieldMap
 
-def typeDisp(infoType:str):
+def _typeDisp(infoType:str):
     '''
     股票類型
     '''
@@ -158,7 +161,7 @@ def typeDisp(infoType:str):
             return value
     return None
 
-def fmt_num(value):
+def _fmt_num(value):
     '''
     若None顯示N/A
     '''
@@ -167,6 +170,9 @@ def fmt_num(value):
         return "N/A"
     return f"{value:,.0f}"
 
+# =========================
+# Public API
+# =========================
 def get_stock_flex_message(key):
     '''
     flex message (單一股票)
