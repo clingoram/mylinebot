@@ -11,24 +11,25 @@ def follow_stock(userId:str,stockId:str):
     增加追蹤股票
     依據user id取得該user追蹤的所有股票名稱
     '''
-    if Person.objects.filter(user_account=userId).exists():
-        person = Person.objects.filter(user_account=userId).first()
+    person = Person.objects.filter(user_account=userId).first()
 
-        FavoriteStock.objects.create(user_account=person,stock_id=stockId)
+    if person is None:
+        return HttpResponse("User not found",status=404)
 
-    if FavoriteStock.objects.filter(user_account=person).values_list('stock_id', flat=True):
-        return HttpResponse("OK!!",status=200)
+    FavoriteStock.objects.create(user_account=person,stock_id=stockId)
 
-def unfollow_stock(stockId:str):
+    return HttpResponse("OK!!",status=200)
+
+def unfollow_stock(userId:str,stockId:str):
     '''
     取消追蹤
     '''
     # 找到那一筆追蹤紀錄並刪除
-    deleted_count, _ = FavoriteStock.objects.filter(stock_id = stockId).delete()
+    deleted_count, _ = FavoriteStock.objects.filter(stock_id = stockId,user_account = userId).delete()
     
     if deleted_count > 0:
-        return JsonResponse({"message": "已取消追蹤"})
-    return JsonResponse({"error": "該股票不在追蹤名單中"}, status=404)
+        return JsonResponse({"message": "已取消追蹤"},status = 200)
+    return JsonResponse({"error": "該股票不在追蹤名單中"},status = 404)
 
 
 def get_user_stocks_list(userId:str):
@@ -48,10 +49,10 @@ def get_user_stocks_list(userId:str):
             stock_data_list.append(data)
             
     # 丟給底下產生flex message
-    return build_favorite_stock_list_flex(stock_data_list)
+    return get_flex_message_contents(stock_data_list)
 
 
-def build_favorite_stock_list_flex(stock_data_list):
+def get_flex_message_contents(stock_data_list):
     '''
     flex message 追蹤清單
     '''
@@ -84,7 +85,7 @@ def build_favorite_stock_list_flex(stock_data_list):
         
         # 一張卡片塞入5檔股票
         for stock in chunk:
-            print("目前處理的股票資料:", stock, "型態是:", type(stock)) 
+            # print("目前處理的股票資料:", stock, "型態是:", type(stock)) 
             
             # ：如果這筆資料是dict，就跳過不處理
             if not isinstance(stock, dict):

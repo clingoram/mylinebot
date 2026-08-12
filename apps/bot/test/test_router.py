@@ -1,8 +1,8 @@
-from django.test import TestCase
+from django.test import TestCase,SimpleTestCase
 from unittest.mock import Mock, patch
 from apps.bot.router import route_event
 
-class RouterTest(TestCase):
+class RouterTest(SimpleTestCase):
     '''
     測分流
     '''
@@ -12,8 +12,10 @@ class RouterTest(TestCase):
     @patch("apps.bot.router.create_user") # mock create user
     @patch("apps.bot.router.Person.objects.filter") # mock Person.objects.filter
     def test_route_stock(self,mock_filter,mock_create_user,mock_create_keyword,mock_stock,):
+        '''
+        測股票分流
+        '''
         event = Mock() # 假的東西，讓測試時不用真的執行某些功能，假裝LINE傳進來的Event
-
         event.type = "message"
         event.message.type = "text"
         event.message.text = "股票2330"
@@ -25,7 +27,6 @@ class RouterTest(TestCase):
         route_event([event])
 
         mock_create_keyword.assert_called_once_with("test_user_001","股票2330",)
-
         mock_stock.assert_called_once_with(event)
         mock_create_user.assert_not_called()
 
@@ -35,7 +36,7 @@ class RouterTest(TestCase):
     @patch("apps.bot.router.handle_weather")
     def test_route_weather(self, mock_weather,mock_filter,mock_create_keyword):
         '''
-        天氣
+        測天氣分流
         '''
         event = Mock()
         event.type = "message"
@@ -43,10 +44,10 @@ class RouterTest(TestCase):
         event.message.text = "高雄市"
         event.source.user_id = "test_user_001"
 
-        route_event([event])
-
         # 模擬使用者已存在
         mock_filter.return_value.exists.return_value = True
+
+        route_event([event])
 
         mock_weather.assert_called_once_with(event)
         mock_create_keyword.assert_called_once_with("test_user_001","高雄市",)
@@ -58,7 +59,7 @@ class RouterTest(TestCase):
     @patch("apps.bot.router.Person.objects.filter")
     def test_route_news(self,mock_filter,mock_create_keyword,mock_create_user,mock_news,):
         '''
-        爬蟲
+        測爬蟲分流
         '''
         event = Mock()
         event.type = "message"
@@ -66,9 +67,9 @@ class RouterTest(TestCase):
         event.message.text = "新聞"
         event.source.user_id = "test_user_001"
 
+        mock_filter.return_value.exists.return_value = True
         route_event([event])
 
-        mock_filter.return_value.exists.return_value = True
         mock_news.assert_called_once_with(event)
         mock_create_keyword.assert_called_once_with("test_user_001","新聞",)
         mock_create_user.assert_not_called()

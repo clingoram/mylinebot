@@ -1,1 +1,0 @@
-# 這種Event/Keyword有沒有被送到正確的handler？
