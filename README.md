@@ -66,7 +66,7 @@ news
 - 查詢目前追蹤的股票清單
 - 查看追蹤股票的相關資訊
 
-系統使用 ostgreSQL儲存使用者與股票的追蹤關係。
+系統使用PostgreSQL儲存使用者與股票的追蹤關係。
 
 ---
 
@@ -83,7 +83,7 @@ news
 
 ## System Architecture
 
-### Robot Response
+### 機器人回覆
 
 ![image](https://github.com/clingoram/mylinebot/blob/master/images/S__34291716.jpg "氣象訊息回覆 - 不在可查詢範圍內")
 ![image](https://github.com/clingoram/mylinebot/blob/master/images/weather.jpg "氣象查詢地區回覆")
@@ -134,7 +134,7 @@ Webhook Auto-Configuration Flow
 
 ### 第一次啟動或修改Docker設定
 
-第一次建立Docker containers，或修改以下檔案時，需要重新build：
+第一次建立Docker containers或修改以下檔案時，需要重新build：
 
 - `docker-compose.yml`
 - `Dockerfile`
