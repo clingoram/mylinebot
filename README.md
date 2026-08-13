@@ -1,10 +1,10 @@
 # mylinebot
 
-一個使用 **Django** 開發的 LINE Bot，提供天氣查詢、股票追蹤與財經新聞整合功能。
+一個使用**Django**開發的LINE Bot，提供天氣查詢、股票追蹤與財經新聞整合功能。
 
-使用者可以透過 LINE 查詢天氣資訊、取得財經新聞、追蹤個股。系統整合多個外部 API 與資料來源，並使用 **LINE Flex Message** 呈現資訊。
+使用者可以透過LINE查詢天氣資訊、取得財經新聞及追蹤個股。系統整合多個外部API與資料來源，並使用**LINE Flex Message**呈現資訊。
 
-本專案同時整合 **Docker、PostgreSQL 與 ngrok**，並撰寫啟動腳本自動取得 ngrok URL、更新 LINE Webhook，省去每次重新啟動後手動設定 Webhook 的流程。
+本專案使用**Docker Compose**整合Django、PostgreSQL與ngrok，並透過啟動腳本自動取得ngrok URL、更新LINE Webhook。因此開發時不需要另外建立Python虛擬環境、手動啟動 ngrok或在每次重新啟動後手動設定Webhook
 
 ---
 
@@ -12,7 +12,7 @@
 
 ### 1. 天氣查詢
 
-使用者可以輸入臺灣城市名稱，系統會透過 **中央氣象署 Open Data API** 取得對應的天氣資訊。
+使用者可以輸入臺灣城市名稱，系統會透過**中央氣象署 Open Data API**取得對應的天氣資訊。
 
 目前提供**當日天氣資訊**查詢。
 
@@ -43,7 +43,7 @@
 
 ### 2. 財經新聞
 
-使用者在 LINE 聊天室輸入：
+使用者在LINE聊天室輸入：
 
 ```text
 新聞
@@ -55,18 +55,18 @@
 news
 ```
 
-系統會爬取財經新聞網站，取得最新的 5 筆財經新聞，並透過 LINE Flex Message 呈現。
+系統會爬取財經新聞網站，取得最新的5筆財經新聞，並透過LINE Flex Message呈現。
 
 ### 3. 股票追蹤
 
-使用者可以透過 LINE Flex Message：
+使用者可以透過LINE Flex Message：
 
 - 追蹤股票
 - 取消追蹤股票
 - 查詢目前追蹤的股票清單
 - 查看追蹤股票的相關資訊
 
-系統使用 PostgreSQL 儲存使用者與股票的追蹤關係。
+系統使用 ostgreSQL儲存使用者與股票的追蹤關係。
 
 ---
 
@@ -110,7 +110,7 @@ Webhook Auto-Configuration Flow
 
 ### Modular Design
 
-將主要功能拆分為獨立 Service：
+將主要功能拆分為獨立Service：
 
 - Weather
 - Stock
@@ -120,32 +120,21 @@ Webhook Auto-Configuration Flow
 
 ### Database Design
 
-使用 **PostgreSQL** 設計資料模型，支援使用者與股票之間的多對多關係。
+使用**PostgreSQL**設計資料模型，支援使用者與股票之間的多對多關係。
 
 一個使用者可以追蹤多支股票，而同一支股票也可以被多個使用者追蹤。
 
 ---
 
-# Docker 開發環境
+# Development
 
-本專案使用 **Docker Compose** 啟動 Django、PostgreSQL 與 ngrok，不需要另外建立 Python virtual environment，也不需要手動啟動 ngrok。
-
-## Prerequisites
-
-開始使用前，請先安裝：
-
-- Docker
-- Docker Compose
-
-並確認 Docker 已正常運作。
-
----
+本專案使用Docker Compose管理開發環境。以下說明專案的啟動、關閉、Database Migration及測試方式。
 
 ## 啟動專案
 
-### 第一次啟動或修改 Docker 設定
+### 第一次啟動或修改Docker設定
 
-第一次建立 Docker containers，或修改以下檔案時，需要重新 build：
+第一次建立Docker containers，或修改以下檔案時，需要重新build：
 
 - `docker-compose.yml`
 - `Dockerfile`
@@ -159,51 +148,35 @@ docker compose up --build
 
 ### 一般啟動
 
-如果沒有修改 Docker 設定，可以直接執行：
+如果沒有修改Docker設定，可以直接執行：
 
 ```bash
 docker compose up
 ```
 
-啟動後會自動建立並啟動：
-
-- Django container
-- PostgreSQL container
-- ngrok container
-
-Django 啟動時會自動取得 ngrok URL 並更新 LINE Webhook，因此不需要再手動：
-
-- 建立或啟動 Python virtual environment
-- 啟動 ngrok
-- 手動設定 LINE Webhook
-
 ---
 
 ## 關閉專案
-
-執行：
 
 ```bash
 docker compose down
 ```
 
-此指令會停止並移除目前由 Docker Compose 建立的 containers。
+此指令會停止並移除目前由Docker Compose建立的containers。
 
 ---
 
-# Database Migration
+## Database Migration
 
-## 修改 `models.py`
+當Django Model有修改時，需要重新建立並套用migration。
 
-當 Django Model 有修改時，需要重新建立 migration。
-
-### 1. 建立 migration
+### 建立migration
 
 ```bash
 docker compose exec django python3 manage.py makemigrations
 ```
 
-### 2. 執行 migration
+### 執行migration
 
 ```bash
 docker compose exec django python3 manage.py migrate
@@ -218,35 +191,29 @@ docker compose exec django python3 manage.py migrate
 
 ---
 
-# Testing
+## Testing
 
-執行 Django Test：
+執行Django Test：
 
 ```bash
 docker compose exec django python3 manage.py test
 ```
 
-其中：
-
-```text
-django
-```
-
-是 `docker-compose.yml` 中 Django service 的名稱：
+其中`django`是`docker-compose.yml`中Django service的名稱：
 
 ```yaml
 services:
   django: ...
 ```
 
-如果未來將 Django service 名稱修改為：
+如果未來將Django service名稱修改為`web`：
 
 ```yaml
 services:
   web: ...
 ```
 
-則 Test 指令需要改成：
+則Test指令需要改成：
 
 ```bash
 docker compose exec web python3 manage.py test
@@ -254,20 +221,20 @@ docker compose exec web python3 manage.py test
 
 ---
 
-# Common Commands
+## Common Commands
 
-| 用途                           | 指令                                                          |
-| ------------------------------ | ------------------------------------------------------------- |
-| 第一次啟動 / Docker 設定有修改 | `docker compose up --build`                                   |
-| 一般啟動                       | `docker compose up`                                           |
-| 關閉                           | `docker compose down`                                         |
-| 建立 migration                 | `docker compose exec django python3 manage.py makemigrations` |
-| 執行 migration                 | `docker compose exec django python3 manage.py migrate`        |
-| 執行 Test                      | `docker compose exec django python3 manage.py test`           |
+| 用途                          | 指令                                                          |
+| ----------------------------- | ------------------------------------------------------------- |
+| 第一次啟動 / Docker設定有修改 | `docker compose up --build`                                   |
+| 一般啟動                      | `docker compose up`                                           |
+| 關閉                          | `docker compose down`                                         |
+| 建立migration                 | `docker compose exec django python3 manage.py makemigrations` |
+| 執行migration                 | `docker compose exec django python3 manage.py migrate`        |
+| 執行Test                      | `docker compose exec django python3 manage.py test`           |
 
 ---
 
-# References
+## References
 
 - [中央氣象署 Open Data](https://opendata.cwa.gov.tw/dist/opendata-swagger.html)
 - [Django Documentation](https://docs.djangoproject.com/en/5.0/)
