@@ -25,12 +25,18 @@ class FavoriteStock(models.Model):
     id,userAccount,stockId
 
     userAccount is relationship with id of table Person
-    stockId relationship with id of table HotStock
+    stockId
     '''
     user_account = models.ForeignKey('basic_info.person',db_column='user_account',db_comment='對應Person id',on_delete=models.CASCADE)
     # stockId = models.ForeignKey(HotStock, on_delete=models.CASCADE)
-    stock_id = models.CharField(max_length=100,unique=True,blank=False)
+    stock_id = models.CharField(max_length=100,blank=False)
 
 
     class Meta:
         db_table = 'favorite_stock'
+        constraints = [
+            models.UniqueConstraint(
+                fields=["user_account", "stock_id"],
+                name="unique_person_stock"
+            )
+        ]

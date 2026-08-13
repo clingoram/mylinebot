@@ -9,7 +9,7 @@ class Person(models.Model):
   table Person
   記錄使用者資訊
   '''
-  # 使用者LINE名稱
+  # LINE User ID
   user_account = models.CharField(unique=True,max_length = int(150), blank = False, null = False,validators=[
         RegexValidator(
             regex='^[a-zA-Z0-9]*$',

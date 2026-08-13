@@ -14,22 +14,25 @@ def follow_stock(userId:str,stockId:str):
     person = Person.objects.filter(user_account=userId).first()
 
     if person is None:
-        return HttpResponse("User not found",status=404)
+        return HttpResponse("User not found", status=404)
 
     FavoriteStock.objects.create(user_account=person,stock_id=stockId)
 
-    return HttpResponse("OK!!",status=200)
+    return HttpResponse("OK!!", status=200)
+
 
 def unfollow_stock(userId:str,stockId:str):
     '''
     取消追蹤
     '''
     # 找到那一筆追蹤紀錄並刪除
-    deleted_count, _ = FavoriteStock.objects.filter(stock_id = stockId,user_account = userId).delete()
+    deleted_count, _ = FavoriteStock.objects.filter(user_account = userId,stock_id = stockId).delete()
     
     if deleted_count > 0:
-        return JsonResponse({"message": "已取消追蹤"},status = 200)
-    return JsonResponse({"error": "該股票不在追蹤名單中"},status = 404)
+        return HttpResponse("已取消追蹤",status=200)
+        # return JsonResponse({"message": "已取消追蹤"},status = 200)
+    # return JsonResponse({"error": "該股票不在追蹤名單中"},status = 404)
+    return HttpResponse("該股票不在追蹤名單中",status=404)
 
 
 def get_user_stocks_list(userId:str):
