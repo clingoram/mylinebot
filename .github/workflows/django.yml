@@ -20,15 +20,15 @@ jobs:
       - name: Start services
         run: docker compose up -d
 
+      - name: Check Django
+        run: docker compose exec django python3 manage.py check
+        
       - name: Run migrations
         run: docker compose exec django python3 manage.py migrate
 
       - name: Run tests
         run: docker compose exec django python3 manage.py test
 
-      - name: Check Django
-        run: docker compose exec django python3 manage.py check
-
-      - name: Stop containers
-        if: always()
-        run: docker compose down
+      # - name: Stop containers
+      #   if: always()
+      #   run: docker compose down
