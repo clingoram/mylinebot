@@ -1,7 +1,9 @@
 ## 關於mylinebot
 
-使用Django建置LINE機器人。
-在本機開發時，使用ngrok建立https伺服器。
+一個使用Django開發的LINE Bot，可提供天氣查詢、股票追蹤及財經新聞整合。
+使用者可透過LINE查詢資訊、追蹤個股，系統會整合多個外部API並以Flex Message呈現。
+
+撰寫啟動腳本，自動取得ngrok URL並更新LINE Webhook，省去每次重新啟動後的手動設定流程。
 
 ### 功能
 
@@ -14,9 +16,8 @@
 - 功能2:<br>
   使用者在聊天室打上關鍵字「新聞」或「news」，可爬蟲財經新聞網站，取得5筆新聞。
 
-將使用者line id以及在聊天室打上的字存至PostgreSQL資料庫內，目的主要是認為未來也許可以分析使用者習慣、資料持久化、推播功能等。
-此功能目前只有新增及更新。<br>
-股票已可取得台灣股票上市公司相關資訊，此功能尚未完成。
+- 功能3:<br>
+  股票追蹤，使用者在Flex Message可追蹤與取消追蹤股票。亦可查詢目前追蹤股票清單相關資訊。
 
 ### 技術
 
@@ -26,11 +27,54 @@
 - Selenium
 - Docker
 
+## 機器人回覆:
+
+![image](https://github.com/clingoram/mylinebot/blob/master/images/S__34291716.jpg "氣象訊息回覆 - 不在可查詢範圍內")
+![image](https://github.com/clingoram/mylinebot/blob/master/images/weather.jpg "氣象查詢地區回覆")
+![image](https://github.com/clingoram/mylinebot/blob/master/images/crawler_reply.jpg "新聞爬蟲")
+![image](https://github.com/clingoram/mylinebot/blob/master/images/search_stock.jpeg "查詢股票")
+![image](https://github.com/clingoram/mylinebot/blob/master/images/list_follow_stock.jpeg "列出追蹤的所有股票清單")
+
+### Container Diagram
+
+![image](https://github.com/clingoram/mylinebot/blob/master/images/Container_Diagram.png "架構圖")
+
+### ER Diagram
+
+![image](https://github.com/clingoram/mylinebot/blob/master/images/ER_Diagram.png "ER Diagram")
+
+### Development Automation
+
+Webhook Auto-Configuration Flow
+![image](https://github.com/clingoram/mylinebot/blob/master/images/Webhook_Auto_Configuration_Flow.png "Webhook Auto-Configuration Flow")
+
+### Modular Design
+
+將Weather、Stock、Crawler拆成獨立Service。
+降低模組耦合，方便測試與擴充。
+
+### Database Design
+
+使用PostgreSQL設計多對多資料模型。
+支援使用者追蹤多支股票。
+
 ### How to run:
 
-本機:
-建制虛擬環境後python3 manage.py runserver
-
+<!-- Terminal 1: ngrok http 8000
+Terminal 2(啟動虛擬機後): python3 manage.py run_dev -->
+<li>
+<ol>啟動：</ol>
+docker compose up
+若第一次建立或者是有修改過docker-compose.yml、Dockerfile、requirements.txt須使用docker compose up --build
+啟動時會一併建立postgreSQL container、ngrok container、Django container，其中Django啟動時自動更新LINE webhook，不再需要手動開venv + ngrok
+<ol>關閉：</ol>
+docker compose down
+<ol>model.py做更改時：</ol>
+docker compose exec django python3 manage.py makemigrations
+docker compose exec django python3 manage.py migrate
+<ol>Test</ol>
+docker compose exec django[docker-compose.yml裡的Django service名稱] python3 manage.py test
+</li>
 <hr>
 
 - [氣象局](https://opendata.cwa.gov.tw/dist/opendata-swagger.html) <br>
@@ -39,9 +83,3 @@
 - [ngrok](https://ngrok.com/)
 - [selenium](https://github.com/seleniumhq/selenium)
 - PostgreSQL
-
-## 機器人回覆:
-
-![image](https://github.com/clingoram/mylinebot/blob/master/images/S__34291716.jpg "氣象訊息回覆 - 不在可查詢範圍內")
-![image](https://github.com/clingoram/mylinebot/blob/master/images/weather.jpg "氣象查詢地區回覆")
-![image](https://github.com/clingoram/mylinebot/blob/master/images/crawler_reply.jpg "新聞爬蟲")

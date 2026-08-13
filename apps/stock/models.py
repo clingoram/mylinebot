@@ -4,23 +4,33 @@ from django.db import models
 class HotStock(models.Model):
     '''
     熱門台股
-    id,stock_code,stock_name
+    id,stockId,stockName,suffix
 
     eg. 
     id:1
-    stock_code:2330
-    stock_name:xxx
+    stockId:2330
+    stockName:xxx
+    suffix:TW
     '''
-    stockCode = models.CharField(max_length=100,unique=True,blank=False)
-    stockName = models.CharField(max_length=200,blank=False)
+    stock_id = models.CharField(max_length=100,unique=True,blank=False)
+    stock_name = models.CharField(max_length=200,blank=False)
+    suffix = models.CharField(max_length=50,db_comment='.TW 或 .TWO',default="TW")
+
+    class Meta:
+        db_table = 'hot_stock'
 
 class FavoriteStock(models.Model):
     '''
     user收藏的stock
-    id,user_id,stock_id
+    id,userAccount,stockId
 
-    user_id relationship with Person
-    stock_id relationship with HotStock id
+    userAccount is relationship with id of table Person
+    stockId relationship with id of table HotStock
     '''
-    userId = models.ForeignKey('basic_info.Person', to_field="account",db_column="userAccount",on_delete=models.CASCADE)
-    stockId = models.ForeignKey(HotStock, on_delete=models.CASCADE)
+    user_account = models.ForeignKey('basic_info.person',db_column='user_account',db_comment='對應Person id',on_delete=models.CASCADE)
+    # stockId = models.ForeignKey(HotStock, on_delete=models.CASCADE)
+    stock_id = models.CharField(max_length=100,unique=True,blank=False)
+
+
+    class Meta:
+        db_table = 'favorite_stock'

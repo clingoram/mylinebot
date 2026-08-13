@@ -7,4 +7,8 @@ class LatestNews(models.Model):
     '''
     title = models.CharField(max_length=230,blank=False)
     url = models.URLField(max_length=500, blank=True, null=True)
-    scrapedAt = models.DateTimeField(auto_now_add=True)
+    scraped_at = models.DateTimeField(auto_now_add=True)
+
+
+    class Meta:
+        db_table = 'latest_news'

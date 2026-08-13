@@ -14,6 +14,9 @@ LINE_CHANNEL_SECRET = os.environ.get("LINE_CHANNEL_SECRET")
 # Weather
 WEATHER_ACCESS_TOKEN = os.environ.get("WEATHER_ACCESS_TOKEN")
 
+# ngrok
+# NGROK_TOKEN = os.environ.get("NGROK_TOKEN")
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 

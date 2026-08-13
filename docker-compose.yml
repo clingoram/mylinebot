@@ -1,0 +1,100 @@
+services:
+  django:
+    build: .
+    container_name: linebot_django
+    command: python3 manage.py run_dev 0.0.0.0:8000
+
+    volumes:
+      - .:/app
+
+    ports:
+      - "8000:8000"
+
+    env_file:
+      - .env
+
+    depends_on:
+      - postgres
+      - ngrok
+      # - redis
+
+    environment:
+      - NGROK_API_URL=http://ngrok:4040/api/tunnels
+
+  postgres:
+    image: postgres:16
+    container_name: linebot_postgres
+    restart: always
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+    ports:
+      - "5432:5432"
+
+  # redis:
+  #   image: redis:7
+  #   container_name: linebot_redis
+  #   ports:
+  #     - "6379:6379"
+
+  ngrok:
+    image: ngrok/ngrok:latest
+    container_name: linebot_ngrok
+
+    # environment:
+    #   NGROK_AUTHTOKEN: ${NGROK_AUTHTOKEN}
+
+    command:
+      - http
+      - --authtoken
+      - ${NGROK_AUTHTOKEN}
+      - django:8000
+
+    ports:
+      - "4040:4040"
+
+    # healthcheck:
+    #   test: ["CMD", "curl", "-f", "http://localhost:4040/api/tunnels"]
+    #   interval: 5s
+    #   timeout: 3s
+    #   retries: 10
+
+  # celery:
+  #   build: .
+  #   container_name: linebot_celery
+  #   command:
+  #     celery -A config worker -l info
+
+  #   volumes:
+  #     - ./django_app:/app
+
+  #   env_file:
+  #     - .env
+
+  #   depends_on:
+  #     - redis
+  #     - postgres
+
+  # celery-beat:
+  #   build: .
+  #   container_name: linebot_scheduler
+  #   command:
+  #     celery -A config beat -l info
+
+  #   volumes:
+  #     - ./django_app:/app
+
+  #   env_file:
+  #     - .env
+
+  #   depends_on:
+  #     - redis
+
+volumes:
+  pg_data:
+    external: true
