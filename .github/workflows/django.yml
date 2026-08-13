@@ -2,33 +2,39 @@ name: Django mylinebot CI
 
 on:
   push:
-    branches: ["master"]
+    branches:
+      - main
+      - develop
+
   pull_request:
-    branches: ["master"]
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        
-      - name: Build containers
-        run: docker compose build
 
-      - name: Start services
-        run: docker compose up -d
+      - name: Build
+        run: docker compose -f docker-compose.ci.yml build
 
-      - name: Check Django
-        run: docker compose exec django python3 manage.py check
-        
+      - name: Start PostgreSQL
+        run: docker compose -f docker-compose.ci.yml up -d postgres
+
       - name: Run migrations
-        run: docker compose exec django python3 manage.py migrate
+        run: docker compose -f docker-compose.ci.yml run --rm django python3 manage.py migrate
 
       - name: Run tests
-        run: docker compose exec django python3 manage.py test
+        run: docker compose -f docker-compose.ci.yml run --rm django python3 manage.py test
 
-      # - name: Stop containers
-      #   if: always()
-      #   run: docker compose down
+      - name: Django check
+        run: docker compose -f docker-compose.ci.yml run --rm django python3 manage.py check
+
+      - name: Show logs if failed
+        if: failure()
+        run: docker compose -f docker-compose.ci.yml logs
+
+      - name: Cleanup
+        if: always()
+        run: docker compose -f docker-compose.ci.yml down -v
