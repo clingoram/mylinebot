@@ -64,14 +64,14 @@ Webhook Auto-Configuration Flow
 Terminal 2(啟動虛擬機後): python3 manage.py run_dev -->
 <li>
 <ol>啟動：</ol>
-docker compose up
-若第一次建立或者是有修改過docker-compose.yml、Dockerfile、requirements.txt須使用docker compose up --build
-啟動時會一併建立postgreSQL container、ngrok container、Django container，其中Django啟動時自動更新LINE webhook，不再需要手動開venv + ngrok
+<p>docker compose up<br>
+若第一次建立或者是有修改過docker-compose.yml、Dockerfile、requirements.txt須使用docker compose up --build<br>
+啟動時會一併建立postgreSQL container、ngrok container、Django container，其中Django啟動時自動更新LINE webhook，不再需要手動開venv + ngrok</P>
 <ol>關閉：</ol>
-docker compose down
+<p>docker compose down</p>
 <ol>model.py做更改時：</ol>
-docker compose exec django python3 manage.py makemigrations
-docker compose exec django python3 manage.py migrate
+<p>docker compose exec django python3 manage.py makemigrations</p><br>
+<p>docker compose exec django python3 manage.py migrate</p>
 <ol>Test</ol>
 docker compose exec django[docker-compose.yml裡的Django service名稱] python3 manage.py test
 </li>
