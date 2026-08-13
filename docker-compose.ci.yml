@@ -11,6 +11,10 @@ services:
       DB_HOST: postgres
       DB_PORT: 5432
 
+      LINE_CHANNEL_ACCESS_TOKEN: ci-test-token
+      LINE_CHANNEL_SECRET: ci-test-secret
+      WEATHER_ACCESS_TOKEN: ci-test-weather-token
+
     depends_on:
       postgres:
         condition: service_healthy
