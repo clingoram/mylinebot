@@ -58,22 +58,120 @@ Webhook Auto-Configuration Flow
 使用PostgreSQL設計多對多資料模型。
 支援使用者追蹤多支股票。
 
-### How to run:
+# Docker 開發環境
 
-<!-- Terminal 1: ngrok http 8000
-Terminal 2(啟動虛擬機後): python3 manage.py run_dev -->
+本專案使用 Docker Compose 啟動 Django、PostgreSQL 與 ngrok，不需要另外建立 Python virtual environment 或手動啟動 ngrok。
 
-啟動:
+## 啟動專案
+
+### 第一次啟動或修改 Docker 設定
+
+第一次建立 Docker container，或修改以下檔案後，需要重新 build：
+
+- `docker-compose.yml`
+- `Dockerfile`
+- `requirements.txt`
+
+執行：
+
+```bash
+docker compose up --build
+```
+
+### 一般啟動
+
+如果沒有修改 Docker 設定，直接執行：
+
+```bash
 docker compose up
-若第一次建立或者是有修改過docker-compose.yml、Dockerfile、requirements.txt須使用docker compose up --build
-啟動時會一併建立postgreSQL container、ngrok container、Django container，其中Django啟動時自動更新LINE webhook，不再需要手動開venv + ngrok
-關閉:
+```
+
+啟動後會自動建立並啟動：
+
+- Django container
+- PostgreSQL container
+- ngrok container
+
+Django 啟動時會自動更新 LINE Webhook，因此不需要再手動執行：
+
+- Python virtual environment
+- ngrok
+
+## 關閉專案
+
+```bash
 docker compose down
-model.py做更改時:
+```
+
+這會停止並移除目前由 Docker Compose 建立的 containers。
+
+---
+
+## Database Migration
+
+### 修改 `models.py`
+
+當 `models.py` 有修改時，需要先建立 migration：
+
+```bash
+docker compose exec django python3 manage.py makemigrations
+```
+
+接著執行 migration：
+
+```bash
+docker compose exec django python3 manage.py migrate
+```
+
+也可以依序執行：
+
+```bash
 docker compose exec django python3 manage.py makemigrations
 docker compose exec django python3 manage.py migrate
-Test:
-docker compose exec django[docker-compose.yml裡的Django service名稱] python3 manage.py test
+```
+
+---
+
+## 執行 Test
+
+執行 Django Test：
+
+```bash
+docker compose exec django python3 manage.py test
+```
+
+其中 `django` 是 `docker-compose.yml` 中 Django service 的名稱：
+
+```yaml
+services:
+  django: ...
+```
+
+如果未來修改 service 名稱，例如：
+
+```yaml
+services:
+  web: ...
+```
+
+則 Test 指令需要改成：
+
+```bash
+docker compose exec web python3 manage.py test
+```
+
+---
+
+## 常用指令整理
+
+| 用途                           | 指令                                                          |
+| ------------------------------ | ------------------------------------------------------------- |
+| 第一次啟動 / Docker 設定有修改 | `docker compose up --build`                                   |
+| 一般啟動                       | `docker compose up`                                           |
+| 關閉                           | `docker compose down`                                         |
+| 建立 migration                 | `docker compose exec django python3 manage.py makemigrations` |
+| 執行 migration                 | `docker compose exec django python3 manage.py migrate`        |
+| 執行 Test                      | `docker compose exec django python3 manage.py test`           |
 
 <hr>
 
