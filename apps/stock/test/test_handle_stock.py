@@ -1,17 +1,19 @@
 from django.test import SimpleTestCase
 from unittest.mock import Mock, patch
 from apps.stock.services.handler import handle_stock_data
+from apps.bot.services.line_reply import reply
 
 class HandleStockTest(SimpleTestCase):
     '''
     查詢單一股票
     不會真的call API，用Mock和@patch
     '''
-    @patch("apps.stock.services.handler.LINE_BOT_API")
+    # @patch("apps.stock.services.handler.LINE_BOT_API")
+    @patch("apps.stock.services.handler.reply")
     @patch("apps.stock.services.handler.get_stock_flex_message")
-    def test_handle_stock_data(self,mock_get_stock,mock_line_bot,):
+    def test_handle_stock_data(self,mock_get_stock,mock_reply,):
         event = Mock()
-        event.message.text = "股票2330"
+        event.message.text = "2330"
         event.reply_token = "reply-token"
 
         mock_get_stock.return_value = {
@@ -22,6 +24,17 @@ class HandleStockTest(SimpleTestCase):
 
         mock_get_stock.assert_called_once_with("2330")
 
-        mock_line_bot.reply_message.assert_called_once()
+        # 有沒有叫reply()
+        mock_reply.assert_called_once()
 
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response, None)
+
+    @patch("apps.bot.services.line_reply.LINE_BOT_API.reply_message")
+    def test_reply(self,mock_bot_reply):
+        '''
+        reply()有沒有呼叫LINE API
+        '''
+        message = "Check???"
+        reply("token", message)
+
+        mock_bot_reply.assert_called_once_with("token",message)

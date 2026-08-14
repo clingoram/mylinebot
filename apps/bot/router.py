@@ -32,7 +32,7 @@ def route_event(handleEvent):
           # 建立person(user)
           create_user(userId)
           # message.append(TextSendMessage(text="資料新增完畢"))
-        if keyWord in ["新聞", "news","News","NEWS"]:
+        if keyWord in ["新聞", "news","News","NEWS","爬蟲"]:
           return handle_news(event)
 
         if keyWord.endswith(("市", "縣")):

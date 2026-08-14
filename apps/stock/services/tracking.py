@@ -6,41 +6,36 @@ from apps.stock.services.quotes import _fetch_api_data
 # =========================
 # Public
 # =========================
-def follow_stock(userId:str,stockId:str):
+def follow_stock(user_id:str,stock_id:str):
     '''
     增加追蹤股票
     依據user id取得該user追蹤的所有股票名稱
     '''
-    person = Person.objects.filter(user_account=userId).first()
+    person = Person.objects.filter(user_account=user_id).first()
 
     if person is None:
         return HttpResponse("User not found", status=404)
 
-    FavoriteStock.objects.create(user_account=person,stock_id=stockId)
+    FavoriteStock.objects.create(user_account=person,stock_id=stock_id)
 
     return HttpResponse("OK!!", status=200)
 
 
-def unfollow_stock(userId:str,stockId:str):
+def unfollow_stock(user_id:str,stock_id:str):
     '''
     取消追蹤
     '''
     # 找到那一筆追蹤紀錄並刪除
-    deleted_count, _ = FavoriteStock.objects.filter(user_account = userId,stock_id = stockId).delete()
-    
-    if deleted_count > 0:
-        return HttpResponse("已取消追蹤",status=200)
-        # return JsonResponse({"message": "已取消追蹤"},status = 200)
-    # return JsonResponse({"error": "該股票不在追蹤名單中"},status = 404)
-    return HttpResponse("該股票不在追蹤名單中",status=404)
+    deleted_count, _ = FavoriteStock.objects.filter(user_account__user_account=user_id,stock_id=stock_id).delete()
+    return deleted_count > 0
 
 
-def get_user_stocks_list(userId:str):
+def get_user_stocks_list(user_id:str):
     '''
     取得使用者追蹤的所有股票清單
     '''
     # 先從Person找尋對應id
-    person_id = Person.objects.filter(user_account = userId).values_list('id', flat=True).first()
+    person_id = Person.objects.filter(user_account = user_id).values_list('id', flat=True).first()
     # 取得該使用者追蹤的所有股票清單
     user_stocks = FavoriteStock.objects.filter(user_account=person_id).values_list('stock_id', flat=True)
     

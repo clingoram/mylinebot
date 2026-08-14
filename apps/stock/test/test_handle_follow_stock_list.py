@@ -66,13 +66,14 @@ class HandleFollowStockListTest(TestCase):
         result = get_user_stocks_list(self.user.user_account)
 
         self.assertEqual(result["type"],"carousel")
-
+    
         mock_fetch_api_data.assert_not_called()
 
 
-    @patch("apps.stock.services.handler.LINE_BOT_API")
+    # @patch("apps.stock.services.handler.LINE_BOT_API")
+    @patch("apps.stock.services.handler.reply")
     @patch("apps.stock.services.tracking._fetch_api_data")
-    def test_handle_stock_has_follow_list(self,mock_sotck_fetch_api,mock_line_bot,):
+    def test_handle_stock_has_follow_list(self,mock_sotck_fetch_api,mock_reply,):
         '''
         mock event → 查到有資料 → LINE reply是否正常
         '''
@@ -82,7 +83,7 @@ class HandleFollowStockListTest(TestCase):
 
         result = handle_followlist(event)
 
-        self.assertEqual(result.status_code,200)
+        self.assertEqual(result,None)
   
         mock_sotck_fetch_api.side_effect = [
             {
@@ -92,12 +93,14 @@ class HandleFollowStockListTest(TestCase):
                 "代碼": "0050","公司名稱": "元大台灣50","即時價格":1999
             },
         ]
-        
-        mock_line_bot.reply_message.assert_called_once()
+
+        # 有沒有叫reply()
+        mock_reply.assert_called_once()
 
 
-    @patch("apps.stock.services.handler.LINE_BOT_API")
-    def test_handle_stock_hasnot_follow_list(self,mock_line_bot):
+    # @patch("apps.stock.services.handler.LINE_BOT_API")
+    @patch("apps.stock.services.handler.reply")
+    def test_handle_stock_hasnot_follow_list(self,mock_reply):
         '''
         mock event → 沒資料 → LINE reply是否正常
         '''
@@ -110,6 +113,6 @@ class HandleFollowStockListTest(TestCase):
 
         result = handle_followlist(event)
 
-        self.assertEqual(result.status_code,200)
-
-        mock_line_bot.reply_message.assert_called_once()
+        self.assertEqual(result,None)
+        # 有沒有叫reply()
+        mock_reply.assert_called_once()
