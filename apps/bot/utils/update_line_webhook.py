@@ -40,7 +40,7 @@ def wait_ngrok(retry=30, delay=1):
 
         time.sleep(delay)
 
-    raise RuntimeError("ngrok not ready after waiting")
+    raise RuntimeError("☹️ ngrok還沒準備好")
 
 
 def update_line_webhook():
@@ -62,7 +62,7 @@ def update_line_webhook():
     callback_url = f"{url}/callback"
 
     print("💡 callback =", callback_url)
-    print("🔑 token =", LINE_CHANNEL_ACCESS_TOKEN[:10] + "...")
+    print("🔑 token =", LINE_CHANNEL_ACCESS_TOKEN[:3] + "...")
     print("❓ token valid =", bool(LINE_CHANNEL_ACCESS_TOKEN))
     print("📏 token length =", len(LINE_CHANNEL_ACCESS_TOKEN or ""))
 

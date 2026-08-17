@@ -15,6 +15,4 @@ def handle_weather(event):
         reply(event.reply_token,FlexSendMessage(alt_text = event.message.text + "氣象資訊",contents=result))
     else:
         reply(event.reply_token,TextSendMessage(text = event.message.text + "不在可搜尋範圍內。可搜尋: "+",".join(city())))
-
-    return HttpResponse("OK!!",status=200)
             

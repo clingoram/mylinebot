@@ -39,8 +39,8 @@ def weatherAPI(location:str)->list:
     nextDay = current + timedelta(1)
     new_period=nextDay.replace(hour=23, minute=0,second=0).strftime('%Y-%m-%dT%H:%M:%SZ')
 
-    url = "https://opendata.cwa.gov.tw/api/v1/rest/datastore/F-C0032-001?Authorization="
-    response = requests.get(url + WEATHER_TOKEN + "&locationName=" + location + "&timeFrom=" + current.strftime("%Y-%m-%dT%H:%M:%SZ")+"&timeTo="+new_period,timeout=5)
+    URL = "https://opendata.cwa.gov.tw/api/v1/rest/datastore/F-C0032-001?Authorization="
+    response = requests.get(URL + WEATHER_TOKEN + "&locationName=" + location + "&timeFrom=" + current.strftime("%Y-%m-%dT%H:%M:%SZ")+"&timeTo="+new_period,timeout=5)
 
     response.raise_for_status()
     if response.status_code == 200 and response.headers["content-type"].strip().startswith("application/json"):

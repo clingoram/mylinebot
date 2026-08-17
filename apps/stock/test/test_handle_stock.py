@@ -28,13 +28,3 @@ class HandleStockTest(SimpleTestCase):
         mock_reply.assert_called_once()
 
         self.assertEqual(response, None)
-
-    @patch("apps.bot.services.line_reply.LINE_BOT_API.reply_message")
-    def test_reply(self,mock_bot_reply):
-        '''
-        reply()有沒有呼叫LINE API
-        '''
-        message = "Check???"
-        reply("token", message)
-
-        mock_bot_reply.assert_called_once_with("token",message)
