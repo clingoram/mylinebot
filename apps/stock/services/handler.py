@@ -20,15 +20,15 @@ def handle_stock_data(event) -> None:
     '''
     取得單一股票
     '''
-    # keyWord = _clean_stock_id(event.message.text)
+    #只取英文大小寫和數字
     keyWord = re.sub(r"[^a-zA-Z0-9]", "", event.message.text).upper()
-    numbers = get_stock_flex_message(event.message.text)
+    result = get_stock_flex_message(event.message.text)
     
-    if not numbers:
+    if not result:
         reply(event.reply_token,TextSendMessage("請輸入股票代號"))
         return
     
-    reply(event.reply_token,FlexSendMessage(alt_text = keyWord + f"追蹤 {keyWord}",contents=numbers))
+    reply(event.reply_token,FlexSendMessage(alt_text = keyWord + f"追蹤 {keyWord}",contents = result))
     # return HttpResponse("OK!!",status=200)
 
 def handle_postback(event) -> None:
