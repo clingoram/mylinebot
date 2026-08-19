@@ -1,6 +1,6 @@
 from django.test import TestCase
 from unittest.mock import Mock, patch
-from apps.weather.services.handle_weather import handle_weather,flex_message
+from apps.weather.services.handle_weather import handle_weather
 from linebot.models import TextSendMessage,FlexSendMessage
 
 class HandleWeatherTest(TestCase):

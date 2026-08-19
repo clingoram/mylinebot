@@ -38,7 +38,7 @@ class HandleStockTest(SimpleTestCase):
     @patch("apps.stock.services.handler.get_stock_flex_message")
     def test_handle_stock_no_data(self,mock_get_stock,mock_reply):
         '''
-        股票代碼亂輸入，無資料
+        股票代碼亂輸入->無資料
         '''
         event = Mock()
         event.message.text = "Today"

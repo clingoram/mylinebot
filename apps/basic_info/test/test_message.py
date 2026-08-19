@@ -1,5 +1,4 @@
 from django.test import TestCase
-# from datetime import datetime
 from apps.basic_info.models import Person,Message
 from apps.basic_info.services.actions import create_Keyword
 
@@ -13,7 +12,7 @@ class MessageModelTests(TestCase):
 
   def test_create_Keyword_when_user_exists(self):
     '''
-    user存在，message可以建立
+    user存在->message可以建立
     '''
     Person.objects.create(
       user_account = "test_user_001", 
@@ -31,7 +30,7 @@ class MessageModelTests(TestCase):
 
   def test_cannot_create_keyword_when_user_not_exists(self):
     '''
-    user不存在，不能insert 到 message
+    user不存在->不能insert到message
     '''
     user_account = "user_not_exist"
     keyword = "Test"
@@ -52,7 +51,10 @@ class MessageModelTests(TestCase):
     user_account = "test_user_001"
     keyword = "Test"
     # 先取得Person，再用Person查Message
-    person = Person.objects.create(user_account=user_account, created_at="2026-03-12") 
+    person = Person.objects.create(
+      user_account=user_account, 
+      created_at="2026-03-12"
+    ) 
 
     result = create_Keyword(user_account, keyword,)
     self.assertEqual(result, True) 

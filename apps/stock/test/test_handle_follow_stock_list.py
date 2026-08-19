@@ -1,9 +1,8 @@
-from django.test import TestCase,SimpleTestCase
+from django.test import TestCase
 from unittest.mock import Mock, patch
 from apps.stock.services.handler import handle_followlist
 from apps.stock.services.tracking import get_user_stocks_list
 
-# from apps.basic_info.services.actions import create_user
 
 from apps.basic_info.models import Person
 from apps.stock.models import FavoriteStock
@@ -11,7 +10,7 @@ from apps.stock.models import FavoriteStock
 class HandleFollowStockListTest(TestCase):
     '''
     股票清單
-    分成有追蹤有資料和沒有追蹤沒資料 test case
+    分成有追蹤有資料和沒有追蹤沒資料的test case
     '''
     def setUp(self):
         '''
@@ -59,7 +58,7 @@ class HandleFollowStockListTest(TestCase):
     @patch("apps.stock.services.tracking._fetch_api_data")
     def test_get_user_stocks_list_no_data(self,mock_fetch_api_data,):
         '''
-        DB沒有資料時，空清單的Flex Message是否正確
+        DB沒有資料->空清單的Flex Message是否正確
         '''
         FavoriteStock.objects.filter(user_account=self.user).delete()
 
@@ -70,7 +69,6 @@ class HandleFollowStockListTest(TestCase):
         mock_fetch_api_data.assert_not_called()
 
 
-    # @patch("apps.stock.services.handler.LINE_BOT_API")
     @patch("apps.stock.services.handler.reply")
     @patch("apps.stock.services.tracking._fetch_api_data")
     def test_handle_stock_has_follow_list(self,mock_sotck_fetch_api,mock_reply,):
@@ -98,7 +96,6 @@ class HandleFollowStockListTest(TestCase):
         mock_reply.assert_called_once()
 
 
-    # @patch("apps.stock.services.handler.LINE_BOT_API")
     @patch("apps.stock.services.handler.reply")
     def test_handle_stock_hasnot_follow_list(self,mock_reply):
         '''

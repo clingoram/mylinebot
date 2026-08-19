@@ -6,7 +6,6 @@ class RouterTest(SimpleTestCase):
     '''
     測分流
     '''
-    # 暫時把真的XXXX()換掉，避免測試真的執行它，由下往上對應
     @patch("apps.bot.router.handle_stock_data") # mock stock
     @patch("apps.bot.router.create_Keyword") # mock key word
     @patch("apps.bot.router.create_user") # mock create user
@@ -15,7 +14,7 @@ class RouterTest(SimpleTestCase):
         '''
         測股票分流
         '''
-        event = Mock() # 假的東西，讓測試時不用真的執行某些功能，假裝LINE傳進來的Event
+        event = Mock()
         event.type = "message"
         event.message.type = "text"
         event.message.text = "股票2330"

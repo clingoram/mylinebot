@@ -13,7 +13,6 @@ class WeatherAPITest(TestCase):
         '''
         指定城市
         '''
-
         location = "臺南市"
         # 模擬API response
         mock_response = Mock()
@@ -130,16 +129,13 @@ class WeatherAPITest(TestCase):
 
         mock_get.return_value = mock_response
 
-        # 不指定城市
-        result = weatherAPI("")
+        weatherAPI("")
 
-        # API應該被呼叫一次
         mock_get.assert_called_once()
 
-        # 取得requests.get()的參數
         kwargs = mock_get.call_args.kwargs
 
-        # 確認使用預設城市
+        # 確認用預設城市
         self.assertEqual(kwargs["params"]["locationName"],"高雄市")
 
 

@@ -31,13 +31,6 @@ class HandlePostBackTest(TestCase):
         event.postback.data = "action=watch&stock_id=2330"
         event.reply_token = "reply-token"
 
-        # 確認測試開始前沒有追蹤資料
-        # self.assertFalse(
-        #     FavoriteStock.objects.filter(
-        #         user_account=self.user,
-        #         stock_id="2330"
-        #     ).exists()
-        # )
         user = self.user
         
         # handler
@@ -53,7 +46,6 @@ class HandlePostBackTest(TestCase):
         # handler有回覆LINE且是reply_token
         mock_reply.assert_called_once()
         args, kwargs = mock_reply.call_args
-
         self.assertEqual(args[0],"reply-token")
         
 

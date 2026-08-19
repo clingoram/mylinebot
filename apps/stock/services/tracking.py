@@ -50,7 +50,7 @@ def get_user_stocks_list(user_id:str):
     return get_flex_message_contents(stock_data_list)
 
 
-def get_flex_message_contents(stock_data_list):
+def get_flex_message_contents(stock_data_list:list):
     '''
     flex message 追蹤清單
     '''

@@ -44,20 +44,6 @@ def handle_postback(event) -> None:
     action = params.get("action", [None])[0] 
     stock = params.get("stock_id", [None])[0] 
 
-    '''
-    person = Person.objects.get(user_account=userId)
-    exist_or_not = FavoriteStock.objects.filter(user_account=person,stock_id=stock).exists() 
-    
-    if action == "watch" and stock and exist_or_not == False: 
-        follow_stock(userId,stock) 
-        LINE_BOT_API.reply_message(event.reply_token,TextSendMessage(text=f"已加入追蹤：{stock}")) 
-    elif action == "unfollow" and stock and exist_or_not == True: 
-        unfollow_stock(userId,stock) 
-        LINE_BOT_API.reply_message(event.reply_token,TextSendMessage(text=f"取消追蹤：{stock}")) 
-    else: 
-        LINE_BOT_API.reply_message(event.reply_token,TextSendMessage(text="參數錯誤"))
-    
-    '''
     if not action or not stock:
         reply(event.reply_token,TextSendMessage("參數錯誤"))
         return
