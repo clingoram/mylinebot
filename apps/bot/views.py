@@ -12,7 +12,7 @@ LINE_WEBHOOK_PARSER = WebhookParser(settings.LINE_CHANNEL_SECRET)
 def handle_message(request):
   if request.method == 'POST':
     
-    print("👉 收到 LINE callback")
+    print("👉 收到LINE callback")
     # print(request.method)
     # print(request.path)
     # print(request.body)

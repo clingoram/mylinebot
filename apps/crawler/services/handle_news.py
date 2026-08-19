@@ -11,6 +11,7 @@ def handle_news(event) -> HttpResponse:
     '''
     將得到的新聞爬蟲資料塞進line bot內
     '''
+    # TODO:須改成呼叫flex_news()
     result = crawler_news()
     print(result)
 
