@@ -1,11 +1,6 @@
-# from selenium import webdriver
-# from selenium.webdriver.common.by import By
-# from selenium.webdriver.chrome.options import Options
-# from selenium.webdriver.support.ui import WebDriverWait
-# from selenium.webdriver.support import expected_conditions as EC
-
 import requests
 from bs4 import BeautifulSoup
+from urllib.parse import urljoin
 
 def crawler_news(keyword=None, category=None, limit=10):
     '''
@@ -15,80 +10,74 @@ def crawler_news(keyword=None, category=None, limit=10):
     category : 新聞類型，例如「財經」、「社會」
     limit    : 最多取得幾筆
     '''
-    url = "https://www.setn.com/viewall"
-    
-# Selenium
-# def crawler_news(keyword=None)->str:
-#     '''
-#     新聞爬蟲
-#     '''
-#     # TODO:無法抓取資料
-#     option = Options()
-#     option.add_argument("--headless=new")
-#     option.add_argument('blink-settings=imagesEnabled=false')
-#     option.add_argument("--disable-extensions")
-#     option.add_argument("--no-sandbox")
-#     option.add_argument("--disable-gpu")
-#     driver = webdriver.Chrome(options=option)
+    # 由於SETN新聞存在HTML上，所以使用BeautifulSoup
+    URL = "https://www.setn.com/viewall"
+    headers = {
+        "User-Agent": (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+            "AppleWebKit/537.36 (KHTML, like Gecko)"
+            "Chrome/139.0.0.0 Safari/537.36"
+        )
+    }
 
-#     content = ""
-#     try:
-        
-#       driver.get("https://www.setn.com/viewall")
-#       # print(driver.page_source)
+    response = requests.get(
+        URL,
+        headers=headers,
+        timeout=10
+    )
+    response.raise_for_status()
+    # docs: https://beautiful-soup-4.readthedocs.io/en/latest/#
+    soup = BeautifulSoup(response.text, 'html.parser')
+    content_list = []
+    elements = soup.select(".news_list_item")
 
-#       # 最多等20秒，若1秒就找到元素便立刻向下執行
-#       # WebDriverWait(driver, 20).until(
-#       #   EC.presence_of_element_located((By.CLASS_NAME, "newslist__card"))
-#       # )
-#       WebDriverWait(driver, 20).until(
-#         EC.visibility_of_any_elements_located(
-#           (By.CSS_SELECTOR, ".newslist__card")
-#         )
-#       )
-      
-      
-#       # element = driver.find_elements(By.CLASS_NAME,"newslist__card")
-#       elements = driver.find_elements( By.CSS_SELECTOR,".news_list_item")
-#     # news_info
-#       print(f"找到 {len(elements)} 筆新聞")
-#       for i,element in elements[:5]:
-#           print("執行中...")
-#           try:
-#             # 新聞標題
-#             newsTitle = i.find_element(By.CLASS_NAME,"title title_mobile").text
-#             if keyword:
-#               if keyword not in newsTitle:
-#                   continue
-#             # 新聞類型
-#             newsType = i.find_element(By.CLASS_NAME, "tab smart-link").text
-#             # 新聞發佈時間
-#             newsTime = i.find_element(By.CLASS_NAME, "time").text
-            
-#             # 新聞連結
-#             try:
-#               newsLink = element.find_element(By.CSS_SELECTOR,".smart-link a").get_attribute("href")
-#             except Exception:
-#               newsLink = element.find_element(By.CSS_SELECTOR,"a").get_attribute("href")
+    for i in elements:
+        # 新聞標題
+        title_element = i.select_one(".title_pc a")
 
-#             content += (
-#                 f"[{newsType}]\n"
-#                 f"{newsTime}\n"
-#                 f"{newsTitle}\n"
-#                 f"{newsLink}\n\n"
-#             )
+        # 新聞類型
+        category_element = i.select_one(".time_box .tab")
 
-#           except Exception as e:
-#             print(f"⚠️ 第 {i + 1} 筆錯誤: {e}")
+        # 發布時間
+        time_element = i.select_one(".time_box .time")
 
-#     except Exception as e:
-#       print(f"⚠️ 爬蟲錯誤: {e}")
+        if not title_element:
+            continue
 
-#     finally:
-#       driver.quit()
+        title = title_element.get_text(strip = True)
 
-#     return content
+        # href不一定是完整URL，所以用urljoin()
+        news_url = urljoin(URL,title_element.get("href", ""))
 
+        # 分類
+        news_category = (
+            category_element.get_text(strip = True)
+            if category_element else ""
+        )
 
+        news_time = (
+            time_element.get_text(strip = True)
+            if time_element else ""
+        )
 
+        # 關鍵字篩選
+        if keyword and keyword not in title:
+            continue
+
+        # 類別篩選
+        if category and category != news_category:
+            continue
+
+        content_list.append({
+            "title": title,
+            "category": news_category,
+            "time": news_time,
+            "source":"三立新聞網",
+            "url": news_url
+        })
+
+        if len(content_list) >= limit:
+            break
+
+    return content_list
 

@@ -6,11 +6,11 @@ from linebot.models import MessageEvent, TextSendMessage,TextMessage,FlexSendMes
 # from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden
 
 
-def handle_weather(event):
+def handle_weather(event,location):
     '''
     將得到的氣象資料塞進line bot內
     '''
-    result = flex_message(event.message.text)
+    result = flex_message(location)
     if result:
         reply(event.reply_token,FlexSendMessage(alt_text = event.message.text + "氣象資訊",contents=result))
     else:

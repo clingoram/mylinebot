@@ -211,6 +211,7 @@ def _map_eng_to_chinese(info:dict,df) -> dict[str, Any]:
             "年配息": _fmt_num(info.get("dividendRate")),
             "52週高": info.get("fiftyTwoWeekHigh"),
             "52週低": info.get("fiftyTwoWeekLow"),
+            # "說明":"※ 以上資訊僅供參考，不構成投資或理財建議。"
         }
 
         # print("6. fieldMap 建立成功")
@@ -359,7 +360,7 @@ def get_stock_flex_message(key):
                         "type": "postback",
                         "label": "加入追蹤",
                         "data": f"action=watch&stock_id={stockO['代碼']}"
-                    }
+                    },
                 }
             ]
         }

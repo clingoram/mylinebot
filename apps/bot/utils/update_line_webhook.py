@@ -5,13 +5,16 @@ import time
 import requests
 import os
 
-LINE_API = "https://api.line.me/v2/bot/channel/webhook/endpoint"
-NGROK_API = os.getenv("NGROK_API_URL")
 
 def get_ngrok_url():
     '''
     取ngrok URL
     '''
+    NGROK_API = os.getenv("NGROK_API_URL")
+
+    if not NGROK_API:
+        print("❌ NGROK_API_URL沒設定")
+        return None
     try:
         res = requests.get(NGROK_API, timeout=2)
         res.raise_for_status()
@@ -43,10 +46,11 @@ def wait_ngrok(retry=30, delay=1):
     raise RuntimeError("☹️ ngrok還沒準備好")
 
 
-def update_line_webhook():
+def update_line_webhook(retry=5, delay=2):
     '''
     更新line webhook url
     '''
+    LINE_API = "https://api.line.me/v2/bot/channel/webhook/endpoint"
     LINE_CHANNEL_ACCESS_TOKEN = os.getenv("LINE_CHANNEL_ACCESS_TOKEN")
     if not LINE_CHANNEL_ACCESS_TOKEN:
         raise RuntimeError("☹️ 沒拿到LINE_CHANNEL_ACCESS_TOKEN")
@@ -58,7 +62,7 @@ def update_line_webhook():
         return
     print("💡 ngrok url =", url)
 
-    # 組合成webhook URL
+    # 組成webhook URL
     callback_url = f"{url}/callback"
 
     print("💡 callback =", callback_url)
@@ -68,19 +72,37 @@ def update_line_webhook():
 
     headers = {
         "Authorization": f"Bearer {LINE_CHANNEL_ACCESS_TOKEN}",
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
     }
-    # 呼叫LINE API更新webhook
-    res = requests.put(
-        LINE_API,
-        headers=headers,
-        json={"endpoint": callback_url},
-        timeout=5
-    )
 
-    if res.ok:
-        print("✅ Webhook Updated")
-    else:
-        print("❌ Update Failed")
-        print("status =" , res.status_code)
-        print("response =", res.text)
+    # 最多試5次，5次都失敗就會跑到raise RuntimeError("☹️ ngrok還沒準備好")
+    for i in range(retry):
+        try:
+            print(f"🔄 更新LINE Webhook ({i + 1}/{retry})")
+
+            res = requests.put(
+                LINE_API,
+                headers=headers,
+                json={"endpoint": callback_url},
+                timeout=5,
+            )
+
+            if res.ok:
+                print("✅ Webhook Updated")
+                return
+
+            print("❌ Update Failed")
+            print("status =", res.status_code)
+            print("response =", res.text)
+
+
+            if res.status_code in (400, 401, 403):
+                return
+
+        except requests.RequestException as e:
+            print(f"☹️ LINE API連線失敗：{e}")
+
+        if i < retry - 1:
+            time.sleep(delay)
+
+    print("❌ LINE Webhook更新失敗，已達最大重試次數")

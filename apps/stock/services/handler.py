@@ -16,13 +16,13 @@ from apps.basic_info.models import Person
 # =========================
 # Public
 # =========================
-def handle_stock_data(event) -> None: 
+def handle_stock_data(event,stock_id) -> None: 
     '''
     取得單一股票
     '''
     #只取英文大小寫和數字
-    keyWord = re.sub(r"[^a-zA-Z0-9]", "", event.message.text).upper()
-    result = get_stock_flex_message(event.message.text)
+    keyWord = re.sub(r"[^a-zA-Z0-9]", "", stock_id).upper()
+    result = get_stock_flex_message(stock_id)
     
     if not result:
         reply(event.reply_token,TextSendMessage("請輸入股票代號"))
@@ -31,6 +31,15 @@ def handle_stock_data(event) -> None:
     reply(event.reply_token,FlexSendMessage(alt_text = keyWord + f"追蹤 {keyWord}",contents = result))
     # return HttpResponse("OK!!",status=200)
 
+def handle_followlist(event) -> None:
+    '''
+    顯示追蹤清單
+    '''
+    userId = event.source.user_id
+    result = get_user_stocks_list(userId)
+    reply(event.reply_token,FlexSendMessage(alt_text = "追蹤清單",contents=result))
+    # return HttpResponse("OK!!",status=200)
+    
 def handle_postback(event) -> None:
     '''
     按下 
@@ -76,12 +85,3 @@ def handle_postback(event) -> None:
 
     else:
         reply(event.reply_token,TextSendMessage("參數錯誤"))
-
-def handle_followlist(event) -> None:
-    '''
-    處理追蹤清單
-    '''
-    userId = event.source.user_id
-    result = get_user_stocks_list(userId)
-    reply(event.reply_token,FlexSendMessage(alt_text = "追蹤清單",contents=result))
-    # return HttpResponse("OK!!",status=200)
