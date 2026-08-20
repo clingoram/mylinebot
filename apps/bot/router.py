@@ -33,18 +33,17 @@ def route_event(handleEvent):
           create_user(userId)
           # message.append(TextSendMessage(text="資料新增完畢"))
         if keyWord in ["新聞", "news","News","NEWS","爬蟲"]:
-          return handle_news(event)
+          handle_news(event)
 
         if keyWord.endswith(("市", "縣")):
-          return handle_weather(event)
-
+          handle_weather(event)
         if keyWord.startswith(("股票","stock","Stock","台股","臺股")):
-          return handle_stock_data(event)
+          handle_stock_data(event)
         
         if keyWord in ["我的股票","追蹤清單"]:
-          return handle_followlist(event)
+          handle_followlist(event)
 
       elif isinstance(event, PostbackEvent):
-        return handle_postback(event)
+        handle_postback(event)
 
-    return HttpResponse("OK!!",status=200)
+      return HttpResponse("OK!!",status=200)

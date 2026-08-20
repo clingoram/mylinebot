@@ -3,7 +3,7 @@ from apps.weather.services.flexMsg import flex_message
 from apps.bot.services.line_reply import reply
 from cityList import city
 from linebot.models import MessageEvent, TextSendMessage,TextMessage,FlexSendMessage
-from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden
+# from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden
 
 
 def handle_weather(event):
