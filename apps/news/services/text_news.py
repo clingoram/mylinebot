@@ -2,7 +2,7 @@ from apps.news.services.get_news import get_news
 
 def create_news_text(keyword=None, category=None):
     '''
-    將從beautifulsoup取得的新聞塞進text message內
+    將從beautifulsoup取得的新聞塞進messages內組成字串，之後塞進text message內
     '''
     call_news = get_news(keyword, category,5)
 

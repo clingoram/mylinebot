@@ -12,7 +12,7 @@ def handle_weather(event,location):
     '''
     result = flex_message(location)
     if result:
-        reply(event.reply_token,FlexSendMessage(alt_text = event.message.text + "氣象資訊",contents=result))
+        reply(event.reply_token,FlexSendMessage(alt_text = location + "氣象資訊",contents=result))
     else:
-        reply(event.reply_token,TextSendMessage(text = event.message.text + "不在可搜尋範圍內。可搜尋: "+",".join(city())))
+        reply(event.reply_token,TextSendMessage(text = location + "不在可搜尋範圍內。可搜尋: "+",".join(city())))
             

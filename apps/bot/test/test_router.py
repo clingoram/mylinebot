@@ -26,7 +26,7 @@ class RouterTest(SimpleTestCase):
         route_event([event])
 
         mock_create_keyword.assert_called_once_with("test_user_001","股票2330",)
-        mock_stock.assert_called_once_with(event)
+        mock_stock.assert_called_once_with(event,"2330")
         mock_create_user.assert_not_called()
 
 
@@ -48,7 +48,7 @@ class RouterTest(SimpleTestCase):
 
         route_event([event])
 
-        mock_weather.assert_called_once_with(event)
+        mock_weather.assert_called_once_with(event,"高雄市")
         mock_create_keyword.assert_called_once_with("test_user_001","高雄市",)
 
 
@@ -58,7 +58,7 @@ class RouterTest(SimpleTestCase):
     @patch("apps.bot.router.Person.objects.filter")
     def test_route_news(self,mock_filter,mock_create_keyword,mock_create_user,mock_news,):
         '''
-        測爬蟲分流
+        測新聞分流
         '''
         event = Mock()
         event.type = "message"
@@ -69,6 +69,6 @@ class RouterTest(SimpleTestCase):
         mock_filter.return_value.exists.return_value = True
         route_event([event])
 
-        mock_news.assert_called_once_with(event)
-        mock_create_keyword.assert_called_once_with("test_user_001","新聞",)
+        mock_news.assert_called_once_with(event,None,None)
+        mock_create_keyword.assert_called_once_with("test_user_001","新聞")
         mock_create_user.assert_not_called()

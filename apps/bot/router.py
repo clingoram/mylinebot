@@ -42,7 +42,7 @@ def route_event(handleEvent):
           handle_stock_data(event,command["stock_code"])
 
         elif command["action"] == "news":
-          # 爬蟲新聞
+          # 新聞
           handle_news(event,command["keyword"],command["category"])
 
         elif command["action"] == "follow_list":

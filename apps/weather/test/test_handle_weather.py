@@ -24,7 +24,7 @@ class HandleWeatherTest(TestCase):
             "type": "bubble"
         }
 
-        handle_weather(event)
+        handle_weather(event,"高雄市")
         mock_flex.assert_called_once_with("高雄市")
         mock_reply.assert_called_once()
         # 檢查送的是FlexSendMessage，而不是TextSendMessage
@@ -45,7 +45,7 @@ class HandleWeatherTest(TestCase):
 
         mock_flex.return_value = {}
 
-        handle_weather(event)
+        handle_weather(event,"小琉球")
         mock_reply.assert_called_once()
         # 檢查送的是TextSendMessage，而不是FlexSendMessage
         args = mock_reply.call_args

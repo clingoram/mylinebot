@@ -21,7 +21,7 @@ class HandleStockTest(SimpleTestCase):
             "type": "bubble"
         }
 
-        response = handle_stock_data(event)
+        response = handle_stock_data(event,"2330")
 
         mock_get_stock.assert_called_once_with("2330")
 
@@ -48,7 +48,7 @@ class HandleStockTest(SimpleTestCase):
             "type": "bubble"
         }
 
-        response = handle_stock_data(event)
+        response = handle_stock_data(event,"Today")
 
         mock_get_stock.assert_called_once_with("Today")
 

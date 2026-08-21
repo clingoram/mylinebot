@@ -1,4 +1,4 @@
-from django.conf import settings
+# from django.conf import settings
 from apps.news.services.text_news import create_news_text
 from apps.bot.services.line_reply import reply
 from linebot.models import TextSendMessage
