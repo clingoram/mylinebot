@@ -1,10 +1,10 @@
 # environment
 .env
 venv/
-
+.venv/
 # catched
 __pycache__/
-*.pyc
+*.py[cod]
 
 # database
 db.sqlite3
