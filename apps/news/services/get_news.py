@@ -2,9 +2,9 @@ import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 
-def crawler_news(keyword=None, category=None, limit=10):
+def get_news(keyword=None, category=None, limit=10):
     '''
-    SETN 新聞爬蟲
+    SETN 新聞
 
     keyword  : 搜尋新聞標題關鍵字
     category : 新聞類型，例如「財經」、「社會」

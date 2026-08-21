@@ -7,7 +7,7 @@ from apps.basic_info.models import Person,Message
 from apps.basic_info.services.actions import create_user,create_Keyword
 from apps.basic_info.services.explain import explain
 
-from apps.crawler.services.handle_news import handle_news
+from apps.news.services.handle_news import handle_news
 from apps.weather.services.handle_weather import handle_weather
 
 from apps.stock.services.handler import handle_stock_data,handle_postback,handle_followlist

@@ -1,10 +1,10 @@
-from apps.crawler.services.crawler import crawler_news
+from apps.news.services.get_news import get_news
 
 def create_news_text(keyword=None, category=None):
     '''
     將從beautifulsoup取得的新聞塞進text message內
     '''
-    call_news = crawler_news(keyword, category,5)
+    call_news = get_news(keyword, category,5)
 
     if not call_news:
         return "找不到符合條件的新聞。"

@@ -1,10 +1,10 @@
 # mylinebot
 
-一個使用**Django**開發的LINE Bot，提供天氣查詢、股票追蹤與財經新聞整合功能。
+一個使用**Django**開發的LINE Bot，提供天氣查詢、股票追蹤與新聞整合功能。
 
-使用者可以透過LINE查詢天氣資訊、取得財經新聞及追蹤個股。系統整合多個外部API與資料來源，並使用**LINE Flex Message**呈現資訊。
+使用者可以透過LINE查詢天氣資訊、取得新聞及追蹤個股。系統整合多個外部API與資料來源，並使用**LINE Flex Message**呈現資訊。
 
-本專案使用**Docker Compose**整合Django、PostgreSQL與ngrok，並透過啟動腳本自動取得ngrok URL、更新LINE Webhook。因此開發時不需要另外建立Python虛擬環境、手動啟動 ngrok或在每次重新啟動後手動設定Webhook
+本專案使用**Docker Compose**整合Django、PostgreSQL與ngrok，並透過啟動腳本自動取得ngrok URL、更新LINE Webhook。因此開發時不需要另外建立Python虛擬環境、手動啟動ngrok或在每次重新啟動後手動設定Webhook
 
 ---
 
@@ -41,7 +41,7 @@
 - 嘉義市
 - 屏東縣
 
-### 2. 財經新聞
+### 2. 新聞
 
 使用者在LINE聊天室輸入：
 
@@ -52,14 +52,24 @@
 或：
 
 ```text
-news
+新聞 類別 關鍵字
 ```
 
-系統會爬取財經新聞網站，取得最新的5筆財經新聞，並透過LINE Flex Message呈現。
+系統會從新聞網站中取得最新的5筆相關新聞，並透過LINE Text Message呈現。
+類別：
+政治，財經，社會，娛樂，體育，科技，生活，國際
+
+其中類別與關鍵字可選擇不輸入。
 
 ### 3. 股票追蹤
 
-使用者可以透過LINE Flex Message：
+使用者在LINE聊天室輸入：
+
+```text
+股票 股票代碼
+```
+
+可以透過LINE Flex Message：
 
 - 追蹤股票
 - 取消追蹤股票
@@ -68,7 +78,9 @@ news
 
 系統使用PostgreSQL儲存使用者與股票的追蹤關係。
 
----
+### 4. 說明
+
+使用者輸入「說明」可看到本line bot相關說明。
 
 ## Tech Stack
 
@@ -85,7 +97,7 @@ news
 ### Data & Integration
 
 - **yfinance** — 取得股票價格、漲跌幅等市場資訊
-- **Selenium** — 爬取財經新聞
+- **Beautiful Soup** — 取得新聞
 - **中央氣象署 Open Data API** — 取得天氣資訊
 
 ### Infrastructure
@@ -108,22 +120,28 @@ news
 
 ![image](https://github.com/clingoram/mylinebot/blob/master/images/S__34291716.jpg "氣象訊息回覆 - 不在可查詢範圍內")
 ![image](https://github.com/clingoram/mylinebot/blob/master/images/weather.jpg "氣象查詢地區回覆")
-![image](https://github.com/clingoram/mylinebot/blob/master/images/crawler_reply.jpg "新聞爬蟲")
-![image](https://github.com/clingoram/mylinebot/blob/master/images/search_stock.jpeg "查詢股票")
+
+<!-- ![image](https://github.com/clingoram/mylinebot/blob/master/images/crawler_reply.jpg "新聞爬蟲") -->
+
+![image](https://github.com/clingoram/mylinebot/blob/master/images/news.jpg "新聞")
+![image](https://github.com/clingoram/mylinebot/blob/master/images/search_stock.jpeg "查詢股票並加入追蹤名單")
+![image](https://github.com/clingoram/mylinebot/blob/master/images/stock_search.jpeg "查詢股票")
 ![image](https://github.com/clingoram/mylinebot/blob/master/images/list_follow_stock.jpeg "列出追蹤的所有股票清單")
 
 ### Container Diagram
 
-![image](https://github.com/clingoram/mylinebot/blob/master/images/Container_Diagram.png "架構圖")
+<!-- ![image](https://github.com/clingoram/mylinebot/blob/master/images/Container_Diagram.png "架構圖") -->
+
+![image](https://github.com/clingoram/mylinebot/blob/master/images/container_diagram_8_21.png "架構圖")
 
 ### ER Diagram
 
-![image](https://github.com/clingoram/mylinebot/blob/master/images/ER_Diagram.png "ER Diagram")
+![image](https://github.com/clingoram/mylinebot/blob/master/images/er_diagram_8_21_update.png "ER Diagram")
 
 ### Development Automation
 
 Webhook Auto-Configuration Flow
-![image](https://github.com/clingoram/mylinebot/blob/master/images/Webhook_Auto_Configuration_Flow.png "Webhook Auto-Configuration Flow")
+![image](https://github.com/clingoram/mylinebot/blob/master/images/Webhook_Auto_Configuration_Flow_8_21.png "Webhook Auto-Configuration Flow")
 
 ---
 
@@ -135,7 +153,7 @@ Webhook Auto-Configuration Flow
 
 - Weather
 - Stock
-- Crawler
+- News
 
 透過模組化設計降低元件之間的耦合，使各功能可以獨立開發、測試與擴充。
 
@@ -261,5 +279,5 @@ docker compose exec web python3 manage.py test
 - [Django Documentation](https://docs.djangoproject.com/en/5.0/)
 - [LINE Bot SDK for Python](https://line-bot-sdk-python.readthedocs.io/en/stable/index.html)
 - [ngrok](https://ngrok.com/)
-- [Selenium](https://github.com/seleniumhq/selenium)
+- [Beautiful Soup](https://beautiful-soup-4.readthedocs.io/en/latest/#)
 - [PostgreSQL](https://www.postgresql.org/)

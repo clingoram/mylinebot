@@ -47,7 +47,9 @@ def parse_command(text:str) -> dict:
             "體育",
             "科技",
             "生活",
-            "國際"
+            "國際",
+            "健康",
+            "星聞"
         }
 
         category = None
