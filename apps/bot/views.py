@@ -7,16 +7,17 @@ from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbid
 from linebot.webhook import WebhookParser
 LINE_WEBHOOK_PARSER = WebhookParser(settings.LINE_CHANNEL_SECRET)
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 @csrf_exempt
 def handle_message(request):
   if request.method != 'POST':
     return HttpResponse("Method not allowed", status=405)
     
-  print("👉 收到LINE callback 👈")
-  # print(request.method)
-  # print(request.path)
-  # print(request.body)
+  # print("👉 收到LINE callback 👈")
+  logger.info("👉 收到LINE callback 👈")
 
   body = request.body.decode('utf-8')
   signature = request.META.get("HTTP_X_LINE_SIGNATURE")

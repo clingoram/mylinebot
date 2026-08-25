@@ -10,6 +10,8 @@ from apps.stock.services.quotes import get_stock_flex_message,_clean_stock_id
 from apps.stock.services.tracking import follow_stock,unfollow_stock,get_user_stocks_list
 from apps.stock.models import FavoriteStock
 from apps.basic_info.models import Person
+import logging
+logger = logging.getLogger(__name__)
 
 # LINE_BOT_API = LineBotApi(settings.LINE_CHANNEL_ACCESS_TOKEN)
 
@@ -20,16 +22,28 @@ def handle_stock_data(event,stock_id) -> None:
     '''
     取得單一股票
     '''
-    #只取英文大小寫和數字
-    keyWord = re.sub(r"[^a-zA-Z0-9]", "", stock_id).upper()
-    result = get_stock_flex_message(stock_id)
+    try:
+        #只取英文大小寫和數字
+        keyWord = re.sub(r"[^a-zA-Z0-9]", "", stock_id).upper()
     
-    if not result:
-        reply(event.reply_token,TextSendMessage("請輸入股票代號"))
-        return
-    
-    reply(event.reply_token,FlexSendMessage(alt_text = keyWord + f"追蹤 {keyWord}",contents = result))
-    # return HttpResponse("OK!!",status=200)
+        result = get_stock_flex_message(stock_id)
+        
+        if not result:
+            reply(event.reply_token,TextSendMessage("請確實輸入股票代號"))
+            return
+        
+        reply(event.reply_token,FlexSendMessage(alt_text = keyWord + f"追蹤 {keyWord}",contents = result))
+        # return HttpResponse("OK!!",status=200)
+
+    except ValueError as e:
+        logger.warning(f"使用者輸入錯誤: {e}")
+
+        reply(event.reply_token,TextSendMessage("請確實輸入股票代號"))
+
+    except Exception:
+        logger.exception("發生錯誤")
+
+        reply(event.reply_token,TextSendMessage("系統發生錯誤，請稍後再試"))
 
 def handle_followlist(event) -> None:
     '''
@@ -60,6 +74,7 @@ def handle_postback(event) -> None:
     try:
         person = Person.objects.get(user_account=userId)
     except Person.DoesNotExist:
+        logger.exception("找不到使用者")
         reply(event.reply_token,TextSendMessage("找不到使用者"))
         return
 

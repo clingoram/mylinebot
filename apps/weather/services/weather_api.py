@@ -2,7 +2,8 @@ import requests
 from django.conf import settings
 from datetime import datetime, timedelta
 from cityList import city
-
+import logging
+logger = logging.getLogger(__name__)
 
 def weatherAPI(location:str = "高雄市")->list:
   '''
@@ -51,6 +52,7 @@ def weatherAPI(location:str = "高雄市")->list:
   if (response.status_code == 200 and response.headers["content-type"].strip().startswith("application/json")):
     data = response.json()
     # print(data)
+    logger.info(f"找 {location}")
 
     dataDictList = []
 

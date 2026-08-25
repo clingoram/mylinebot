@@ -1,6 +1,9 @@
 from apps.stock.models import HotStock
 from typing import Any
 import re
+import requests
+import logging
+logger = logging.getLogger(__name__)
 
 # =========================
 # Private
@@ -13,10 +16,10 @@ def _clean_stock_id(stock_id: str) -> str:
     stock_id = stock_id.strip()
 
     # 如果使用者輸入2330.TW / 2330.TWO
-    stock_id = re.sub(r"\.(TW|TWO)$", "", stock_id, flags=re.IGNORECASE)
+    stock_id = re.sub(r"\.(TW|TWO)$", "",stock_id, flags=re.IGNORECASE)
 
     # 移除其他非英數字元
-    stock_id = re.sub(r"[^a-zA-Z0-9]", "", stock_id)
+    stock_id = re.sub(r"[^a-zA-Z0-9]", "",stock_id)
 
     return stock_id.upper()
 
@@ -50,7 +53,8 @@ def _fetch_api_data(stock_id:str) -> dict[str, Any] | None:
     import yfinance as yf
 
     find = _suffix_from_db(stock_id)
-    print(find)
+    # print(find)
+    # logger.info(find)
 
     # =========================
     # DB 有資料
@@ -66,9 +70,8 @@ def _fetch_api_data(stock_id:str) -> dict[str, Any] | None:
         if not info:
             return None
 
-        print(
-            f"找table內資料: {find.stock_name} -- {find.stock_id}.{find.suffix}"
-        )
+        # print(f"找table內資料: {find.stock_name} -- {find.stock_id}.{find.suffix}")
+        logger.info(f"找table內資料: {find.stock_name} -- {find.stock_id}.{find.suffix}")
         # print(
         #     f"""
         #     ===== DB STOCK =====
@@ -82,12 +85,14 @@ def _fetch_api_data(stock_id:str) -> dict[str, Any] | None:
         
         # Yahoo 沒有資料
         if df.empty:
-            print(f"Yahoo找不到資料：{symbol}")
+            # print(f"Yahoo找不到資料：{symbol}")
+            logger.info(f"找不到資料： {symbol}")
             return None
 
         # info 沒資料
         if not info:
-            print(f"Yahoo info沒有資料：{symbol}")
+            # print(f"Yahoo info沒有資料：{symbol}")
+            logger.info(f"沒有資料：{symbol}")
             return None
     
         return _map_eng_to_chinese(info, df)
@@ -97,7 +102,8 @@ def _fetch_api_data(stock_id:str) -> dict[str, Any] | None:
     # =========================
     for suffix in ("TW", "TWO"):
         symbol = f"{stock_id}.{suffix}"
-        print(f"找API: {symbol}")
+        # print(f"找API: {symbol}")
+        logger.info(f"找API: {symbol}")
 
         try:
             stock = yf.Ticker(symbol)
@@ -119,7 +125,8 @@ def _fetch_api_data(stock_id:str) -> dict[str, Any] | None:
             return _map_eng_to_chinese(info, df)
 
         except Exception as e:
-            print(f"{symbol} 查詢失敗：{e}")
+            # print(f"{symbol} 查詢失敗：{e}")
+            logger.warning(f"{symbol} 查詢失敗：{e}")
             continue
 
     # TW/TWO都找不到
@@ -220,9 +227,11 @@ def _map_eng_to_chinese(info:dict,df) -> dict[str, Any]:
         return fieldMap
 
     except Exception as e:
-        print("===== MAP ERROR =====")
-        print(type(e).__name__)
-        print(e)
+        # print("===== MAP ERROR =====")
+        # print(type(e).__name__)
+        # print(e)
+        logger.exception(f"Map error: {type(e).__name__}")
+        logger.exception(e)
 
         raise
 
@@ -293,76 +302,79 @@ def get_stock_flex_message(key):
 
     串聯： _clean_stock_id() -> Call API(_fetch_api_data()) -> 轉中文(_map_eng_to_chinese()) -> 塞入這個Flex Message
     '''
-    clean_stock_id = _clean_stock_id(key)
-    stockO = _fetch_api_data(clean_stock_id)
-    # print("===== STOCK DATA =====")
+    try: 
+        clean_stock_id = _clean_stock_id(key)
+        stockO = _fetch_api_data(clean_stock_id)
     # print(stockO)
-    if not stockO:
-        return "無資料"
+    # if not stockO:
+    #     return "無資料"
 
-    contents = []
+        contents = []
 
-    for key, value in stockO.items():
-        contents.append({
-            "type": "box",
-            "layout": "baseline",
-            "contents": [
-                {
-                    "type": "text",
-                    "text": key,
-                    "size": "sm",
-                    "color": "#888888",
-                    "flex": 2
-                },
-                {
-                    "type": "text",
-                    "text": str(value),
-                    "size": "sm",
-                    "align": "end",
-                    "flex": 3
-                }
-            ]
-        })
-
-    bubble = {
-        "type": "bubble",
-        "body": {
-            "type": "box",
-            "layout": "vertical",
-            "contents": [
-                {
-                    "type": "text",
-                    "text": stockO["代碼"],
-                    "weight": "bold",
-                    "size": "xl"
-                },
-                {
-                    "type": "separator",
-                    "margin": "md"
-                },
-                {
-                    "type": "box",
-                    "layout": "vertical",
-                    "margin": "lg",
-                    "spacing": "sm",
-                    "contents": contents
-                }
-            ]
-        },
-        "footer": {
-            "type": "box",
-            "layout": "vertical",
-            "contents": [
-                {
-                    "type": "button",
-                    "style": "primary",
-                    "action": {
-                        "type": "postback",
-                        "label": "加入追蹤",
-                        "data": f"action=watch&stock_id={stockO['代碼']}"
+        for key, value in stockO.items():
+            contents.append({
+                "type": "box",
+                "layout": "baseline",
+                "contents": [
+                    {
+                        "type": "text",
+                        "text": key,
+                        "size": "sm",
+                        "color": "#888888",
+                        "flex": 2
                     },
-                }
-            ]
+                    {
+                        "type": "text",
+                        "text": str(value),
+                        "size": "sm",
+                        "align": "end",
+                        "flex": 3
+                    }
+                ]
+            })
+
+        bubble = {
+            "type": "bubble",
+            "body": {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                    {
+                        "type": "text",
+                        "text": stockO["代碼"],
+                        "weight": "bold",
+                        "size": "xl"
+                    },
+                    {
+                        "type": "separator",
+                        "margin": "md"
+                    },
+                    {
+                        "type": "box",
+                        "layout": "vertical",
+                        "margin": "lg",
+                        "spacing": "sm",
+                        "contents": contents
+                    }
+                ]
+            },
+            "footer": {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                    {
+                        "type": "button",
+                        "style": "primary",
+                        "action": {
+                            "type": "postback",
+                            "label": "加入追蹤",
+                            "data": f"action=watch&stock_id={stockO['代碼']}"
+                        },
+                    }
+                ]
+            }
         }
-    }
-    return bubble
+        return bubble
+    except requests.RequestException:
+        logger.exception(f"尋找 {key} 失敗")
+        return None

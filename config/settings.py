@@ -78,6 +78,59 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
+# Logging
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    # Log要長怎樣
+    "formatters": {
+        "verbose": {
+            "format": "{asctime} [{levelname}] {name}: {message}",
+            "style": "{",
+        },
+    },
+    # 送去哪裡
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",
+        },
+    },
+    # 誰記
+    "loggers": {
+        "apps.basic_info": {
+            "handlers": ["console"],
+            # 顯示log要多詳細
+            "level": "INFO",
+            "propagate": False,
+        },
+        "apps.bot": {
+            "handlers": ["console"],
+            # 顯示log要多詳細
+            "level": "INFO",
+            "propagate": False,
+        },
+        "apps.news": {
+            "handlers": ["console"],
+            # 顯示log要多詳細
+            "level": "INFO",
+            "propagate": False,
+        },
+        "apps.stock": {
+            "handlers": ["console"],
+            # 顯示log要多詳細
+            "level": "INFO",
+            "propagate": False,
+        },
+        "apps.weather": {
+            "handlers": ["console"],
+            # 顯示log要多詳細
+            "level": "INFO",
+            "propagate": False,
+        },
+},
+}
+
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases

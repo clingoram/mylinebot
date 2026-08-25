@@ -1,6 +1,8 @@
 from django.conf import settings
 from linebot import LineBotApi
 LINE_BOT_API = LineBotApi(settings.LINE_CHANNEL_ACCESS_TOKEN)
+import logging
+logger = logging.getLogger(__name__)
 
 
 def reply(event_reply_token,message:str) -> None:
@@ -12,4 +14,5 @@ def reply(event_reply_token,message:str) -> None:
         LINE_BOT_API.reply_message(event_reply_token,message)
     except Exception as e:
         # logging
-        print(f"LINE reply error: {e}")
+        # print(f"LINE reply error: {e}")
+        logger.exception(f"LINE reply error: {e}")

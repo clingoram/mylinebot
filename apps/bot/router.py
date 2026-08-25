@@ -58,25 +58,3 @@ def route_event(handleEvent):
         handle_postback(event)
 
     return HttpResponse("OK",status=200)
-
-      #   # 新增關鍵字至資料表
-      #   create_Keyword(userId,keyWord)
-      #   if not Person.objects.filter(user_account=userId).exists():
-      #     # 建立person(user)
-      #     create_user(userId)
-      #     # message.append(TextSendMessage(text="資料新增完畢"))
-      #   if keyWord in ["新聞", "news","News","NEWS","爬蟲"]:
-      #     handle_news(event)
-
-      #   if keyWord.endswith(("市", "縣")):
-      #     handle_weather(event)
-      #   if keyWord.startswith(("股票","stock","Stock","台股","臺股")):
-      #     handle_stock_data(event)
-        
-      #   if keyWord in ["我的股票","追蹤清單"]:
-      #     handle_followlist(event)
-
-      # elif isinstance(event, PostbackEvent):
-      #   handle_postback(event)
-
-      # return HttpResponse("OK!!",status=200)

@@ -4,7 +4,8 @@
 import time
 import requests
 import os
-
+import logging
+logger = logging.getLogger(__name__)
 
 def get_ngrok_url():
     '''
@@ -13,7 +14,8 @@ def get_ngrok_url():
     NGROK_API = os.getenv("NGROK_API_URL")
 
     if not NGROK_API:
-        print("❌ NGROK_API_URL沒設定")
+        # print("❌ NGROK_API_URL沒設定")
+        logger.warning("❌ NGROK API URL沒設定")
         return None
     try:
         res = requests.get(NGROK_API, timeout=2)
@@ -26,6 +28,7 @@ def get_ngrok_url():
                 return t.get("public_url")
 
     except requests.RequestException:
+        logger.exception("NGROK requests發生錯誤")
         return None
 
     return None
@@ -58,17 +61,22 @@ def update_line_webhook(retry=5, delay=2):
     try:
         url = wait_ngrok()
     except Exception as e:
-        print("☹️ 沒抓到ngrok", e)
+        # print("☹️ 沒抓到ngrok", e)
+        logger.exception(f"☹️ 沒抓到ngrok {e}")
         return
-    print("💡 ngrok url =", url)
+    # print("💡 ngrok url =", url)
+    logger.info(f"💡 ngrok url = {url}")
 
     # 組成webhook URL
     callback_url = f"{url}/callback"
 
-    print("💡 callback =", callback_url)
-    print("🔑 token =", LINE_CHANNEL_ACCESS_TOKEN[:3] + "...")
-    print("❓ token valid =", bool(LINE_CHANNEL_ACCESS_TOKEN))
-    print("📏 token length =", len(LINE_CHANNEL_ACCESS_TOKEN or ""))
+    # print("💡 callback =", callback_url)
+    # print("🔑 token =", LINE_CHANNEL_ACCESS_TOKEN[:3] + "...")
+    # print("❓ token valid =", bool(LINE_CHANNEL_ACCESS_TOKEN))
+    # print("📏 token length =", len(LINE_CHANNEL_ACCESS_TOKEN or ""))
+
+    logger.info(f"💡 callback = {callback_url}")
+    logger.info(f"❓ token valid = {bool(LINE_CHANNEL_ACCESS_TOKEN)}")
 
     headers = {
         "Authorization": f"Bearer {LINE_CHANNEL_ACCESS_TOKEN}",
@@ -78,7 +86,9 @@ def update_line_webhook(retry=5, delay=2):
     # 最多試5次，5次都失敗就會跑到raise RuntimeError("☹️ ngrok還沒準備好")
     for i in range(retry):
         try:
-            print(f"🔄 更新LINE Webhook ({i + 1}/{retry})")
+            # print(f"🔄 更新LINE Webhook ({i + 1}/{retry})")
+            logger.info(f"🔄 更新LINE Webhook ({i + 1}/{retry})")
+
 
             res = requests.put(
                 LINE_API,
@@ -88,21 +98,26 @@ def update_line_webhook(retry=5, delay=2):
             )
 
             if res.ok:
-                print("✅ Webhook Updated")
+                # print("✅ Webhook Updated")
+                logger.info("✅ Webhook Updated")
                 return
 
-            print("❌ Update Failed")
-            print("status =", res.status_code)
-            print("response =", res.text)
-
+            # print("❌ Update Failed")
+            # print("status =", res.status_code)
+            # print("response =", res.text)
+            logger.warning(f"❌ LINE Webhook更新失敗")
+            # logger.error(f"status = {res.status_code}")
+            # logger.error(f"response = {res.text}")
 
             if res.status_code in (400, 401, 403):
                 return
 
         except requests.RequestException as e:
-            print(f"☹️ LINE API連線失敗：{e}")
+            # print(f"☹️ LINE API連線失敗：{e}")
+            logger.exception(f"LINE API連線失敗：{e}")
 
         if i < retry - 1:
             time.sleep(delay)
 
-    print("❌ LINE Webhook更新失敗，已達最大重試次數")
+    # print("❌ LINE Webhook更新失敗，已達最大重試次數")
+    logger.warning("LINE Webhook更新失敗，已達最大重試次數")
