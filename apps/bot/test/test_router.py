@@ -72,3 +72,23 @@ class RouterTest(SimpleTestCase):
         mock_news.assert_called_once_with(event,None,None)
         mock_create_keyword.assert_called_once_with("test_user_001","新聞")
         mock_create_user.assert_not_called()
+
+    @patch("apps.bot.router.explain")
+    @patch("apps.bot.router.create_Keyword")
+    @patch("apps.bot.router.Person.objects.filter")
+    def test_route_explain(self,mock_filter,mock_create_keyword,mock_explain):
+        '''
+        測說明分流
+        '''
+        event = Mock()
+        event.type = "message"
+        event.message.type = "text"
+        event.message.text = "說明"
+        event.source.user_id = "test_user_001"
+
+        # 模擬使用者已存在
+        mock_filter.return_value.exists.return_value = True
+        
+        route_event([event])
+        mock_explain.assert_called_once_with(event)
+        mock_create_keyword.assert_called_once_with("test_user_001","說明")

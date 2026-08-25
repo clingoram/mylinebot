@@ -2,7 +2,7 @@ from django.test import TestCase
 from unittest.mock import Mock, patch,MagicMock
 from apps.news.services.text_news import create_news_text
 from apps.news.services.get_news import get_news
-class TestNews(TestCase):
+class NewsTest(TestCase):
     '''
     測新聞
     '''
@@ -162,10 +162,3 @@ class TestNews(TestCase):
 
         result = get_news(limit=2)
         self.assertEqual(len(result),2)
-
-    @patch("apps.news.services.get_news.requests.get")
-    def test_news_no_keyword_no_category(slef,mock_get):
-        '''
-        測無關鍵字和類別
-        '''
-        
