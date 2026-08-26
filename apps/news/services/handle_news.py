@@ -8,7 +8,7 @@ def handle_news(event,keyword = None,category= None) -> HttpResponse:
     '''
     將得到的新聞資料塞進line bot內
     '''
-    result = create_news_text(keyword,category)
+    result = create_news_text(keyword=keyword,category=category)
 
     reply(event.reply_token,TextSendMessage(text=result))
             

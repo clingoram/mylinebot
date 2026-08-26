@@ -48,10 +48,10 @@ class HandleFollowStockListTest(TestCase):
             },
         ]
 
-        result = get_user_stocks_list(self.user.user_account)
+        result = get_user_stocks_list(user_id=self.user.user_account)
 
-        mock_fetch_api_data.assert_any_call("2330")
-        mock_fetch_api_data.assert_any_call("0050")
+        mock_fetch_api_data.assert_any_call(stock_id = "2330")
+        mock_fetch_api_data.assert_any_call(stock_id ="0050")
 
         self.assertEqual(mock_fetch_api_data.call_count,2)
 
@@ -62,7 +62,7 @@ class HandleFollowStockListTest(TestCase):
         '''
         FavoriteStock.objects.filter(user_account=self.user).delete()
 
-        result = get_user_stocks_list(self.user.user_account)
+        result = get_user_stocks_list(user_id=self.user.user_account)
 
         self.assertEqual(result["type"],"carousel")
     
@@ -79,7 +79,7 @@ class HandleFollowStockListTest(TestCase):
         event.source.user_id = "test_user_001"
         event.reply_token = "reply-token"
 
-        result = handle_followlist(event)
+        result = handle_followlist(event=event)
 
         self.assertEqual(result,None)
   
@@ -108,7 +108,7 @@ class HandleFollowStockListTest(TestCase):
         event.source.user_id = "test_user_001"
         event.reply_token = "reply-token"
 
-        result = handle_followlist(event)
+        result = handle_followlist(event=event)
 
         self.assertEqual(result,None)
         # 有沒有叫reply()

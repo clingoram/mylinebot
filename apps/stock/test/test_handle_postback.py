@@ -88,7 +88,7 @@ class HandlePostBackTest(TestCase):
         # 因為user_account是FK，必須要先建立資料，其餘相關資料表才能有後續動作
         user = Person.objects.get(user_account = self.user)
         
-        result = follow_stock(self.user,"2330")
+        result = follow_stock(user_id=self.user,stock_id="2330")
 
         self.assertEqual(result.status_code,200)
 
@@ -101,7 +101,7 @@ class HandlePostBackTest(TestCase):
         # 因為user_account是FK，必須要先建立資料，其餘相關資料表才能有後續動作
         user = Person.objects.get(user_account = self.user)
 
-        result = unfollow_stock(self.user,"2330")
+        result = unfollow_stock(user_id=self.user,stock_id="2330")
         self.assertFalse(result,None)
 
         self.assertFalse(FavoriteStock.objects.filter(user_account=self.user,stock_id="2330").exists())

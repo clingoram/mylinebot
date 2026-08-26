@@ -5,8 +5,6 @@ from django.conf import settings
 from linebot.exceptions import InvalidSignatureError, LineBotApiError,BaseError
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden
 from linebot.webhook import WebhookParser
-LINE_WEBHOOK_PARSER = WebhookParser(settings.LINE_CHANNEL_SECRET)
-
 import logging
 logger = logging.getLogger(__name__)
 
@@ -16,6 +14,8 @@ def handle_message(request):
   if request.method != 'POST':
     return HttpResponse("Method not allowed", status=405)
     
+  LINE_WEBHOOK_PARSER = WebhookParser(settings.LINE_CHANNEL_SECRET)
+
   # print("👉 收到LINE callback 👈")
   logger.info("👉 收到LINE callback 👈")
 

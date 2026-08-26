@@ -21,7 +21,7 @@ class MessageModelTests(TestCase):
     keyword = "Test"
     person = Person.objects.get(user_account = "test_user_001")
 
-    result = create_Keyword(person.user_account,keyword)
+    result = create_Keyword(user_id=person.user_account,keyword=keyword)
     self.assertEqual(result, True)
     self.assertTrue(
       Message.objects.filter(user_account = person).exists()
@@ -40,7 +40,7 @@ class MessageModelTests(TestCase):
       ).exists()
     )
     message_count_before = Message.objects.count()
-    result = create_Keyword(user_account, keyword,)
+    result = create_Keyword(user_id=user_account, keyword=keyword,)
     self.assertEqual(result, False) 
     self.assertEqual(Message.objects.count(), message_count_before,)
 
@@ -56,7 +56,7 @@ class MessageModelTests(TestCase):
       created_at="2026-03-12"
     ) 
 
-    result = create_Keyword(user_account, keyword,)
+    result = create_Keyword(user_id=user_account, keyword=keyword,)
     self.assertEqual(result, True) 
 
     msg = Message.objects.get(user_account=person, keyword=keyword,) 

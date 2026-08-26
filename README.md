@@ -87,7 +87,7 @@
 All tests passed successfully.
 
 ```text
-✓ 34 tests passed
+✓ 33 tests passed
 ```
 
 ## Tech Stack

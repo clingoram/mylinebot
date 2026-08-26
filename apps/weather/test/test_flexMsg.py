@@ -33,9 +33,9 @@ class FlexMsgTest(TestCase):
             }
         ]
 
-        result = flex_message("高雄市")
+        result = flex_message(location="高雄市")
 
-        mock_weather_api.assert_called_once_with("高雄市")
+        mock_weather_api.assert_called_once_with(location="高雄市")
         self.assertEqual(result["type"],"bubble")
         self.assertEqual(result["body"]["contents"][1]["text"],"高雄市")
 
@@ -48,7 +48,7 @@ class FlexMsgTest(TestCase):
         '''
         mock_weather_api.return_value = []
 
-        result = flex_message("小琉球")
+        result = flex_message(location="小琉球")
 
-        mock_weather_api.assert_called_once_with("小琉球")
+        mock_weather_api.assert_called_once_with(location="小琉球")
         self.assertEqual(result,{})

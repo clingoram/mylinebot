@@ -52,7 +52,7 @@ def _fetch_api_data(stock_id:str) -> dict[str, Any] | None:
     '''
     import yfinance as yf
 
-    find = _suffix_from_db(stock_id)
+    find = _suffix_from_db(stock_id=stock_id)
     # print(find)
     # logger.info(find)
 
@@ -72,16 +72,7 @@ def _fetch_api_data(stock_id:str) -> dict[str, Any] | None:
 
         # print(f"找table內資料: {find.stock_name} -- {find.stock_id}.{find.suffix}")
         logger.info(f"找table內資料: {find.stock_name} -- {find.stock_id}.{find.suffix}")
-        # print(
-        #     f"""
-        #     ===== DB STOCK =====
-        #     stock_id   : {find.stock_id}
-        #     stock_name : {find.stock_name}
-        #     suffix     : {find.suffix}
-        #     symbol     : {symbol}
-        #     ====================
-        #     """
-        # )
+
         
         # Yahoo 沒有資料
         if df.empty:
@@ -121,8 +112,8 @@ def _fetch_api_data(stock_id:str) -> dict[str, Any] | None:
             # print(info)
 
             getSuffix = info["symbol"].split(".")[-1]
-            _save_into_db(stock_id,info.get("shortName", ""),getSuffix)
-            return _map_eng_to_chinese(info, df)
+            _save_into_db(stock_id=stock_id,stock_name=info.get("shortName", ""),suffix=getSuffix)
+            return _map_eng_to_chinese(info=info, df =df)
 
         except Exception as e:
             # print(f"{symbol} 查詢失敗：{e}")
@@ -168,16 +159,10 @@ def _map_eng_to_chinese(info:dict,df) -> dict[str, Any]:
     
     # announce = "⚠️ 此line bot之股票資料是從API取得。只提供股票相關資訊且用於個人side-project，不具有任何投資理財目的。 ⚠️"
 
-    # print("===== MAP START =====")
-
     try:
-        # print("1. 開始 _get_stock_change")
-        change = _get_stock_change(info)
-        # print("2. change =", change)
+        change = _get_stock_change(data = info)
 
         latest_close = None
-
-        # print("3. 開始處理 f")
 
         if df is not None and not df.empty and "Close" in df.columns:
             latest_close = float(df["Close"].iloc[-1])
@@ -187,19 +172,12 @@ def _map_eng_to_chinese(info:dict,df) -> dict[str, Any]:
                 or info.get("regularMarketPrice")
             )
 
-        # print("4. latest_close =", latest_close)
-
-        # print("5. symbol =", info.get("symbol"))
-        # print("6. shortName =", info.get("shortName"))
-        # print("7. sector =", info.get("sector"))
-        # print("8. typeDisp =", info.get("typeDisp"))
-
         fieldMap = {
             "代碼": info.get("symbol", "").split(".")[0],
             "公司名稱": info.get("shortName"),
-            "產業": _sectorDisp(info.get("sector")),
-            "細分產業": _fmt_num(info.get("industry")),
-            "類型": _typeDisp(info.get("typeDisp")),
+            "產業": _sectorDisp(sector=info.get("sector")),
+            "細分產業": _fmt_num(value=info.get("industry")),
+            "類型": _typeDisp(info_type=info.get("typeDisp")),
 
             "即時價格": info.get("currentPrice"),
             "昨收": info.get("regularMarketPreviousClose"),
@@ -211,28 +189,23 @@ def _map_eng_to_chinese(info:dict,df) -> dict[str, Any]:
             "漲跌": change.get("change"),
             "漲跌幅": change.get("change_percent"),
 
-            "本益比": _fmt_num(info.get("trailingPE")),
-            "預估本益比": _fmt_num(info.get("forwardPE")),
+            "本益比": _fmt_num(value=info.get("trailingPE")),
+            "預估本益比": _fmt_num(value=info.get("forwardPE")),
 
-            "殖利率": _fmt_num(info.get("dividendYield")),
-            "年配息": _fmt_num(info.get("dividendRate")),
+            "殖利率": _fmt_num(value=info.get("dividendYield")),
+            "年配息": _fmt_num(value=info.get("dividendRate")),
             "52週高": info.get("fiftyTwoWeekHigh"),
             "52週低": info.get("fiftyTwoWeekLow"),
             # "說明":"※ 以上資訊僅供參考，不構成投資或理財建議。"
         }
 
-        # print("6. fieldMap 建立成功")
         # print(fieldMap)
 
         return fieldMap
 
     except Exception as e:
-        # print("===== MAP ERROR =====")
-        # print(type(e).__name__)
-        # print(e)
         logger.exception(f"Map error: {type(e).__name__}")
         logger.exception(e)
-
         raise
 
 def _typeDisp(info_type: str | None) -> str:
@@ -302,79 +275,79 @@ def get_stock_flex_message(key):
 
     串聯： _clean_stock_id() -> Call API(_fetch_api_data()) -> 轉中文(_map_eng_to_chinese()) -> 塞入這個Flex Message
     '''
-    try: 
-        clean_stock_id = _clean_stock_id(key)
-        stockO = _fetch_api_data(clean_stock_id)
+    # try: 
+    clean_stock_id = _clean_stock_id(stock_id=key)
+    stockO = _fetch_api_data(stock_id=clean_stock_id)
     # print(stockO)
-    # if not stockO:
-    #     return "無資料"
+    if not stockO:
+        return "無資料"
 
-        contents = []
+    contents = []
 
-        for key, value in stockO.items():
-            contents.append({
-                "type": "box",
-                "layout": "baseline",
-                "contents": [
-                    {
-                        "type": "text",
-                        "text": key,
-                        "size": "sm",
-                        "color": "#888888",
-                        "flex": 2
-                    },
-                    {
-                        "type": "text",
-                        "text": str(value),
-                        "size": "sm",
-                        "align": "end",
-                        "flex": 3
-                    }
-                ]
-            })
+    for key, value in stockO.items():
+        contents.append({
+            "type": "box",
+            "layout": "baseline",
+            "contents": [
+                {
+                    "type": "text",
+                    "text": key,
+                    "size": "sm",
+                    "color": "#888888",
+                    "flex": 2
+                },
+                {
+                    "type": "text",
+                    "text": str(value),
+                    "size": "sm",
+                    "align": "end",
+                    "flex": 3
+                }
+            ]
+        })
 
-        bubble = {
-            "type": "bubble",
-            "body": {
-                "type": "box",
-                "layout": "vertical",
-                "contents": [
-                    {
-                        "type": "text",
-                        "text": stockO["代碼"],
-                        "weight": "bold",
-                        "size": "xl"
+    bubble = {
+        "type": "bubble",
+        "body": {
+            "type": "box",
+            "layout": "vertical",
+            "contents": [
+                {
+                    "type": "text",
+                    "text": stockO["代碼"],
+                    "weight": "bold",
+                    "size": "xl"
+                },
+                {
+                    "type": "separator",
+                    "margin": "md"
+                },
+                {
+                    "type": "box",
+                    "layout": "vertical",
+                    "margin": "lg",
+                    "spacing": "sm",
+                    "contents": contents
+                }
+            ]
+        },
+        "footer": {
+            "type": "box",
+            "layout": "vertical",
+            "contents": [
+                {
+                    "type": "button",
+                    "style": "primary",
+                    "action": {
+                        "type": "postback",
+                        "label": "加入追蹤",
+                        "data": f"action=watch&stock_id={stockO['代碼']}"
                     },
-                    {
-                        "type": "separator",
-                        "margin": "md"
-                    },
-                    {
-                        "type": "box",
-                        "layout": "vertical",
-                        "margin": "lg",
-                        "spacing": "sm",
-                        "contents": contents
-                    }
-                ]
-            },
-            "footer": {
-                "type": "box",
-                "layout": "vertical",
-                "contents": [
-                    {
-                        "type": "button",
-                        "style": "primary",
-                        "action": {
-                            "type": "postback",
-                            "label": "加入追蹤",
-                            "data": f"action=watch&stock_id={stockO['代碼']}"
-                        },
-                    }
-                ]
-            }
+                }
+            ]
         }
-        return bubble
-    except requests.RequestException:
-        logger.exception(f"尋找 {key} 失敗")
-        return None
+    }
+    return bubble
+    # except requests.RequestException:
+    #     logger.exception(f"尋找 {key} 失敗")
+    #     return None

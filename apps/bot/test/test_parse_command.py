@@ -1,8 +1,8 @@
-from django.test import TestCase
+from django.test import SimpleTestCase
 from unittest.mock import Mock
 from apps.bot.services.parse_command import parse_command
 
-class ParseCMDTest(TestCase):
+class ParseCMDTest(SimpleTestCase):
     '''
     輸入解析測試
     測在line聊天室輸入的開頭分流關鍵字，例如：股票、新聞
@@ -15,6 +15,6 @@ class ParseCMDTest(TestCase):
         mock = Mock()
         mock.text = "新聞".strip()
 
-        result = parse_command(mock.text)
-        self.assertEqual(result["action"],'news')
+        result = parse_command(text = mock.text)
+        self.assertEqual(result["action"],"news")
         self.assertIsInstance(result,dict)

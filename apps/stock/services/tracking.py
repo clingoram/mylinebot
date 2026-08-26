@@ -42,12 +42,12 @@ def get_user_stocks_list(user_id:str):
     stock_data_list = []
     for code in user_stocks:
         # 呼叫股票API並取得mapping後的中文資料
-        data = _fetch_api_data(code) 
+        data = _fetch_api_data(stock_id=code) 
         if data:
             stock_data_list.append(data)
             
     # 丟給底下產生flex message
-    return get_flex_message_contents(stock_data_list)
+    return get_flex_message_contents(stock_data_list=stock_data_list)
 
 
 def get_flex_message_contents(stock_data_list:list):

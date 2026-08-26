@@ -1,6 +1,6 @@
 from django.test import TestCase
 from unittest.mock import Mock, patch,MagicMock
-from apps.news.services.text_news import create_news_text
+# from apps.news.services.text_news import create_news_text
 from apps.news.services.get_news import get_news
 class NewsTest(TestCase):
     '''
@@ -10,7 +10,7 @@ class NewsTest(TestCase):
     @patch("apps.news.services.get_news.requests.get")
     def test_get_news(self,mock_get):
         '''
-        正常取得新聞
+        測取得新聞
         mock requests.get()，但不要mock BeautifulSoup
         '''
         html = """

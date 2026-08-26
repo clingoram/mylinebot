@@ -1,7 +1,6 @@
 import os
 import requests
 from django.core.management.commands.runserver import Command as RunserverCommand
-# from django.core.management import call_command
 from apps.bot.utils.update_line_webhook import update_line_webhook
 import logging
 logger = logging.getLogger(__name__)

@@ -96,10 +96,7 @@ class WeatherAPITest(TestCase):
 
         mock_get.return_value = mock_response
 
-        result = weatherAPI(location)
-
-        # print("result:", result)
-        # print("type:", type(result))
+        result = weatherAPI(location=location)
 
         self.assertIsNotNone(result)
         self.assertIsInstance(result, list)
@@ -129,13 +126,12 @@ class WeatherAPITest(TestCase):
 
         mock_get.return_value = mock_response
 
-        weatherAPI("")
+        weatherAPI(location="")
 
         mock_get.assert_called_once()
 
         kwargs = mock_get.call_args.kwargs
 
-        # 確認用預設城市
         self.assertEqual(kwargs["params"]["locationName"],"高雄市")
 
 
@@ -157,7 +153,7 @@ class WeatherAPITest(TestCase):
 
         mock_get.return_value = mock_response
 
-        weatherAPI("台北市")
+        weatherAPI(location="台北市")
 
         kwargs = mock_get.call_args.kwargs
 

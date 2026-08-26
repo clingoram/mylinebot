@@ -4,7 +4,7 @@ def create_news_text(keyword=None, category=None):
     '''
     將從beautifulsoup取得的新聞塞進messages內組成字串，之後塞進text message內
     '''
-    call_news = get_news(keyword, category,5)
+    call_news = get_news(keyword=keyword, category=category,limit=5)
 
     if not call_news:
         return "找不到符合條件的新聞。"

@@ -52,7 +52,6 @@ def weatherAPI(location:str = "高雄市")->list:
   if (response.status_code == 200 and response.headers["content-type"].strip().startswith("application/json")):
     data = response.json()
     # print(data)
-    logger.info(f"找 {location}")
 
     dataDictList = []
 
@@ -77,7 +76,7 @@ def weatherAPI(location:str = "高雄市")->list:
           # 最低溫
           for timeDict in weather["time"]:
             minTemperatureDictList.append({
-              "value": timeDict['parameter']['parameterName'] #+timeDict['parameter']['parameterUnit']
+              "value": timeDict['parameter']['parameterName']
             })
 
         if weather['elementName'] == "MaxT":

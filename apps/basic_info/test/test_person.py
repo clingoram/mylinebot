@@ -8,7 +8,7 @@ class PersonModelTests(TestCase):
   '''
   def test_person_model_exists(self): 
     '''
-    user_account是否存在
+    user account是否存在
     '''
     Person.objects.create(
       user_account = "test_user_001", 
@@ -22,27 +22,26 @@ class PersonModelTests(TestCase):
     建立使用者
     '''
     user_account = "test_user_001"
-    result = create_user(user_account)
+    result = create_user(userId=user_account)
     self.assertEqual(result, True)
     self.assertTrue(
-        Person.objects.filter(
-          user_account = user_account
-        ).exists()
+      Person.objects.filter(
+        user_account = user_account
+      ).exists()
     )
 
   def test_create_user_duplicate_account(self):
     '''
-    user_account重複
+    user account重複
     '''
     user_account = "test_user_002"
     Person.objects.create(
       user_account = user_account
     )
-    result = create_user(user_account)
+    result = create_user(userId=user_account)
     self.assertEqual(result, False)
     self.assertEqual(
-        Person.objects.filter(
-          user_account = user_account
-        ).count(),
-        1
+      Person.objects.filter(
+        user_account = user_account
+      ).count(),1
     )
