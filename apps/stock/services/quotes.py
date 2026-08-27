@@ -2,6 +2,8 @@ from apps.stock.models import HotStock
 from typing import Any
 import re
 import requests
+import os
+import json
 import logging
 logger = logging.getLogger(__name__)
 
@@ -53,6 +55,8 @@ def _fetch_api_data(stock_id:str) -> dict[str, Any] | None:
     import yfinance as yf
 
     find = _suffix_from_db(stock_id=stock_id)
+    chinese_name = _load_json(clean_stock_id=stock_id)
+
     # print(find)
     # logger.info(find)
 
@@ -86,7 +90,7 @@ def _fetch_api_data(stock_id:str) -> dict[str, Any] | None:
             logger.info(f"沒有資料：{symbol}")
             return None
     
-        return _map_eng_to_chinese(info, df)
+        return _map_eng_to_chinese(info = info, df=df,chinese_name=chinese_name)
 
     # =========================
     # DB 沒資料
@@ -112,13 +116,14 @@ def _fetch_api_data(stock_id:str) -> dict[str, Any] | None:
             # print(info)
 
             getSuffix = info["symbol"].split(".")[-1]
-            _save_into_db(stock_id=stock_id,stock_name=info.get("shortName", ""),suffix=getSuffix)
-            return _map_eng_to_chinese(info=info, df =df)
+            _save_into_db(stock_id=stock_id,stock_name=chinese_name or info['shortName'],suffix=getSuffix)
+
+            return _map_eng_to_chinese(info=info, df =df,chinese_name=chinese_name)
 
         except Exception as e:
             # print(f"{symbol} 查詢失敗：{e}")
             logger.warning(f"{symbol} 查詢失敗：{e}")
-            continue
+            continue 
 
     # TW/TWO都找不到
     return None
@@ -150,7 +155,7 @@ def _get_stock_change(data:dict) -> dict[str, float]:
         'change_percent': round(change_percent, 2) if change_percent else 0.0
     }
 
-def _map_eng_to_chinese(info:dict,df) -> dict[str, Any]:
+def _map_eng_to_chinese(info:dict,df,chinese_name:None) -> dict[str, Any]:
     '''
     資料處理
     ⭐股票domain專用的共用function
@@ -174,7 +179,7 @@ def _map_eng_to_chinese(info:dict,df) -> dict[str, Any]:
 
         fieldMap = {
             "代碼": info.get("symbol", "").split(".")[0],
-            "公司名稱": info.get("shortName"),
+            "公司名稱": chinese_name, #info.get("shortName"),
             "產業": _sectorDisp(sector=info.get("sector")),
             "細分產業": _fmt_num(value=info.get("industry")),
             "類型": _typeDisp(info_type=info.get("typeDisp")),
@@ -200,7 +205,6 @@ def _map_eng_to_chinese(info:dict,df) -> dict[str, Any]:
         }
 
         # print(fieldMap)
-
         return fieldMap
 
     except Exception as e:
@@ -248,6 +252,42 @@ def _sectorDisp(sector: str | None) -> str:
         "Utilities": "公用事業",
         "Real Estate": "房地產",
     }
+
+    # sectorType = {
+    #     "1":"水泥",
+    #     "2":"食品",
+    #     "3":"塑膠",
+    #     "4":"紡織纖維",
+    #     "5":"電機機械",
+    #     "6":"電器電纜",
+    #     "8":"玻璃陶瓷",
+    #     "9":"造紙",
+    #     "10":"鋼鐵工業",
+    #     "11":"橡膠工業",
+    #     "12":"汽車工業",
+    #     "14":"建材營造",
+    #     "15":"航運業",
+    #     "16":"觀光",
+    #     "17":"金融",
+    #     "18":"貿易百貨",
+    #     "19":"綜合",
+    #     "20":"其他",
+    #     "21":"化學工業",
+    #     "22":"生技醫療",
+    #     "23":"油電燃氣業",
+    #     "24":"半導體",
+    #     "25":"電腦及週邊設備業",
+    #     "26":"光電業",
+    #     "27":"通信網路業",
+    #     "28":"電子零組件業",
+    #     "29":"電子通路業",
+    #     "30":"資訊服務業",
+    #     "31":"其他電子業",
+    #     "32":"文化創意業",
+    #     "33":"農業科技業",
+    #     "34":"電子商務",
+    #     "80":"管理股票"
+    #     }
     if not sector:
         return "N/A"
 
@@ -264,6 +304,21 @@ def _fmt_num(value) -> str:
 
     return str(value)
 
+def _load_json(clean_stock_id:str):
+    '''
+    讀取json檔的中文資料，要取得中文公司名
+    沒有etf
+    '''
+    base_dir = os.path.dirname(__file__)
+    file_path = os.path.join(base_dir, "t187.json")
+
+    with open(file_path, 'r', encoding="utf-8") as fcc_file:
+        fcc_data = json.load(fcc_file)
+        # chinese_stock_data = json.dumps(fcc_data, indent=4, sort_keys=True,ensure_ascii=False)
+        for item_dict in fcc_data:
+            if item_dict.get("公司代號") == clean_stock_id:
+                return item_dict['公司簡稱']
+
 # =========================
 # Public API
 # =========================
@@ -277,7 +332,9 @@ def get_stock_flex_message(key):
     '''
     # try: 
     clean_stock_id = _clean_stock_id(stock_id=key)
+    # chinese_name = _load_json(clean_stock_id=clean_stock_id)
     stockO = _fetch_api_data(stock_id=clean_stock_id)
+
     # print(stockO)
     if not stockO:
         return "無資料"
