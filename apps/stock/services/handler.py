@@ -6,7 +6,7 @@ import re
 from linebot.models import TextSendMessage,TextMessage,FlexSendMessage
 
 from apps.bot.services.line_reply import reply
-from apps.stock.services.quotes import get_stock_flex_message,_clean_stock_id
+from apps.stock.services.quotes import get_stock_flex_message
 from apps.stock.services.tracking import follow_stock,unfollow_stock,get_user_stocks_list
 from apps.stock.models import FavoriteStock
 from apps.basic_info.models import Person
@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 # =========================
 def handle_stock_data(event,stock_id) -> None: 
     '''
-    取得單一股票
+    使用者查單支股票
     '''
     try:
         #只取英文大小寫和數字
@@ -51,6 +51,7 @@ def handle_followlist(event) -> None:
     '''
     userId = event.source.user_id
     result = get_user_stocks_list(userId)
+    # result = get_multiple_stocks(userId)
     reply(event.reply_token,FlexSendMessage(alt_text = "追蹤清單",contents=result))
     # return HttpResponse("OK!!",status=200)
     

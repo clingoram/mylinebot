@@ -28,12 +28,13 @@ def _clean_stock_id(stock_id: str) -> str:
 
 def _suffix_from_db(stock_id:str) -> HotStock | None:
     '''
-    先從table找對應資料
+    先從table找對應資料，做本地快取比對
     '''
     find = HotStock.objects.filter(stock_id = stock_id).first()
     if find is None:
         return None
     return find
+
 
 def _save_into_db(stock_id:str,stock_name:str,suffix:str) -> bool:
     '''
@@ -42,91 +43,70 @@ def _save_into_db(stock_id:str,stock_name:str,suffix:str) -> bool:
     HotStock.objects.create(stock_id = stock_id,stock_name = stock_name,suffix = suffix)
     return True
 
-def _fetch_api_data(stock_id:str) -> dict[str, Any] | None:
-    '''
-    負責call API拿原始英文資料
-    取得https://github.com/ranaroussi/yfinance 資料
-    https://finance.yahoo.com/
+def _fetch_api_data(stock_id: str,db_cache: dict[str, HotStock] | None = None) -> dict[str, Any] | None:
 
-    但這資料是英文，部份須轉換成中文
-
-    yfinance 台股代號後面須加上.TW或.TWO，例如：1234.TW
-    '''
     import yfinance as yf
+    '''
+        負責call API拿原始英文資料
+        取得https://github.com/ranaroussi/yfinance 資料
+        https://finance.yahoo.com/
+    
+        但這資料是英文，部份須轉換成中文
+    
+        yfinance 台股代號後面須加上.TW或.TWO，例如：1234.TW
+    '''
 
-    find = _suffix_from_db(stock_id=stock_id)
+    # 有傳cache就使用cache
+    if db_cache is not None:
+        find = db_cache.get(stock_id)
+    else:
+        find = _suffix_from_db(stock_id)
+
     chinese_name = _load_json(clean_stock_id=stock_id)
-
-    # print(find)
-    # logger.info(find)
 
     # =========================
     # DB 有資料
     # =========================
     if find is not None:
-        symbol = f"{find.stock_id}.{find.suffix}"
-        stock = yf.Ticker(symbol)
-        df = stock.history(period="5d",auto_adjust=False)
-        if df.empty:
-            return None
-
-        info = stock.info
-        if not info:
-            return None
-
-        # print(f"找table內資料: {find.stock_name} -- {find.stock_id}.{find.suffix}")
-        logger.info(f"找table內資料: {find.stock_name} -- {find.stock_id}.{find.suffix}")
-
-        
-        # Yahoo 沒有資料
-        if df.empty:
-            # print(f"Yahoo找不到資料：{symbol}")
-            logger.info(f"找不到資料： {symbol}")
-            return None
-
-        # info 沒資料
-        if not info:
-            # print(f"Yahoo info沒有資料：{symbol}")
-            logger.info(f"沒有資料：{symbol}")
-            return None
-    
-        return _map_eng_to_chinese(info = info, df=df,chinese_name=chinese_name)
+        suffixes = (find.suffix,)
+    else:
+        suffixes = ("TW", "TWO")
 
     # =========================
-    # DB 沒資料
+    # 查 API
     # =========================
-    for suffix in ("TW", "TWO"):
+    for suffix in suffixes:
         symbol = f"{stock_id}.{suffix}"
-        # print(f"找API: {symbol}")
-        logger.info(f"找API: {symbol}")
+
+        logger.info(f"找 API: {symbol}")
 
         try:
             stock = yf.Ticker(symbol)
+
             df = stock.history(period="5d",auto_adjust=False)
 
-            # 沒資料 → 嘗試下一個suffix
             if df.empty:
                 continue
 
             info = stock.info
 
-            # 沒有info → 嘗試下一個suffix
             if not info:
                 continue
-            # print(info)
 
-            getSuffix = info["symbol"].split(".")[-1]
-            _save_into_db(stock_id=stock_id,stock_name=chinese_name or info['shortName'],suffix=getSuffix)
+            # DB 原本沒有資料
+            if find is None:
+                getSuffix = info["symbol"].split(".")[-1]
 
-            return _map_eng_to_chinese(info=info, df =df,chinese_name=chinese_name)
+                _save_into_db(stock_id=stock_id,stock_name=chinese_name or info["shortName"],suffix=getSuffix)
+
+            return _map_eng_to_chinese(info=info,df=df,chinese_name=chinese_name)
 
         except Exception as e:
-            # print(f"{symbol} 查詢失敗：{e}")
             logger.warning(f"{symbol} 查詢失敗：{e}")
-            continue 
+            continue
 
-    # TW/TWO都找不到
     return None
+
 
 
 def _get_stock_change(data:dict) -> dict[str, float]:
@@ -155,7 +135,7 @@ def _get_stock_change(data:dict) -> dict[str, float]:
         'change_percent': round(change_percent, 2) if change_percent else 0.0
     }
 
-def _map_eng_to_chinese(info:dict,df,chinese_name:None) -> dict[str, Any]:
+def _map_eng_to_chinese(info:dict,df,chinese_name:str | None) -> dict[str, Any]:
     '''
     資料處理
     ⭐股票domain專用的共用function
@@ -304,20 +284,30 @@ def _fmt_num(value) -> str:
 
     return str(value)
 
-def _load_json(clean_stock_id:str):
-    '''
-    讀取json檔的中文資料，要取得中文公司名
-    沒有etf
-    '''
-    base_dir = os.path.dirname(__file__)
-    file_path = os.path.join(base_dir, "t187.json")
+_stock_name_cache = None
 
-    with open(file_path, 'r', encoding="utf-8") as fcc_file:
-        fcc_data = json.load(fcc_file)
-        # chinese_stock_data = json.dumps(fcc_data, indent=4, sort_keys=True,ensure_ascii=False)
-        for item_dict in fcc_data:
-            if item_dict.get("公司代號") == clean_stock_id:
-                return item_dict['公司簡稱']
+def _load_json(clean_stock_id: str):
+    '''
+    JSON檔當作對照表來補全中文名稱
+    ETF是只有幾檔熱門的，自行加進去的
+    
+    dict cache
+    '''
+    global _stock_name_cache
+    if _stock_name_cache is None:
+        base_dir = os.path.dirname(__file__)
+        file_path = os.path.join(base_dir, "t187.json")
+
+        with open(file_path, "r", encoding="utf-8") as fcc_file:
+            fcc_data = json.load(fcc_file)
+
+        _stock_name_cache = {
+            item.get("公司代號"): item.get("公司簡稱")
+            for item in fcc_data
+        }
+
+    return _stock_name_cache.get(clean_stock_id)
+
 
 # =========================
 # Public API
@@ -330,9 +320,9 @@ def get_stock_flex_message(key):
 
     串聯： _clean_stock_id() -> Call API(_fetch_api_data()) -> 轉中文(_map_eng_to_chinese()) -> 塞入這個Flex Message
     '''
+
     # try: 
     clean_stock_id = _clean_stock_id(stock_id=key)
-    # chinese_name = _load_json(clean_stock_id=clean_stock_id)
     stockO = _fetch_api_data(stock_id=clean_stock_id)
 
     # print(stockO)
