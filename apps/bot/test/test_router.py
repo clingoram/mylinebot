@@ -6,7 +6,6 @@ class RouterTest(SimpleTestCase):
     '''
     測分流
     '''
-    # 暫時把真的XXXX()換掉，避免測試真的執行它，由下往上對應
     @patch("apps.bot.router.handle_stock_data") # mock stock
     @patch("apps.bot.router.create_Keyword") # mock key word
     @patch("apps.bot.router.create_user") # mock create user
@@ -15,7 +14,7 @@ class RouterTest(SimpleTestCase):
         '''
         測股票分流
         '''
-        event = Mock() # 假的東西，讓測試時不用真的執行某些功能，假裝LINE傳進來的Event
+        event = Mock()
         event.type = "message"
         event.message.type = "text"
         event.message.text = "股票2330"
@@ -26,8 +25,8 @@ class RouterTest(SimpleTestCase):
 
         route_event([event])
 
-        mock_create_keyword.assert_called_once_with("test_user_001","股票2330",)
-        mock_stock.assert_called_once_with(event)
+        mock_create_keyword.assert_called_once_with(user_id = "test_user_001",keyword = "股票2330",)
+        mock_stock.assert_called_once_with(event = event,stock_id = "2330")
         mock_create_user.assert_not_called()
 
 
@@ -49,8 +48,8 @@ class RouterTest(SimpleTestCase):
 
         route_event([event])
 
-        mock_weather.assert_called_once_with(event)
-        mock_create_keyword.assert_called_once_with("test_user_001","高雄市",)
+        mock_weather.assert_called_once_with(event=event,location = "高雄市")
+        mock_create_keyword.assert_called_once_with(user_id = "test_user_001",keyword = "高雄市",)
 
 
     @patch("apps.bot.router.handle_news")
@@ -59,7 +58,7 @@ class RouterTest(SimpleTestCase):
     @patch("apps.bot.router.Person.objects.filter")
     def test_route_news(self,mock_filter,mock_create_keyword,mock_create_user,mock_news,):
         '''
-        測爬蟲分流
+        測新聞分流
         '''
         event = Mock()
         event.type = "message"
@@ -70,6 +69,26 @@ class RouterTest(SimpleTestCase):
         mock_filter.return_value.exists.return_value = True
         route_event([event])
 
-        mock_news.assert_called_once_with(event)
-        mock_create_keyword.assert_called_once_with("test_user_001","新聞",)
+        mock_news.assert_called_once_with(event = event,keyword = None,category = None)
+        mock_create_keyword.assert_called_once_with(user_id = "test_user_001",keyword = "新聞")
         mock_create_user.assert_not_called()
+
+    @patch("apps.bot.router.explain")
+    @patch("apps.bot.router.create_Keyword")
+    @patch("apps.bot.router.Person.objects.filter")
+    def test_route_explain(self,mock_filter,mock_create_keyword,mock_explain):
+        '''
+        測說明分流
+        '''
+        event = Mock()
+        event.type = "message"
+        event.message.type = "text"
+        event.message.text = "說明"
+        event.source.user_id = "test_user_001"
+
+        # 模擬使用者已存在
+        mock_filter.return_value.exists.return_value = True
+        
+        route_event([event])
+        mock_explain.assert_called_once_with(event = event)
+        mock_create_keyword.assert_called_once_with(user_id = "test_user_001",keyword = "說明")

@@ -3,19 +3,20 @@ from django.http import HttpResponse
 
 from apps.basic_info.models import Person,Message
 from apps.basic_info.services.actions import create_user,create_Keyword
+from apps.basic_info.services.explain import explain
 
-from apps.crawler.services.handle_news import handle_news
+from apps.bot.services.parse_command import parse_command
+
+from apps.news.services.handle_news import handle_news
 from apps.weather.services.handle_weather import handle_weather
 
 from apps.stock.services.handler import handle_stock_data,handle_postback,handle_followlist
 
 from linebot.models import PostbackEvent
-# from linebot import LineBotApi
-# LINE_BOT_API = LineBotApi(settings.LINE_CHANNEL_ACCESS_TOKEN)
+
 
 def route_event(handleEvent):
     '''
-    bot.views.py to bot.router 
     分流
     '''
     for event in handleEvent:
@@ -25,26 +26,37 @@ def route_event(handleEvent):
         keyWord = event.message.text
 
         # message=[]
-
         # 新增關鍵字至資料表
-        create_Keyword(userId,keyWord)
+        create_Keyword(user_id=userId,keyword=keyWord)
         if not Person.objects.filter(user_account=userId).exists():
           # 建立person(user)
-          create_user(userId)
-          # message.append(TextSendMessage(text="資料新增完畢"))
-        if keyWord in ["新聞", "news","News","NEWS"]:
-          return handle_news(event)
+          create_user(userId=userId)
 
-        if keyWord.endswith(("市", "縣")):
-          return handle_weather(event)
+        command = parse_command(text = keyWord)
 
-        if keyWord.startswith(("股票","stock","Stock","台股","臺股")):
-          return handle_stock_data(event)
-        
-        if keyWord in ["我的股票","追蹤清單"]:
-          return handle_followlist(event)
+        if command["action"] == "weather":
+          # 氣象
+          handle_weather(event=event,location=command["city"])
+
+        elif command["action"] == "stock":
+          # 股票
+          handle_stock_data(event=event,stock_id=command["stock_code"])
+
+        elif command["action"] == "news":
+          # 新聞
+          handle_news(event=event,keyword=command["keyword"],category=command["category"])
+
+        elif command["action"] == "follow_list":
+          # 列出 股票追蹤清單
+          handle_followlist(event=event)
+
+        elif command["action"] == "explain":
+          # 說明
+          explain(event=event)
+
 
       elif isinstance(event, PostbackEvent):
-        return handle_postback(event)
+        # 追蹤或取消追蹤
+        handle_postback(event=event)
 
-    return HttpResponse("OK!!",status=200)
+    return HttpResponse("OK",status=200)

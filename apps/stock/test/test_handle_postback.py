@@ -19,8 +19,9 @@ class HandlePostBackTest(TestCase):
             user_account = "test_user_001"
         )
 
-    @patch("apps.stock.services.handler.LINE_BOT_API")
-    def test_follow_stock_line_event(self,mock_line):
+    # @patch("apps.stock.services.handler.LINE_BOT_API")
+    @patch("apps.stock.services.handler.reply")
+    def test_follow_stock_line_event(self,mock_reply):
         '''
         Mock LINE Event
         按下按鈕 Event → 追蹤
@@ -29,23 +30,28 @@ class HandlePostBackTest(TestCase):
         event.source.user_id = "test_user_001"
         event.postback.data = "action=watch&stock_id=2330"
         event.reply_token = "reply-token"
+
+        user = self.user
         
         # handler
         handle_postback(event)
 
-        # test db
-        FavoriteStock.objects.create(user_account=self.user,stock_id="2330")
-
+        # handler有真的建立資料
         self.assertTrue(
             FavoriteStock.objects.filter(
-                user_account=self.user,
+                user_account=user,
                 stock_id="2330"
             ).exists()
         )
-        mock_line.reply_message.assert_called_once()
+        # handler有回覆LINE且是reply_token
+        mock_reply.assert_called_once()
+        args, kwargs = mock_reply.call_args
+        self.assertEqual(args[0],"reply-token")
+        
 
-    @patch("apps.stock.services.handler.LINE_BOT_API")
-    def test_unfollow_stock_event(self, mock_line):
+    # @patch("apps.stock.services.handler.LINE_BOT_API")
+    @patch("apps.stock.services.handler.reply")
+    def test_unfollow_stock_line_event(self, mock_reply):
         '''
         按下按鈕 Event → 取消追蹤
         '''
@@ -54,35 +60,53 @@ class HandlePostBackTest(TestCase):
         event.postback.data = "action=unfollow&stock_id=2330"
         event.reply_token = "reply-token"
 
+        user = self.user
+        
+        FavoriteStock.objects.create(user_account=user,stock_id="2330")
+
+        self.assertTrue(
+            FavoriteStock.objects.filter(
+                user_account=user,
+                stock_id="2330"
+            ).exists()
+        )
         # handler
         handle_postback(event)
 
         self.assertFalse(
             FavoriteStock.objects.filter(
-                user_account=self.user,
+                user_account=user,
                 stock_id="2330"
             ).exists()
         )
-        mock_line.reply_message.assert_called_once()
+        mock_reply.assert_called_once()
 
     def test_follow_stock(self):
         '''
         追蹤 -> test db 新增資料
         '''
-        result = follow_stock("test_user_001","2330")
+        # 因為user_account是FK，必須要先建立資料，其餘相關資料表才能有後續動作
+        user = Person.objects.get(user_account = self.user)
+        
+        result = follow_stock(user_id=self.user,stock_id="2330")
 
         self.assertEqual(result.status_code,200)
 
-        self.assertTrue(
-            FavoriteStock.objects.filter(
-                user_account=self.user,
-                stock_id="2330"
-            ).exists()
-        )
-    # def test_unfollow_stock(self):
+        self.assertTrue(FavoriteStock.objects.filter(user_account=self.user,stock_id="2330").exists())
+
+    def test_unfollow_stock(self):
         '''
         取消追蹤 -> test db 刪除資料
         '''
+        # 因為user_account是FK，必須要先建立資料，其餘相關資料表才能有後續動作
+        user = Person.objects.get(user_account = self.user)
+
+        result = unfollow_stock(user_id=self.user,stock_id="2330")
+        self.assertFalse(result,None)
+
+        self.assertFalse(FavoriteStock.objects.filter(user_account=self.user,stock_id="2330").exists())
+
+
     # def test_follow_stock_duplicate(self):
     '''
     重複追蹤

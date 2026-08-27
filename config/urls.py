@@ -18,8 +18,6 @@ from django.contrib import admin
 from django.urls import path,re_path
 
 from apps.bot import views
-# from apps.crawler.views import crawlerSomething
-# from apps.stock.views import combineStockData
 
 print("VIEW MODULE:", views.handle_message.__module__)
 
@@ -34,10 +32,5 @@ urlpatterns = [
 
     # line bot
     path('callback',views.handle_message, name = "handle_message"),
-
-    # news crawler
-    # path('',crawlerSomething),
-    # path('stock',combineStockData)
-
 
 ]

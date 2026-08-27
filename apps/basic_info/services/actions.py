@@ -1,9 +1,6 @@
 from apps.basic_info.models import Person,Message
 from datetime import datetime
 
-# =========================
-# Public
-# =========================
 def create_user(userId:str)->Person:
   '''
   建立使用者

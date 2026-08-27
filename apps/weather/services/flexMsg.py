@@ -7,7 +7,7 @@ def flex_message(location:str):
   將氣象API回傳的資料塞入flex message內
   '''
   # 取氣象API資料
-  weatherData = weatherAPI(location)
+  weatherData = weatherAPI(location=location)
 
   if len(weatherData) != 0:
     for i in weatherData:

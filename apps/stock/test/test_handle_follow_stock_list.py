@@ -1,9 +1,8 @@
-from django.test import TestCase,SimpleTestCase
+from django.test import TestCase
 from unittest.mock import Mock, patch
 from apps.stock.services.handler import handle_followlist
 from apps.stock.services.tracking import get_user_stocks_list
 
-# from apps.basic_info.services.actions import create_user
 
 from apps.basic_info.models import Person
 from apps.stock.models import FavoriteStock
@@ -11,7 +10,7 @@ from apps.stock.models import FavoriteStock
 class HandleFollowStockListTest(TestCase):
     '''
     股票清單
-    分成有追蹤有資料和沒有追蹤沒資料 test case
+    分成有追蹤有資料和沒有追蹤沒資料的test case
     '''
     def setUp(self):
         '''
@@ -49,30 +48,30 @@ class HandleFollowStockListTest(TestCase):
             },
         ]
 
-        result = get_user_stocks_list(self.user.user_account)
+        result = get_user_stocks_list(user_id=self.user.user_account)
 
-        mock_fetch_api_data.assert_any_call("2330")
-        mock_fetch_api_data.assert_any_call("0050")
+        mock_fetch_api_data.assert_any_call(stock_id = "2330")
+        mock_fetch_api_data.assert_any_call(stock_id ="0050")
 
         self.assertEqual(mock_fetch_api_data.call_count,2)
 
     @patch("apps.stock.services.tracking._fetch_api_data")
     def test_get_user_stocks_list_no_data(self,mock_fetch_api_data,):
         '''
-        DB沒有資料時，空清單的Flex Message是否正確
+        DB沒有資料->空清單的Flex Message是否正確
         '''
         FavoriteStock.objects.filter(user_account=self.user).delete()
 
-        result = get_user_stocks_list(self.user.user_account)
+        result = get_user_stocks_list(user_id=self.user.user_account)
 
         self.assertEqual(result["type"],"carousel")
-
+    
         mock_fetch_api_data.assert_not_called()
 
 
-    @patch("apps.stock.services.handler.LINE_BOT_API")
+    @patch("apps.stock.services.handler.reply")
     @patch("apps.stock.services.tracking._fetch_api_data")
-    def test_handle_stock_has_follow_list(self,mock_sotck_fetch_api,mock_line_bot,):
+    def test_handle_stock_has_follow_list(self,mock_sotck_fetch_api,mock_reply,):
         '''
         mock event → 查到有資料 → LINE reply是否正常
         '''
@@ -80,9 +79,9 @@ class HandleFollowStockListTest(TestCase):
         event.source.user_id = "test_user_001"
         event.reply_token = "reply-token"
 
-        result = handle_followlist(event)
+        result = handle_followlist(event=event)
 
-        self.assertEqual(result.status_code,200)
+        self.assertEqual(result,None)
   
         mock_sotck_fetch_api.side_effect = [
             {
@@ -92,12 +91,13 @@ class HandleFollowStockListTest(TestCase):
                 "代碼": "0050","公司名稱": "元大台灣50","即時價格":1999
             },
         ]
-        
-        mock_line_bot.reply_message.assert_called_once()
+
+        # 有沒有叫reply()
+        mock_reply.assert_called_once()
 
 
-    @patch("apps.stock.services.handler.LINE_BOT_API")
-    def test_handle_stock_hasnot_follow_list(self,mock_line_bot):
+    @patch("apps.stock.services.handler.reply")
+    def test_handle_stock_hasnot_follow_list(self,mock_reply):
         '''
         mock event → 沒資料 → LINE reply是否正常
         '''
@@ -108,8 +108,8 @@ class HandleFollowStockListTest(TestCase):
         event.source.user_id = "test_user_001"
         event.reply_token = "reply-token"
 
-        result = handle_followlist(event)
+        result = handle_followlist(event=event)
 
-        self.assertEqual(result.status_code,200)
-
-        mock_line_bot.reply_message.assert_called_once()
+        self.assertEqual(result,None)
+        # 有沒有叫reply()
+        mock_reply.assert_called_once()
