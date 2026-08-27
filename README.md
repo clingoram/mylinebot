@@ -149,7 +149,7 @@ All tests passed successfully.
 ### Development Automation
 
 Webhook Auto-Configuration Flow
-![image](https://github.com/clingoram/mylinebot/blob/master/images/Webhook_Auto_Configuration_Flow_8_21.png "Webhook Auto-Configuration Flow")
+![image](https://github.com/clingoram/mylinebot/blob/master/images/wbhook_Auto_Configuration_Flow_8_21.png "Webhook Auto-Configuration Flow")
 
 ---
 
