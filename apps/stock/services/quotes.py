@@ -93,7 +93,7 @@ def _fetch_api_data(stock_id: str,db_cache: dict[str, HotStock] | None = None) -
             if not info:
                 continue
 
-            # DB 原本沒有資料
+            # DB原本沒有資料
             if find is None:
                 getSuffix = info["symbol"].split(".")[-1]
 
@@ -289,7 +289,7 @@ _stock_name_cache = None
 def _load_json(clean_stock_id: str):
     '''
     JSON檔當作對照表來補全中文名稱
-    ETF是只有幾檔熱門的，自行加進去的
+    ETF只有幾檔自行加進去熱門的
     
     dict cache
     '''
@@ -318,7 +318,7 @@ def get_stock_flex_message(key):
 
     主要對外接口，給router.py用於「單檔股票查詢」 -> 顯示用
 
-    串聯： _clean_stock_id() -> Call API(_fetch_api_data()) -> 轉中文(_map_eng_to_chinese()) -> 塞入這個Flex Message
+    串聯： _clean_stock_id() -> Call API(_fetch_api_data()) -> 取得公司中文名稱(_load_json()) -> key轉中文(_map_eng_to_chinese()) -> 塞入這個Flex Message
     '''
 
     # try: 

@@ -4,6 +4,45 @@ from apps.stock.models import FavoriteStock
 from apps.stock.services.quotes import _fetch_api_data,_clean_stock_id
 from apps.stock.models import HotStock
 
+# ==============
+# Private
+# ==============
+def _load_hot_stock_cache(stock_ids: list[str]) -> dict[str, HotStock]:
+    '''
+    一次把DB資料全部查出來
+    '''
+    stocks = HotStock.objects.filter(stock_id__in=stock_ids)
+
+    return {
+        stock.stock_id: stock
+        for stock in stocks
+    }
+
+def _batch_processing_multiple_stocks(stock_ids: list[str]) -> list:
+    '''
+    批次處理
+    大量股票的主要入口，用來搭配我的股票清單這功能
+    '''
+    clean_ids = [
+        _clean_stock_id(stock_id=stock_id)
+        for stock_id in stock_ids
+    ]
+
+    # 一次把HotStock全部查出來，取得所有stock_id
+    db_cache = _load_hot_stock_cache(clean_ids)
+
+    stock_data_list = []
+
+    for stock_id in clean_ids:
+        # 呼叫股票API並取得mapping後的中文資料
+        data = _fetch_api_data(stock_id=stock_id,db_cache=db_cache)
+
+        if data:
+            stock_data_list.append(data)
+
+    return stock_data_list
+
+
 # =========================
 # Public
 # =========================
@@ -42,45 +81,10 @@ def get_user_stocks_list(user_id:str):
     user_stocks = FavoriteStock.objects.filter(user_account=person_id).values_list('stock_id',flat=True)
 
     # 批次取得股票資料
-    stock_data_list = get_multiple_stocks(stock_ids=list(user_stocks))
+    stock_data_list = _batch_processing_multiple_stocks(stock_ids=list(user_stocks))
 
     # 丟給底下產生flex message
     return get_flex_message_contents(stock_data_list=stock_data_list)
-
-
-def _load_hot_stock_cache(stock_ids: list[str]) -> dict[str, HotStock]:
-    '''
-    一次把DB資料全部查出來
-    '''
-    stocks = HotStock.objects.filter(stock_id__in=stock_ids)
-
-    return {
-        stock.stock_id: stock
-        for stock in stocks
-    }
-
-def get_multiple_stocks(stock_ids: list[str]):
-    '''
-    大量股票的主要入口，用來搭配我的股票清單這功能
-    '''
-    clean_ids = [
-        _clean_stock_id(stock_id)
-        for stock_id in stock_ids
-    ]
-
-    # 一次把HotStock全部查出來，取得所有stock_id
-    db_cache = _load_hot_stock_cache(clean_ids)
-
-    stock_data_list = []
-
-    for stock_id in clean_ids:
-        # 呼叫股票API並取得mapping後的中文資料
-        data = _fetch_api_data(stock_id=stock_id,db_cache=db_cache)
-
-        if data:
-            stock_data_list.append(data)
-
-    return stock_data_list
 
 
 def get_flex_message_contents(stock_data_list:list):

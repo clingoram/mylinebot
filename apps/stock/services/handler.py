@@ -50,8 +50,8 @@ def handle_followlist(event) -> None:
     顯示追蹤清單
     '''
     userId = event.source.user_id
-    result = get_user_stocks_list(userId)
-    # result = get_multiple_stocks(userId)
+    result = get_user_stocks_list(user_id=userId)
+
     reply(event.reply_token,FlexSendMessage(alt_text = "追蹤清單",contents=result))
     # return HttpResponse("OK!!",status=200)
     
