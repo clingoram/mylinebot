@@ -28,7 +28,7 @@ def _clean_stock_id(stock_id: str) -> str:
 
 def _suffix_from_db(stock_id:str) -> HotStock | None:
     '''
-    先從table找對應資料，做本地快取比對
+    先從table找對應資料，做比對
     '''
     find = HotStock.objects.filter(stock_id = stock_id).first()
     if find is None:
@@ -62,7 +62,7 @@ def _fetch_api_data(stock_id: str,db_cache: dict[str, HotStock] | None = None) -
     else:
         find = _suffix_from_db(stock_id)
 
-    chinese_name = _load_json(clean_stock_id=stock_id)
+    chinese_name = _get_stock_name_from_json(clean_stock_id=stock_id)
 
     # =========================
     # DB 有資料
@@ -108,7 +108,6 @@ def _fetch_api_data(stock_id: str,db_cache: dict[str, HotStock] | None = None) -
     return None
 
 
-
 def _get_stock_change(data:dict) -> dict[str, float]:
     '''
     資料處理
@@ -118,7 +117,7 @@ def _get_stock_change(data:dict) -> dict[str, float]:
     '''
     change = data.get('regularMarketChange')
     change_percent = data.get('regularMarketChangePercent')
-    
+
     # 如果欄位不存在，人工計算
     if change is None or change_percent is None:
         # 取得當前價格（防呆機制）
@@ -134,6 +133,8 @@ def _get_stock_change(data:dict) -> dict[str, float]:
         'change': round(change, 2) if change else 0.0,
         'change_percent': round(change_percent, 2) if change_percent else 0.0
     }
+
+
 
 def _map_eng_to_chinese(info:dict,df,chinese_name:str | None) -> dict[str, Any]:
     '''
@@ -210,7 +211,7 @@ def _typeDisp(info_type: str | None) -> str:
     #         return value
     # return None
     if not info_type:
-            return "N/A"
+        return "N/A"
 
     return stockType.get(info_type, info_type)
 
@@ -284,9 +285,10 @@ def _fmt_num(value) -> str:
 
     return str(value)
 
+# cache現在有沒有建立
 _stock_name_cache = None
 
-def _load_json(clean_stock_id: str):
+def _get_stock_name_from_json(clean_stock_id: str):
     '''
     JSON檔當作對照表來補全中文名稱
     ETF只有幾檔自行加進去熱門的
@@ -294,17 +296,21 @@ def _load_json(clean_stock_id: str):
     dict cache
     '''
     global _stock_name_cache
+
     if _stock_name_cache is None:
         base_dir = os.path.dirname(__file__)
         file_path = os.path.join(base_dir, "t187.json")
 
+        # 讀json
         with open(file_path, "r", encoding="utf-8") as fcc_file:
             fcc_data = json.load(fcc_file)
 
-        _stock_name_cache = {
-            item.get("公司代號"): item.get("公司簡稱")
-            for item in fcc_data
-        }
+        # 建立dict
+        _stock_name_cache = {}
+
+        for item in fcc_data:
+            # 將資料存進dict
+            _stock_name_cache[item.get("公司代號")] = item.get("公司簡稱")
 
     return _stock_name_cache.get(clean_stock_id)
 
@@ -318,7 +324,7 @@ def get_stock_flex_message(key):
 
     主要對外接口，給router.py用於「單檔股票查詢」 -> 顯示用
 
-    串聯： _clean_stock_id() -> Call API(_fetch_api_data()) -> 取得公司中文名稱(_load_json()) -> key轉中文(_map_eng_to_chinese()) -> 塞入這個Flex Message
+    串聯： _clean_stock_id() -> Call API(_fetch_api_data()) -> 取得公司中文名稱(_get_stock_name_from_json()) -> key轉中文(_map_eng_to_chinese()) -> 塞入這個Flex Message
     '''
 
     # try: 

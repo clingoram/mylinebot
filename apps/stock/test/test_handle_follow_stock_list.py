@@ -1,11 +1,11 @@
 from django.test import TestCase
 from unittest.mock import Mock, patch
 from apps.stock.services.handler import handle_followlist
-from apps.stock.services.tracking import get_user_stocks_list,_load_hot_stock_cache,_batch_processing_multiple_stocks
+from apps.stock.services.tracking import get_user_stocks_list,_get_hot_stocks_by_ids,_batch_processing_multiple_stocks
 
 
 from apps.basic_info.models import Person
-from apps.stock.models import FavoriteStock
+from apps.stock.models import FavoriteStock,HotStock
 
 class HandleFollowStockListTest(TestCase):
     '''
@@ -14,42 +14,55 @@ class HandleFollowStockListTest(TestCase):
     '''
     def setUp(self):
         '''
-        建立Person(user) 和 FavoriteStock 資料
-        每個test都建立：
-        user = test_user_001
-        FavoriteStock = 2330
-        FavoriteStock = 0050
+        準備測試用DB資料
+        建立Person(user)、FavoriteStock和HotStock資料
         '''
         self.user = Person.objects.create(
             user_account = "test_user_001"
         )
 
-        FavoriteStock.objects.create(
+        self.stock1 = FavoriteStock.objects.create(
             user_account=self.user,
             stock_id="2330"
         )
 
-        FavoriteStock.objects.create(
+        self.stock2 = FavoriteStock.objects.create(
             user_account=self.user,
             stock_id="0050"
         )
 
-        FavoriteStock.objects.create(
+        self.stock3 = FavoriteStock.objects.create(
             user_account=self.user,
             stock_id="2034"
         )
 
+        self.hstock1 = HotStock.objects.create(
+            stock_id = "2330",
+            stock_name = "台積電",
+            suffix = "TW"
+        )
+        self.hstock2 = HotStock.objects.create(
+            stock_id = "0050",
+            stock_name = "元大台灣50",
+            suffix = "TW"
+        )
+        self.hstock3 = HotStock.objects.create(
+            stock_id = "2034",
+            stock_name = "允強",
+            suffix = "TW"
+        )
+
     @patch("apps.stock.services.tracking._fetch_api_data")
-    @patch("apps.stock.services.tracking._load_hot_stock_cache")
-    def test_batch_processing_multiple_stocks(self,mock_hot_stock_cache,mock_fetch_api_data):
+    @patch("apps.stock.services.tracking._get_hot_stocks_by_ids")
+    def test_batch_processing_multiple_stocks(self,mock_hot_stock_from_db,mock_fetch_api_data):
         '''
         stock ID是否正確clean
-        _load_hot_stock_cache()是否收到正確的ids
+        mock_hot_stock_from_db()是否收到正確的id
         _fetch_api_data() 是否逐一被呼叫
         API回傳None時是否不加入結果
         API有資料時是否正確組成list
         '''
-        mock_hot_stock_cache.return_value = {}
+        mock_hot_stock_from_db.return_value = {}
 
         mock_fetch_api_data.side_effect = [
             {
@@ -66,21 +79,30 @@ class HandleFollowStockListTest(TestCase):
 
         result = _batch_processing_multiple_stocks(["2330", "0050"])
 
-        mock_hot_stock_cache.assert_called_once_with(["2330", "0050"])
+        mock_hot_stock_from_db.assert_called_once_with(["2330", "0050"])
 
-        self.assertEqual(mock_fetch_api_data.call_count,2,)
+        self.assertEqual(mock_fetch_api_data.call_count,2)
 
-        self.assertEqual(len(result),2,)
+        self.assertEqual(len(result),2)
 
-    # TODO:
-    def test_load_hot_stock_cache(self):
+    def test_get_hot_stocks_by_ids(self):
         '''
-        給定stock_ids → 正確從 DB/cache 找出資料
+        給定stock_id，應從DB找出對應的HotStock並以stock_id作為dict key
         '''
-        data = Mock()
-        result = _load_hot_stock_cache(["2330", "0050", "2101"])
+        result = _get_hot_stocks_by_ids(stock_id= ["2330","0050","2034"])
 
         self.assertEqual(len(result),3)
+        self.assertEqual(set(result.keys()),{"2330", "0050", "2034"})
+
+    def test_get_hot_stocks_by_ids_returns_existing_stocks_only(self):
+        '''
+        傳入不存在的stock_id，不應該產生資料
+        '''
+
+        result = _get_hot_stocks_by_ids(stock_id= ["2330","0050","9999"])
+
+        self.assertEqual(len(result), 2)
+        self.assertEqual(set(result.keys()),{"2330", "0050"})
 
     @patch("apps.stock.services.tracking._batch_processing_multiple_stocks")
     def test_get_user_stocks_list_has_data(self, mock_batch_stocks):
@@ -107,10 +129,10 @@ class HandleFollowStockListTest(TestCase):
 
         get_user_stocks_list(user_id=self.user.user_account)
 
-        mock_batch_stocks.assert_called_once_with(stock_ids=["2330", "0050","2034"])
+        mock_batch_stocks.assert_called_once_with(stock_id=["2330", "0050","2034"])
 
     @patch("apps.stock.services.tracking._fetch_api_data")
-    def test_get_user_stocks_list_no_data(self,mock_fetch_api_data,):
+    def test_get_user_stocks_list_no_data(self,mock_fetch_api_data):
         '''
         DB沒有資料->空清單的Flex Message是否正確
         '''
@@ -125,7 +147,7 @@ class HandleFollowStockListTest(TestCase):
 
     @patch("apps.stock.services.handler.reply")
     @patch("apps.stock.services.tracking._fetch_api_data")
-    def test_handle_stock_has_follow_list(self,mock_sotck_fetch_api,mock_reply,):
+    def test_handle_stock_has_follow_list(self,mock_sotck_fetch_api,mock_reply):
         '''
         mock event → 查到有資料 → LINE reply是否正常
         '''

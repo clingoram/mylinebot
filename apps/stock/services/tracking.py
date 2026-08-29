@@ -7,29 +7,29 @@ from apps.stock.models import HotStock
 # ==============
 # Private
 # ==============
-def _load_hot_stock_cache(stock_ids: list[str]) -> dict[str, HotStock]:
+def _get_hot_stocks_by_ids(stock_id: list[str]) -> dict[str, HotStock]:
     '''
     一次把DB資料全部查出來
     '''
-    stocks = HotStock.objects.filter(stock_id__in=stock_ids)
+    stocks = HotStock.objects.filter(stock_id__in=stock_id)
 
-    return {
-        stock.stock_id: stock
-        for stock in stocks
-    }
+    result = {}
+    for stock in stocks:
+        result[stock.stock_id] = stock
 
-def _batch_processing_multiple_stocks(stock_ids: list[str]) -> list:
+    return result
+
+def _batch_processing_multiple_stocks(stock_id: list[str]) -> list:
     '''
     批次處理
     大量股票的主要入口，用來搭配我的股票清單這功能
     '''
-    clean_ids = [
-        _clean_stock_id(stock_id=stock_id)
-        for stock_id in stock_ids
-    ]
+    clean_ids = []
+    for stock_id in stock_id:
+        clean_ids.append(_clean_stock_id(stock_id))
 
     # 一次把HotStock全部查出來，取得所有stock_id
-    db_cache = _load_hot_stock_cache(clean_ids)
+    db_cache = _get_hot_stocks_by_ids(clean_ids)
 
     stock_data_list = []
 
@@ -81,7 +81,7 @@ def get_user_stocks_list(user_id:str):
     user_stocks = FavoriteStock.objects.filter(user_account=person_id).values_list('stock_id',flat=True)
 
     # 批次取得股票資料
-    stock_data_list = _batch_processing_multiple_stocks(stock_ids=list(user_stocks))
+    stock_data_list = _batch_processing_multiple_stocks(stock_id=list(user_stocks))
 
     # 丟給底下產生flex message
     return get_flex_message_contents(stock_data_list=stock_data_list)
