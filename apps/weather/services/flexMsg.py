@@ -1,6 +1,7 @@
 # from apps.weather.views import weatherAPI
 from apps.weather.services.weather_api import weatherAPI
 
+
 def flex_message(location:str):
   '''
   Line bot flex message
@@ -170,5 +171,6 @@ def flex_message(location:str):
         }
       }
     return content
+  
   else:
     return {}

@@ -11,8 +11,7 @@ def weatherAPI(location:str = "高雄市")->list:
   URL:https://opendata.cwa.gov.tw/dist/opendata-swagger.html#/%E9%A0%90%E5%A0%B1/get_v1_rest_datastore_F_C0032_001
 
   1.城市名稱須完整顯示縣或市，例如高雄市、宜蘭縣。
-  2.城市名稱必須是繁體字。
-  3.若無城市名稱，預設為高雄市。
+  2.若無城市名稱，預設為高雄市。
 
   * API時間區間改為取得當天資料。
   '''

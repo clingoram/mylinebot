@@ -1,7 +1,47 @@
 from django.http import JsonResponse,HttpResponse
 from apps.basic_info.models import Person
 from apps.stock.models import FavoriteStock
-from apps.stock.services.quotes import _fetch_api_data
+from apps.stock.services.quotes import _fetch_api_data,_clean_stock_id
+from apps.stock.models import HotStock
+
+# ==============
+# Private
+# ==============
+def _get_hot_stocks_by_ids(stock_id: list[str]) -> dict[str, HotStock]:
+    '''
+    一次把DB資料全部查出來
+    '''
+    stocks = HotStock.objects.filter(stock_id__in=stock_id)
+
+    result = {}
+    for stock in stocks:
+        result[stock.stock_id] = stock
+
+    return result
+
+def _batch_processing_multiple_stocks(stock_id: list[str]) -> list:
+    '''
+    批次處理
+    大量股票的主要入口，用來搭配我的股票清單這功能
+    '''
+    clean_ids = []
+    for stock_id in stock_id:
+        clean_ids.append(_clean_stock_id(stock_id))
+
+    # 一次把HotStock全部查出來，取得所有stock_id
+    db_cache = _get_hot_stocks_by_ids(clean_ids)
+
+    stock_data_list = []
+
+    for stock_id in clean_ids:
+        # 呼叫股票API並取得mapping後的中文資料
+        data = _fetch_api_data(stock_id=stock_id,db_cache=db_cache)
+
+        if data:
+            stock_data_list.append(data)
+
+    return stock_data_list
+
 
 # =========================
 # Public
@@ -35,17 +75,14 @@ def get_user_stocks_list(user_id:str):
     取得使用者追蹤的所有股票清單
     '''
     # 先從Person找尋對應id
-    person_id = Person.objects.filter(user_account = user_id).values_list('id', flat=True).first()
-    # 取得該使用者追蹤的所有股票清單
-    user_stocks = FavoriteStock.objects.filter(user_account=person_id).values_list('stock_id', flat=True)
-    
-    stock_data_list = []
-    for code in user_stocks:
-        # 呼叫股票API並取得mapping後的中文資料
-        data = _fetch_api_data(stock_id=code) 
-        if data:
-            stock_data_list.append(data)
-            
+    person_id = Person.objects.filter(user_account=user_id).values_list('id',flat=True).first()
+
+    # 取得該使用者追蹤的所有股票
+    user_stocks = FavoriteStock.objects.filter(user_account=person_id).values_list('stock_id',flat=True)
+
+    # 批次取得股票資料
+    stock_data_list = _batch_processing_multiple_stocks(stock_id=list(user_stocks))
+
     # 丟給底下產生flex message
     return get_flex_message_contents(stock_data_list=stock_data_list)
 

@@ -6,7 +6,7 @@ import re
 from linebot.models import TextSendMessage,TextMessage,FlexSendMessage
 
 from apps.bot.services.line_reply import reply
-from apps.stock.services.quotes import get_stock_flex_message,_clean_stock_id
+from apps.stock.services.quotes import get_stock_flex_message
 from apps.stock.services.tracking import follow_stock,unfollow_stock,get_user_stocks_list
 from apps.stock.models import FavoriteStock
 from apps.basic_info.models import Person
@@ -20,16 +20,16 @@ logger = logging.getLogger(__name__)
 # =========================
 def handle_stock_data(event,stock_id) -> None: 
     '''
-    取得單一股票
+    使用者查單支股票
     '''
     try:
         #只取英文大小寫和數字
         keyWord = re.sub(r"[^a-zA-Z0-9]", "", stock_id).upper()
-    
+        
         result = get_stock_flex_message(key = stock_id)
         
         if not result:
-            reply(event.reply_token,TextSendMessage("請確實輸入股票代號"))
+            reply(event.reply_token,TextSendMessage("請確實輸入股票代碼"))
             return
         
         reply(event.reply_token,FlexSendMessage(alt_text = keyWord + f"追蹤 {keyWord}",contents = result))
@@ -38,7 +38,7 @@ def handle_stock_data(event,stock_id) -> None:
     except ValueError as e:
         logger.warning(f"使用者輸入錯誤: {e}")
 
-        reply(event.reply_token,TextSendMessage("請確實輸入股票代號"))
+        reply(event.reply_token,TextSendMessage("請確實輸入股票代碼"))
 
     except Exception:
         logger.exception("發生錯誤")
@@ -50,7 +50,8 @@ def handle_followlist(event) -> None:
     顯示追蹤清單
     '''
     userId = event.source.user_id
-    result = get_user_stocks_list(userId)
+    result = get_user_stocks_list(user_id=userId)
+
     reply(event.reply_token,FlexSendMessage(alt_text = "追蹤清單",contents=result))
     # return HttpResponse("OK!!",status=200)
     

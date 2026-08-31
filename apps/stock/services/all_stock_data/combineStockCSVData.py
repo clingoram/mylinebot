@@ -15,8 +15,8 @@ def combineStockData():
 
     for (a,b) in zip(information,price):
         stockContent = {}
-        if isinstance(a['公司代號'], str) and isinstance(b['Code'], str):
-            code = a['公司代號']
+        if isinstance(a['公司代碼'], str) and isinstance(b['Code'], str):
+            code = a['公司代碼']
             fullName = a['公司名稱']
             name = a['公司簡稱']
             industry = a['產業別']
