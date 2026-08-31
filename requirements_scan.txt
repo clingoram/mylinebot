@@ -1,8 +1,0 @@
-Django==5.0.1
-line-bot-sdk==3.7.0
-python-dotenv==1.2.2
-requests==2.34.2
-selenium==4.19.0
-yfinance==1.4.1
-psycopg==3.1.16
-psycopg-binary==3.1.16
