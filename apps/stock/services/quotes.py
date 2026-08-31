@@ -53,7 +53,7 @@ def _fetch_api_data(stock_id: str,db_cache: dict[str, HotStock] | None = None) -
     
         但這資料是英文，部份須轉換成中文
     
-        yfinance 台股代號後面須加上.TW或.TWO，例如：1234.TW
+        yfinance 台股代碼後面須加上.TW或.TWO，例如：1234.TW
     '''
 
     # 有傳cache就使用cache
@@ -162,7 +162,7 @@ def _map_eng_to_chinese(info:dict,df,chinese_name:str | None) -> dict[str, Any]:
             "代碼": info.get("symbol", "").split(".")[0],
             "公司名稱": chinese_name, #info.get("shortName"),
             "產業": _sectorDisp(sector=info.get("sector")),
-            "細分產業": _fmt_num(value=info.get("industry")),
+            # "細分產業": _fmt_num(value=info.get("industry")),
             "類型": _typeDisp(info_type=info.get("typeDisp")),
 
             "即時價格": info.get("currentPrice"),
@@ -195,8 +195,7 @@ def _map_eng_to_chinese(info:dict,df,chinese_name:str | None) -> dict[str, Any]:
 
 def _typeDisp(info_type: str | None) -> str:
     '''
-    資料處理
-    股票類型 
+    資料處理：股票類型 
     '''
     stockType = {
         "Equity":"普通股票",
@@ -206,10 +205,7 @@ def _typeDisp(info_type: str | None) -> str:
         "Future":"期貨",
         "Currency":"外匯"
     }
-    # for key,value in stockType.items():
-    #     if infoType == key:
-    #         return value
-    # return None
+
     if not info_type:
         return "N/A"
 
@@ -217,8 +213,7 @@ def _typeDisp(info_type: str | None) -> str:
 
 def _sectorDisp(sector: str | None) -> str:
     '''
-    資料處理
-    產業類型
+    資料處理：產業類型
     '''
     sectorType = {
         "Technology": "科技",
@@ -276,8 +271,7 @@ def _sectorDisp(sector: str | None) -> str:
      
 def _fmt_num(value) -> str:
     '''
-    資料處理
-    Flex Message顯示用
+    資料處理：Flex Message顯示用
     None或空字串顯示N/A
     '''
     if value is None or value == "":
@@ -291,7 +285,7 @@ _stock_name_cache = None
 def _get_stock_name_from_json(clean_stock_id: str):
     '''
     JSON檔當作對照表來補全中文名稱
-    ETF只有幾檔自行加進去熱門的
+    ETF只有幾檔自行加進去熱門的ETF
     
     dict cache
     '''
@@ -302,15 +296,15 @@ def _get_stock_name_from_json(clean_stock_id: str):
         file_path = os.path.join(base_dir, "t187.json")
 
         # 讀json
-        with open(file_path, "r", encoding="utf-8") as fcc_file:
-            fcc_data = json.load(fcc_file)
+        with open(file_path, "r", encoding="utf-8") as j_file:
+            j_data = json.load(j_file)
 
         # 建立dict
         _stock_name_cache = {}
 
-        for item in fcc_data:
+        for item in j_data:
             # 將資料存進dict
-            _stock_name_cache[item.get("公司代號")] = item.get("公司簡稱")
+            _stock_name_cache[item.get("公司代碼")] = item.get("公司簡稱")
 
     return _stock_name_cache.get(clean_stock_id)
 
@@ -322,9 +316,10 @@ def get_stock_flex_message(key):
     '''
     flex message (單一股票)
 
-    主要對外接口，給router.py用於「單檔股票查詢」 -> 顯示用
+    主要對外接口，給handler.py用於「單檔股票查詢」 -> 顯示用
 
-    串聯： _clean_stock_id() -> Call API(_fetch_api_data()) -> 取得公司中文名稱(_get_stock_name_from_json()) -> key轉中文(_map_eng_to_chinese()) -> 塞入這個Flex Message
+    串聯： 
+    _clean_stock_id() -> Call API(_fetch_api_data()) -> 取得公司中文名稱(_get_stock_name_from_json()) -> key轉中文(_map_eng_to_chinese()) -> 塞入這個Flex Message
     '''
 
     # try: 
@@ -333,7 +328,8 @@ def get_stock_flex_message(key):
 
     # print(stockO)
     if not stockO:
-        return "無資料"
+        logger.error(f"尋找股票： {key} 失敗")
+        return None
 
     contents = []
 
@@ -401,6 +397,7 @@ def get_stock_flex_message(key):
         }
     }
     return bubble
+    
     # except requests.RequestException:
     #     logger.exception(f"尋找 {key} 失敗")
     #     return None

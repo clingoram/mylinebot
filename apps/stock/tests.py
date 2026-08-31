@@ -65,7 +65,7 @@ from linebot.models import TextSendMessage,TextMessage,FlexSendMessage
     #     message = mock_reply_message.call_args.args[1]
 
     #     self.assertIsInstance(message, TextSendMessage)
-    #     self.assertEqual(message.text, "請輸入股票代號")
+    #     self.assertEqual(message.text, "請輸入股票代碼")
 
     #     self.assertIsNone(response)
 

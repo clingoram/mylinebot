@@ -1,4 +1,5 @@
 import re
+from cityList import city
 
 def parse_command(text:str) -> dict:
     '''
@@ -12,6 +13,9 @@ def parse_command(text:str) -> dict:
     # 股票2330
     # 股票 2330
     # =========================
+
+    # 字串開頭必須是「股票」
+    # 需要4至6位數
     stock_match = re.fullmatch(r"股票\s*(\d{4,6})", text)
 
     if stock_match:
@@ -22,6 +26,7 @@ def parse_command(text:str) -> dict:
 
     # 天氣
     if text.endswith(("市", "縣")):
+
         return {
             "action": "weather",
             "city": text

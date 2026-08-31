@@ -6,13 +6,15 @@ from apps.basic_info.services.actions import create_user,create_Keyword
 from apps.basic_info.services.explain import explain
 
 from apps.bot.services.parse_command import parse_command
+from apps.bot.services.line_reply import reply
 
 from apps.news.services.handle_news import handle_news
 from apps.weather.services.handle_weather import handle_weather
 
 from apps.stock.services.handler import handle_stock_data,handle_postback,handle_followlist
 
-from linebot.models import PostbackEvent
+from linebot.models import PostbackEvent,TextSendMessage
+
 
 
 def route_event(handleEvent):
@@ -53,6 +55,9 @@ def route_event(handleEvent):
         elif command["action"] == "explain":
           # 說明
           explain(event=event)
+
+        elif command["action"] == "unknown":
+          reply(event.reply_token,TextSendMessage("發生操作錯誤，詳見「說明」"))
 
 
       elif isinstance(event, PostbackEvent):

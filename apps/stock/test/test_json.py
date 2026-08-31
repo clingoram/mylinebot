@@ -22,11 +22,11 @@ class StockNameFromJsonTest(SimpleTestCase):
 
         mock_json_data = [
             {
-                "公司代號": "2330",
+                "公司代碼": "2330",
                 "公司簡稱": "台積電",
             },
             {
-                "公司代號": "0050",
+                "公司代碼": "0050",
                 "公司簡稱": "元大台灣50",
             },
         ]

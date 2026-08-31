@@ -25,11 +25,11 @@ def handle_stock_data(event,stock_id) -> None:
     try:
         #只取英文大小寫和數字
         keyWord = re.sub(r"[^a-zA-Z0-9]", "", stock_id).upper()
-    
+        
         result = get_stock_flex_message(key = stock_id)
         
         if not result:
-            reply(event.reply_token,TextSendMessage("請確實輸入股票代號"))
+            reply(event.reply_token,TextSendMessage("請確實輸入股票代碼"))
             return
         
         reply(event.reply_token,FlexSendMessage(alt_text = keyWord + f"追蹤 {keyWord}",contents = result))
@@ -38,7 +38,7 @@ def handle_stock_data(event,stock_id) -> None:
     except ValueError as e:
         logger.warning(f"使用者輸入錯誤: {e}")
 
-        reply(event.reply_token,TextSendMessage("請確實輸入股票代號"))
+        reply(event.reply_token,TextSendMessage("請確實輸入股票代碼"))
 
     except Exception:
         logger.exception("發生錯誤")

@@ -55,7 +55,7 @@
 新聞 類別 關鍵字
 ```
 
-系統會從新聞網站中取得最新的5筆相關新聞，並透過LINE Text Message呈現。
+系統會從新聞網站中取得最新相關新聞，並透過LINE Text Message呈現。
 類別：
 政治，財經，社會，娛樂，體育，科技，生活，國際、健康
 
@@ -67,6 +67,12 @@
 
 ```text
 股票 股票代碼
+```
+
+或：
+
+```text
+股票股票代碼
 ```
 
 可以透過LINE Flex Message：
@@ -87,7 +93,7 @@
 All tests passed successfully.
 
 ```text
-✓ 33 tests passed
+✓ 37 tests passed
 ```
 
 ## Tech Stack
@@ -124,6 +130,10 @@ All tests passed successfully.
 
 ## System Architecture
 
+### DEMO
+
+<video src="https://github.com/clingoram/mylinebot/blob/master/images/demo.mov" width="100%" controls autoplay loop muted></video>
+
 ### 機器人回覆
 
 ![image](https://github.com/clingoram/mylinebot/blob/master/images/S__34291716.jpg "氣象訊息回覆 - 不在可查詢範圍內")
@@ -132,8 +142,10 @@ All tests passed successfully.
 <!-- ![image](https://github.com/clingoram/mylinebot/blob/master/images/crawler_reply.jpg "新聞爬蟲") -->
 
 ![image](https://github.com/clingoram/mylinebot/blob/master/images/news.jpg "新聞")
-![image](https://github.com/clingoram/mylinebot/blob/master/images/search_stock.jpeg "查詢股票並加入追蹤名單")
-![image](https://github.com/clingoram/mylinebot/blob/master/images/stock_search.jpeg "查詢股票")
+
+<!-- ![image](https://github.com/clingoram/mylinebot/blob/master/images/search_stock.jpeg "查詢股票並加入追蹤名單") -->
+
+![image](https://github.com/clingoram/mylinebot/blob/master/images/stock_reply_search.jpeg "查詢股票")
 ![image](https://github.com/clingoram/mylinebot/blob/master/images/list_follow_stock.jpeg "列出追蹤的所有股票清單")
 
 ### Container Diagram
@@ -144,7 +156,7 @@ All tests passed successfully.
 
 ### ER Diagram
 
-![image](https://github.com/clingoram/mylinebot/blob/master/images/er_diagram_8_21_update.png "ER Diagram")
+![image](https://github.com/clingoram/mylinebot/blob/master/images/er_diagram_8_31_update.png "ER Diagram")
 
 ### Development Automation
 
