@@ -296,7 +296,7 @@ docker compose exec web python3 manage.py test
 ## References
 
 - [中央氣象署 Open Data](https://opendata.cwa.gov.tw/dist/opendata-swagger.html)
-- [Django Documentation](https://docs.djangoproject.com/en/5.0/)
+- [Django Documentation](https://docs.djangoproject.com/en/6.0/)
 - [LINE Bot SDK for Python](https://line-bot-sdk-python.readthedocs.io/en/stable/index.html)
 - [ngrok](https://ngrok.com/)
 - [Beautiful Soup](https://beautiful-soup-4.readthedocs.io/en/latest/#)
