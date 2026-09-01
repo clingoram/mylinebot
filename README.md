@@ -141,7 +141,7 @@ All tests passed successfully.
 
 <!-- ![image](https://github.com/clingoram/mylinebot/blob/master/images/crawler_reply.jpg "新聞爬蟲") -->
 
-![image](https://github.com/clingoram/mylinebot/blob/master/images/news.jpg "新聞")
+![image](https://github.com/clingoram/mylinebot/blob/master/images/news.jpeg "新聞")
 
 <!-- ![image](https://github.com/clingoram/mylinebot/blob/master/images/search_stock.jpeg "查詢股票並加入追蹤名單") -->
 
