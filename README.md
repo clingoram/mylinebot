@@ -132,7 +132,7 @@ All tests passed successfully.
 
 ### DEMO
 
-<video src="https://github.com/clingoram/mylinebot/blob/master/images/demo.mov" width="100%" controls autoplay loop muted></video>
+<video src="https://github.com/user-attachments/assets/8b9c2397-4e61-4741-bc82-9ada72a16920" width="100%" controls autoplay loop muted></video>
 
 ### 機器人回覆
 
