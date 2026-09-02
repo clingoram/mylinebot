@@ -136,17 +136,23 @@ All tests passed successfully.
 
 ### 機器人回覆
 
-![image](https://github.com/clingoram/mylinebot/blob/master/images/S__34291716.jpg "氣象訊息回覆 - 不在可查詢範圍內")
-![image](https://github.com/clingoram/mylinebot/blob/master/images/weather.jpg "氣象查詢地區回覆")
-
+<img src="https://github.com/clingoram/mylinebot/blob/master/images/S__34291716.jpg" alt="氣象訊息回覆 - 不在可查詢範圍內" width="300" height="500">
+<!-- ![image](https://github.com/clingoram/mylinebot/blob/master/images/S__34291716.jpg "氣象訊息回覆 - 不在可查詢範圍內") -->
+<img src="https://github.com/clingoram/mylinebot/blob/master/images/weather.jpg" alt="氣象查詢地區回覆" width="300" height="500">
+<!-- ![image](https://github.com/clingoram/mylinebot/blob/master/images/weather.jpg "氣象查詢地區回覆") -->
 <!-- ![image](https://github.com/clingoram/mylinebot/blob/master/images/crawler_reply.jpg "新聞爬蟲") -->
 
-![image](https://github.com/clingoram/mylinebot/blob/master/images/news.jpeg "新聞")
+<img src="https://github.com/clingoram/mylinebot/blob/master/images/news.jpeg" alt="新聞" width="300" height="500">
+<!-- ![image](https://github.com/clingoram/mylinebot/blob/master/images/news.jpeg "新聞") -->
 
 <!-- ![image](https://github.com/clingoram/mylinebot/blob/master/images/search_stock.jpeg "查詢股票並加入追蹤名單") -->
 
-![image](https://github.com/clingoram/mylinebot/blob/master/images/stock_reply_search.jpeg "查詢股票")
-![image](https://github.com/clingoram/mylinebot/blob/master/images/list_follow_stock.jpeg "列出追蹤的所有股票清單")
+
+<img src="https://github.com/clingoram/mylinebot/blob/master/images/stock_reply_search.jpeg" alt="查詢股票" width="300" height="500">
+<!-- ![image](https://github.com/clingoram/mylinebot/blob/master/images/stock_reply_search.jpeg "查詢股票") -->
+
+<img src="https://github.com/clingoram/mylinebot/blob/master/images/list_follow_stock.jpeg" alt="列出追蹤的所有股票清單" width="300" height="500">
+<!-- ![image](https://github.com/clingoram/mylinebot/blob/master/images/list_follow_stock.jpeg "列出追蹤的所有股票清單") -->
 
 ### Container Diagram
 
