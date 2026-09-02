@@ -247,13 +247,6 @@ docker compose exec django python3 manage.py makemigrations
 docker compose exec django python3 manage.py migrate
 ```
 
-也可以依序執行：
-
-```bash
-docker compose exec django python3 manage.py makemigrations
-docker compose exec django python3 manage.py migrate
-```
-
 ---
 
 ## Testing
