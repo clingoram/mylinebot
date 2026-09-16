@@ -47,15 +47,16 @@ def _fetch_api_data(stock_id: str,db_cache: dict[str, HotStock] | None = None) -
 
     import yfinance as yf
     '''
-        負責call API拿原始英文資料
-        取得https://github.com/ranaroussi/yfinance 資料
-        https://finance.yahoo.com/
-    
-        但這資料是英文，部份須轉換成中文
-    
-        yfinance 台股代碼後面須加上.TW或.TWO，例如：1234.TW
+    負責call API拿原始英文資料
+    取得https://github.com/ranaroussi/yfinance 資料
+    https://finance.yahoo.com/
+
+    但這資料是英文，部份須轉換成中文
+
+    yfinance 台股代碼後面須加上.TW或.TWO，例如：1234.TW
     '''
 
+    # 有資料就從表裡拿，沒資料就調API並寫入表
     # 有傳cache就使用cache
     if db_cache is not None:
         find = db_cache.get(stock_id)

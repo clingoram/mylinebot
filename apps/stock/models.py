@@ -4,12 +4,12 @@ from django.db import models
 class HotStock(models.Model):
     '''
     熱門台股
-    id,stockId,stockName,suffix
+    id,stock_id,stock_name,suffix
 
     eg. 
     id:1
-    stockId:2330
-    stockName:xxx
+    stock_id:2330
+    stock_name:xxx
     suffix:TW
     '''
     stock_id = models.CharField(max_length=100,unique=True,blank=False)
@@ -22,10 +22,10 @@ class HotStock(models.Model):
 class FavoriteStock(models.Model):
     '''
     user收藏的stock
-    id,userAccount,stockId
+    id,user_account,stock_id
 
-    userAccount is relationship with id of table Person
-    stockId
+    user_account is relationship with id of table Person
+    stock_id
     '''
     user_account = models.ForeignKey('basic_info.person',db_column='user_account',db_comment='對應Person id',on_delete=models.CASCADE)
     # stockId = models.ForeignKey(HotStock, on_delete=models.CASCADE)
@@ -34,6 +34,7 @@ class FavoriteStock(models.Model):
 
     class Meta:
         db_table = 'favorite_stock'
+        # 同一個使用者（user_account）不能重複收藏同一檔股票（stock_id）
         constraints = [
             models.UniqueConstraint(
                 fields=["user_account", "stock_id"],
