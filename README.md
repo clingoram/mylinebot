@@ -1,8 +1,8 @@
 # mylinebot
 
-一個使用**Django**開發的LINE Bot，提供天氣查詢、股票追蹤與新聞整合功能。
+使用**Django**開發的LINE Bot，提供天氣查詢、股票追蹤與新聞整合功能。
 
-使用者可以透過LINE查詢天氣資訊、取得新聞及追蹤個股。系統整合多個外部API與資料來源，並使用**LINE Flex Message**呈現資訊。
+使用者可以使用LINE查詢天氣資訊、取得新聞及追蹤個股。系統整合多個外部API與資料來源，並使用**LINE Flex Message**呈現資訊。
 
 本專案使用**Docker Compose**整合Django、PostgreSQL與ngrok，並透過啟動腳本自動取得ngrok URL、更新LINE Webhook。因此開發時不需要另外建立Python虛擬環境、手動啟動ngrok或在每次重新啟動後手動設定Webhook
 
@@ -146,7 +146,6 @@ All tests passed successfully.
 <!-- ![image](https://github.com/clingoram/mylinebot/blob/master/images/news.jpeg "新聞") -->
 
 <!-- ![image](https://github.com/clingoram/mylinebot/blob/master/images/search_stock.jpeg "查詢股票並加入追蹤名單") -->
-
 
 <img src="https://github.com/clingoram/mylinebot/blob/master/images/stock_reply_search.jpeg" alt="查詢股票" width="300" height="500">
 <!-- ![image](https://github.com/clingoram/mylinebot/blob/master/images/stock_reply_search.jpeg "查詢股票") -->
