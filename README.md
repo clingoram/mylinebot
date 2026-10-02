@@ -100,31 +100,31 @@ All tests passed successfully.
 
 ### Backend
 
-- **Python**
-- **Django**
-- **LINE Messaging API / LINE Bot SDK**
+- Python
+- Django
+- LINE Messaging API / LINE Bot SDK
 
 ### Database
 
-- **PostgreSQL**
+- PostgreSQL
 
 ### Data & Integration
 
-- **yfinance** — 取得股票價格、漲跌幅等市場資訊
-- **Beautiful Soup** — 取得新聞
-- **中央氣象署 Open Data API** — 取得天氣資訊
+- yfinance — 取得股票價格、漲跌幅等市場資訊
+- Beautiful Soup — 取得新聞
+- 中央氣象署 Open Data API — 取得天氣資訊
 
 ### Infrastructure
 
-- **Docker**
-- **Docker Compose**
-- **ngrok**
+- Docker
+- Docker Compose
+- ngrok
 
 ### Testing & CI
 
-- **Django Test**
-- **unittest.mock**
-- **GitHub Actions**
+- Django Test
+- unittest.mock
+- GitHub Actions
 
 ---
 
